@@ -1,0 +1,728 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next muse" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="最近在公司遇到了把一个几十G的虚拟机镜像文件分发到10来台机器上的问题，前期基础设施没有搭建好到后来就是会比较痛，如果这些机器用puppet或者chef管理起来了的话这事儿或许会好办一些。
+首先当然不能手动一台一台拷贝。
+其次也不能同时向这十几台机器，因为：
+
+假定文件size是S，出口带宽是B，机器数目是C，
+那么分发时间是S/(B/C)，等于(S/B)*C，还是相当于一台一台拷贝的速度
+
+有没">
+<meta property="og:type" content="article">
+<meta property="og:title" content="向多台机器分发文件 - bounce">
+<meta property="og:url" content="https://post.lxd.me/2014-07-25-bounce/index.html">
+<meta property="og:site_name" content="Thoughts, notes and collections">
+<meta property="og:description" content="最近在公司遇到了把一个几十G的虚拟机镜像文件分发到10来台机器上的问题，前期基础设施没有搭建好到后来就是会比较痛，如果这些机器用puppet或者chef管理起来了的话这事儿或许会好办一些。
+首先当然不能手动一台一台拷贝。
+其次也不能同时向这十几台机器，因为：
+
+假定文件size是S，出口带宽是B，机器数目是C，
+那么分发时间是S/(B/C)，等于(S/B)*C，还是相当于一台一台拷贝的速度
+
+有没">
+<meta property="og:image" content="https://post.lxd.me/images/bounce-is-faster-figure.png">
+<meta property="og:updated_time" content="2017-01-25T06:52:24.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="向多台机器分发文件 - bounce">
+<meta name="twitter:description" content="最近在公司遇到了把一个几十G的虚拟机镜像文件分发到10来台机器上的问题，前期基础设施没有搭建好到后来就是会比较痛，如果这些机器用puppet或者chef管理起来了的话这事儿或许会好办一些。
+首先当然不能手动一台一台拷贝。
+其次也不能同时向这十几台机器，因为：
+
+假定文件size是S，出口带宽是B，机器数目是C，
+那么分发时间是S/(B/C)，等于(S/B)*C，还是相当于一台一台拷贝的速度
+
+有没">
+<meta name="twitter:image" content="https://post.lxd.me/images/bounce-is-faster-figure.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://post.lxd.me/2014-07-25-bounce/"/>
+
+
+
+
+
+  <title> 向多台机器分发文件 - bounce | Thoughts, notes and collections </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-53165668-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Thoughts, notes and collections</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://post.lxd.me/2014-07-25-bounce/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="lxd">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/uploads/alex-alice.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Thoughts, notes and collections">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Thoughts, notes and collections" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                向多台机器分发文件 - bounce
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-07-25T11:55:00+08:00">
+              2014-07-25
+            </time>
+
+            &nbsp;|&nbsp;
+
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-check-o"></i>
+            </span>
+            <time title="Post modified" itemprop="dateModified" datetime="2017-01-25T14:52:24+08:00">
+              2017-01-25
+            </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/tech/" itemprop="url" rel="index">
+                    <span itemprop="name">tech</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2014-07-25-bounce/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2014-07-25-bounce/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近在公司遇到了把一个几十G的虚拟机镜像文件分发到10来台机器上的问题，前期基础设施没有搭建好到后来就是会比较痛，如果这些机器用puppet或者chef管理起来了的话这事儿或许会好办一些。</p>
+<p>首先当然不能手动一台一台拷贝。</p>
+<p>其次也不能同时向这十几台机器，因为：</p>
+<ul>
+<li>假定文件size是S，出口带宽是B，机器数目是C，</li>
+<li>那么分发时间是S/(B/C)，等于(S/B)*C，还是相当于一台一台拷贝的速度</li>
+</ul>
+<p>有没有更快的方案？<br><br><br>很自然的我们想到了非常高大上P2P方案，这个业界传说facebook和Twitter都在用，用一个定制版的BitTorrent向他们的上千台线上服务器做部署。其实最早听说facebook在用了，但是没有开源出来，Twitter虽然听说的晚，但是却开源了他们的项目，叫<a href="https://github.com/lg/murder" target="_blank" rel="external">Murder</a>，赞Twitter。</p>
+<p>因为BT协议的基本原理是把文件打散成块，多台peer机器之间频繁交换文件块。一个文件块从拥有文件的母体机器传输到另外几台机器之后，没有这个文件块的机器就可以从这几台机器去取文件而不仅仅只是从母体去取，复用程度大大提高，粗粗感觉一下似乎确实会快很多。</p>
+<p>Murder是用Python写的，因为用到了Python的BitTorrent库BitTornado。然后在外面用Capistrano做了包装，可以敲cap做部署，也可以直接调用作者写的python脚本（<a href="https://github.com/lg/murder/tree/master/dist），参见[这篇博客]。" target="_blank" rel="external">https://github.com/lg/murder/tree/master/dist），参见[这篇博客]。</a></p>
+<p>这种方案我试了一下，还是慢，无论是用Murder还是用MlDonkey做种用原生的BitTorrent，原因是用BT在我的环境下传输速率本身就慢，占不满带宽，我也懒得深究为什么了，决定采用B计划。</p>
+<p><br><br>B计划跟BT协议类似，但是不再把文件打散成块了：先把文件从最开始的机器A拷贝给机器B，然后机器A和机器B同时向机器C和机器D拷贝，如此下去。。。因为同时拷贝的机器是呈指数级别上升的，所以越到后来分发速度还是挺客观的呵呵，但是起步时分发速度还是太慢。</p>
+<p>怎么证明这种方式最起码会比从一台机器同时向十几台机器拷贝快呢？如下图所示</p>
+<p><img src="/images/bounce-is-faster-figure.png" alt="bounce is faster"></p>
+<p>横轴是机器数量C，纵轴是size为S的文件从一台机器占满带宽B传输到另一台机器所需的时间T（T=S/B）。</p>
+<ul>
+<li>用一台机器同时向其他机器分发的方法，花费时间和机器数量成正比，很好理解。</li>
+<li>用B计划的话当只有有一台机器接收文件的时候需要一次对拷，花费时间T；当有两台机器的时候需要两次对拷，花费时间2T；当有三台机器的时候还是两次对拷，2T，如此这般，把线连接起来就是对数曲线，只要机器数大于两台就能保证这种方法更快。</li>
+</ul>
+<p><br><br>用B计划的话就终于免不了IPC了，因为文件从母体A传输到机器B之后机器B得想办法告知机器A我收到文件了，可以作为新的母体向别的机器传播文件了，并且在原始母体机器上得有一个主控程序来控制整个分发流程的完成。</p>
+<p>我设计的分发算法简单来说是这样的：</p>
+<ul>
+<li>首先有三个集合set0，set1和set2，set0里包含已经持有完整文件可以向别的host分发的的host，set1包含没有文件待分发的host，set2包含正在发送或接收的host，初始状态是这样的：<ul>
+<li>set0 = {A}</li>
+<li>set1 = {B, C, D, E, F, G}</li>
+<li>set2 = {}</li>
+</ul>
+</li>
+<li>从set0中pick出一个host作为发送方，从set1中pick出一个host作为接收方，讲这两个host放入set2，然后执行拷贝<ul>
+<li>set0 = {}</li>
+<li>set1 = {C, D, E, F, G}</li>
+<li>set2 = {A, B}</li>
+</ul>
+</li>
+<li>重复上面这个过程直到：<ul>
+<li>当set1为空并且set2为空时分发结束</li>
+<li>当set1为空但是set2不为空时说明正在执行最后一轮对拷，等待</li>
+<li>当set0为空时说明没有足够的母体，等待</li>
+</ul>
+</li>
+<li>当某次传输完成后将发送方host和接收方host都从set2中取出来放进set0，然后重新触发上面的过程</li>
+</ul>
+<p><br><br><br>代码我用node实现，在github上，叫<a href="https://github.com/lxdcn/bounce" target="_blank" rel="external">bounce</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014-07-24-running-powershell-in-parallel/" rel="next" title="在PowerShell里并行执行脚本">
+                <i class="fa fa-chevron-left"></i> 在PowerShell里并行执行脚本
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014-09-04-using-osx-say-command-to-make-nagios-alert-speak/" rel="prev" title="用OSX的say命令让Nagios报警叫出来">
+                用OSX的say命令让Nagios报警叫出来 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/alex-alice.png"
+               alt="lxd" />
+          <p class="site-author-name" itemprop="name">lxd</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">16</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lxd</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'post-lxd-me';
+      var disqus_identifier = '2014-07-25-bounce/';
+
+      var disqus_title = "向多台机器分发文件 - bounce";
+
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        var disqus_config = function () {
+            this.page.url = disqus_url;
+            this.page.identifier = disqus_identifier;
+            this.page.title = disqus_title;
+        };
+        run_disqus_script('embed.js');
+      
+
+    </script>
+  
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
