@@ -253,6 +253,201 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://post.lxd.me/2015-12-07-spring-data-jpa-internals/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="lxd">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/uploads/alex-alice.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Thoughts, notes and collections">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Thoughts, notes and collections" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2015-12-07-spring-data-jpa-internals/" itemprop="url">
+                  Spring Data JPA 技术分析
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-07T12:34:56+08:00">
+              2015-12-07
+            </time>
+
+            &nbsp;|&nbsp;
+
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-check-o"></i>
+            </span>
+            <time title="Post modified" itemprop="dateModified" datetime="2017-01-25T14:52:40+08:00">
+              2017-01-25
+            </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/tech/" itemprop="url" rel="index">
+                    <span itemprop="name">tech</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2015-12-07-spring-data-jpa-internals/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015-12-07-spring-data-jpa-internals/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>在另一篇介绍Spring的文章<sup>[<a href="!--￼2--&gt;/collections/2015/12/01/spring-introduction/">1</a>]</sup>里我介绍了Spring Data JPA，借助Spring Data JPA，对数据库做CRUD需要简单的四步操作：先创建数据库表和Java entity类；声明一个接口<code>ItemRepository</code>继承<code>CrudRepository</code>；再在接口<code>ItemRepository</code>里声明Query Method<code>findByName</code>；最后把<code>ItemRepository</code>注入到我们需要用到的地方，调用就可以了。</p>
+<p>这篇文章再深入一点，解释/分析一下Spring在背后做了什么；为什么作为一个Spring用户，我们声明一个接口，在接口里声明一个方法，我们就可以调用这个方法了操作数据库了？</p>
+<p>先从Spring AOP说起。</p>
+<h3 id="Spring-AOP-Proxy"><a href="#Spring-AOP-Proxy" class="headerlink" title="Spring AOP Proxy"></a>Spring AOP Proxy</h3><p>AOP（面向切面编程，Aspect-Oriented Programming），是Java里常用的一个编程范式。OOP对逻辑和数据做了一定程度的封装，但是当应用运行起来之后，从数据流的角度来看，数据是从一个类实例流到另一个实例，是链式的，我们编写的业务逻辑也是在一条条调用链上做文章。而AOP则是从另一个维度做文章：比如说原来的模块划分，或者调用链是纵向的，那么AOP是从横向切入，把纵向维度中共性的部分，比如logging、auth、cache，抽取出来，并且用IoC<sup>[<a href="https://en.wikipedia.org/wiki/Inversion_of_control" target="_blank" rel="external">2</a>]</sup>的思想，由抽取出来的<code>aspect</code>承担匹配和执行的责任，原来的业务逻辑不需要添加/改动任何代码。</p>
+<p>举例来说，AOP可以做这样的事情：“让一个Web应用中所有Controller的POST方法执行之前打一条log”。抽取出来做这件事情的模块称为<code>aspect</code>，描述匹配到“所有Controller的POST方法”的谓词称为<code>pointcut</code>，“打log”这样的行为称为<code>advice</code>。</p>
+<p>AspectJ是这个Java里AOP鼻祖老爷，Spring AOP兼容了一部分AspectJ的annotation，但核心还是Spring自己的，这个核心就是AOP proxy。比如我们有一个接口<code>Pojo</code>和它的实现<code>SimplePojo</code>，当没有proxy的时候，调用<code>SimplePojo</code>的<code>foo</code>方法是这样的：</p>
+<p><img src="/images/aop-proxy-plain-pojo-call.png" alt="Plain POJO call without Proxy"></p>
+<p>当我们创建一个<code>SimplePojo</code>的proxy之后，调用这个proxy的<code>foo</code>方法的是这样的：</p>
+<p><img src="/images/aop-proxy-call.png" alt="AOPproxy"><br>（两张图片都来自Spring官方文档）</p>
+<p>即proxy“代理”了对原对象原方法的调用，在这个代理的过程中我们可以执行<code>advice</code>，比如Spring AOP中的方法拦截器。下面的代码演示了如何用Spring AOP的底层API创建一个proxy。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">I</span> </span>&#123;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">C</span> <span class="keyword">implements</span> <span class="title">I</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">m</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="string">"m in C"</span>; &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">I2</span> <span class="keyword">extends</span> <span class="title">I</span> </span>&#123;</div><div class="line">    <span class="function">String <span class="title">m</span><span class="params">()</span></span>;</div><div class="line">    <span class="function">String <span class="title">m2</span><span class="params">()</span></span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">proxyDemo</span><span class="params">()</span> </span>&#123;</div><div class="line">        ProxyFactory result = <span class="keyword">new</span> ProxyFactory();</div><div class="line"></div><div class="line">        result.setTarget(<span class="keyword">new</span> C());</div><div class="line">        result.setInterfaces(I2.class);</div><div class="line">        result.addAdvice(<span class="keyword">new</span> MethodInterceptor() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(MethodInvocation invocation)</span> <span class="keyword">throws</span> Throwable </span>&#123;</div><div class="line">                <span class="keyword">if</span> (invocation.getMethod().getName().equals(<span class="string">"m2"</span>)) &#123;</div><div class="line">                    <span class="keyword">return</span> <span class="string">"m2 in proxy"</span>;</div><div class="line">                &#125;</div><div class="line">                <span class="keyword">return</span> invocation.getThis().getClass().getMethod(invocation.getMethod().getName()).invoke(invocation.getThis());</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">        I2 proxy = (I2) result.getProxy();</div><div class="line"></div><div class="line">        System.out.println(proxy.m());   <span class="comment">//Output: `m in C'</span></div><div class="line">        System.out.println(proxy.m2());  <span class="comment">//Output: `m2 in proxy'</span></div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>首先声明一个接口<code>I</code>；类<code>C</code>实现接口<code>I</code>的同时自己定义了一个方法<code>m()</code>；接口<code>I2</code>继承<code>I</code>并声明了方法<code>m()</code>和方法<code>m2()</code>。ProxyFactory是Spring AOP的proxy工厂类，实例化之后，设置proxy的target为<code>C</code>的实例，要代理的接口为<code>I2</code>，然后添加一个方法拦截器。</p>
+<p>方法拦截器是一个接口，我们实例化的匿名内部类的<code>invoke()</code>方法就是这个拦截器的回调。当调用的方法名字是<code>m2</code>的时候，拦截器直接返回一个字符串<code>m2 in proxy</code>。当调用的方法名字是<code>m</code>的时候，通过反射获取到target（<code>C</code>的实例）的<code>m()</code>方法，调用执行。<br><br><br>介绍了Spring AOP Proxy之后，就可以解释一开始那个问题的前半部分了——为什么在我们只声明了一个接口和方法的情况下，这个方法可以被调用到？事实上上面的demo已经基本上了回答了这个问题，接下来我把各部分逻辑对应到Spring Data JPA上。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ItemRepository</span> <span class="keyword">extends</span> <span class="title">CrudRepository</span>&lt;<span class="title">Item</span>, <span class="title">String</span>&gt; </span>&#123;</div><div class="line">    <span class="function">List&lt;Item&gt; <span class="title">findByName</span><span class="params">(String name)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>Spring在创建的名为<code>itemRepository</code>的bean，就是一个proxy，这个proxy在<code>RepositoryFactorySupport</code>里完成了初始化和配置<sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L177" target="_blank" rel="external">3</a>]</sup>；Proxy的target是<code>SimpleJpaRepository</code><sup>[<a href="https://github.com/spring-projects/spring-data-jpa/blob/fda74889de51e586bfa22033aed0affb6f7f4c76/src/main/java/org/springframework/data/jpa/repository/support/SimpleJpaRepository.java" target="_blank" rel="external">4</a>]</sup>，它用<code>EntityManager</code>实现了<code>CrudRepository</code>里的基本CRUD方法；Proxy的代理接口即<code>ItemRepository</code>和<code>Repository</code><sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L190" target="_blank" rel="external">5</a>]</sup>；Proxy添加了多个方法拦截器，处理自定义Query Method的拦截器是<sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L375" target="_blank" rel="external">6</a>]</sup>，这个拦截器在构造函数里遍历<code>ItemRepository</code>里的Query Method，创建一个<code>RepositoryQuery</code>对象放到一个map中<sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L461" target="_blank" rel="external">7</a>]</sup>。</p>
+<p>当我们的代码调用到<code>itemRepository.findByName()</code>的时候，即进入到方法拦截器的<code>invoke</code>方法<sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L438" target="_blank" rel="external">8</a>]</sup>，拦截器首先判断是不是Query Method<sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L461" target="_blank" rel="external">9</a>]</sup>，如果是的话就取出<code>RepositoryQuery</code>对象带参数执行，不是的话调用<code>SimpleJpaRepository</code>里的方法<sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L467" target="_blank" rel="external">10</a>]</sup>。</p>
+<h3 id="Mini-Parser"><a href="#Mini-Parser" class="headerlink" title="Mini Parser"></a>Mini Parser</h3><p>下面接着继续分析开题问题的第二部分，为什么我们只声明一个<code>findByName</code>的方法，Spring就知道如何去查询数据库了？</p>
+<p>事实上细细想来这个并不特别神奇，我们在声明query methods的时候，是需要遵循规范的<sup>[<a href="http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.query-methods.query-creation" target="_blank" rel="external">11</a>]</sup>，既然我们定义方法遵循了规范，Spring基于同样的规范，用一个parser解析这个方法名，就能生成JPA的查询对象。</p>
+<p>我们在前面提到Spring会根据<code>ItemRepository</code>里的Query Method，创建一个<code>RepositoryQuery</code>对象<sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L461" target="_blank" rel="external">7</a>]</sup>，这个对象就是一个迷你的parser解析query method方法名的结果，解析的入口在<sup>[<a href="https://github.com/spring-projects/spring-data-jpa/blob/master/src/main/java/org/springframework/data/jpa/repository/query/JpaQueryLookupStrategy.java#L95" target="_blank" rel="external">12</a>]</sup>。</p>
+<p>这个mini parser是自顶向下解析的，最顶上的节点类是<code>PartTree</code><sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/query/parser/PartTree.java#L76" target="_blank" rel="external">13</a>]</sup>，它包含两个字段/子节点，<code>subject</code>和<code>predicate</code>。<code>subject</code>表示要查询的结果，<code>predicate</code>表示查询的条件。比如对于<code>findByName</code>，<code>subject</code>为空，<code>predicate</code>为<code>Name</code>；再比如稍微复杂一点的<code>findDistinctUserByNameOrderByAge</code>，subject是<code>DistinctUser</code>，predicate是<code>NameOrderByAge</code>。</p>
+<p><code>Subject</code>有3个boolean属性，分别是<code>distinct</code>，<code>count</code>，<code>delete</code>，<code>maxResults</code><sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/query/parser/PartTree.java#L275" target="_blank" rel="external">14</a>]</sup>，如果query带了<code>Distinct``distinct</code>就是true，count方法<code>count</code>为true，delete方法<code>delete</code>为true。<code>maxResults</code>是limit查询的值，如<code>findFirst10ByLastname</code>。</p>
+<p><code>Predicate</code>有一个ArrayList<code>nodes</code>包含以<code>Or</code>split后的节点<code>OrPart</code>，还有一个<code>orderBySource</code>包含用<code>OrderBy</code>split的排序节点<sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/query/parser/PartTree.java#L345" target="_blank" rel="external">15</a>]</sup>。</p>
+<p>……</p>
+<p><code>OrPart</code>节点往后不再赘述推导规则了，最后，定义一个比较复杂的方法看一下AST。对于<code>findDistinctByStateAndCountryLikeOrMapAllIgnoringCaseOrderByNameDesc</code>，AST如下图</p>
+<p><img src="/images/ast-of-a-long-query-method.png" alt="AST of a long Query Method"></p>
+<p>有了AST之后，Spring Data再调用JPA的接口创建<code>Predicate</code>对象、<code>CriteriaQuery</code>对象等，交给JPA查询DB<sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/query/parser/AbstractQueryCreator.java#L98" target="_blank" rel="external">16</a>]</sup>。</p>
+<p>这个规则和parser都很简陋，很容易出现二义的情况，如果遇到这样的情况，就不一定非要苦苦纠结于解析规则了，它目的毕竟还是为了给用户提供方便，如果不能很方便的提供方便，那就给字段改个名儿，或者改用Named Query<sup>[<a href="http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#jpa.query-methods.named-queries" target="_blank" rel="external">17</a>]</sup>。</p>
+<p><br><br></p>
+<p>参考资料：</p>
+<ul>
+<li><a href="http://docs.spring.io/spring-data/jpa/docs/current/reference/html/" target="_blank" rel="external">http://docs.spring.io/spring-data/jpa/docs/current/reference/html/</a></li>
+<li><a href="http://docs.spring.io/spring/docs/current/spring-framework-reference/html/aop-api.html" target="_blank" rel="external">http://docs.spring.io/spring/docs/current/spring-framework-reference/html/aop-api.html</a></li>
+<li>[1]<a href="http://post.lxd.me/2015-12-01-spring-introduction/">http://post.lxd.me/2015-12-01-spring-introduction/</a></li>
+<li>[2]（控制反转的思想，不特指Spring DI） <a href="https://en.wikipedia.org/wiki/Inversion_of_control" target="_blank" rel="external">https://en.wikipedia.org/wiki/Inversion_of_control</a></li>
+<li>[3]<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L177" target="_blank" rel="external">https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L177</a></li>
+<li>[4]<a href="https://github.com/spring-projects/spring-data-jpa/blob/fda74889de51e586bfa22033aed0affb6f7f4c76/src/main/java/org/springframework/data/jpa/repository/support/SimpleJpaRepository.java" target="_blank" rel="external">https://github.com/spring-projects/spring-data-jpa/blob/fda74889de51e586bfa22033aed0affb6f7f4c76/src/main/java/org/springframework/data/jpa/repository/support/SimpleJpaRepository.java</a></li>
+<li>[5]<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L190" target="_blank" rel="external">https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L190</a></li>
+<li>[6]<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L375" target="_blank" rel="external">https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L375</a></li>
+<li>[7]<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L461" target="_blank" rel="external">https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L461</a></li>
+<li>[8]<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L438" target="_blank" rel="external">https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L438</a></li>
+<li>[9]<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L461" target="_blank" rel="external">https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L461</a></li>
+<li>[10]<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L467" target="_blank" rel="external">https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L467</a></li>
+<li>[11]<a href="http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.query-methods.query-creation" target="_blank" rel="external">http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.query-methods.query-creation</a></li>
+<li>[12]<a href="https://github.com/spring-projects/spring-data-jpa/blob/master/src/main/java/org/springframework/data/jpa/repository/query/JpaQueryLookupStrategy.java#L95" target="_blank" rel="external">https://github.com/spring-projects/spring-data-jpa/blob/master/src/main/java/org/springframework/data/jpa/repository/query/JpaQueryLookupStrategy.java#L95</a></li>
+<li>[13]<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/query/parser/PartTree.java#L76" target="_blank" rel="external">https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/query/parser/PartTree.java#L76</a></li>
+<li>[14]<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/query/parser/PartTree.java#L275" target="_blank" rel="external">https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/query/parser/PartTree.java#L275</a></li>
+<li>[15]<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/query/parser/PartTree.java#L345" target="_blank" rel="external">https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/query/parser/PartTree.java#L345</a></li>
+<li>[17]<a href="http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#jpa.query-methods.named-queries" target="_blank" rel="external">http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#jpa.query-methods.named-queries</a></li>
+<li>[16]<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/query/parser/AbstractQueryCreator.java#L98" target="_blank" rel="external">https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/query/parser/AbstractQueryCreator.java#L98</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="https://post.lxd.me/2015-12-01-spring-introduction/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1520,7 +1715,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">17</span>
+              <span class="site-state-item-count">18</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
