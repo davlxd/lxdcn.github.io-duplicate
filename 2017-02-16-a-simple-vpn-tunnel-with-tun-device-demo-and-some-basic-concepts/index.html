@@ -1,0 +1,676 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next muse" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="As you may already know, VPN stands for Virtual Private Network, namely it is a private network, with many components being virtualized. From a user’s perspective, all we need is a virtual network int">
+<meta property="og:type" content="article">
+<meta property="og:title" content="A simple VPN (tunnel with tun device) demo and some basic concepts">
+<meta property="og:url" content="https://post.lxd.me/2017-02-16-a-simple-vpn-tunnel-with-tun-device-demo-and-some-basic-concepts/index.html">
+<meta property="og:site_name" content="Thoughts, notes and collections">
+<meta property="og:description" content="As you may already know, VPN stands for Virtual Private Network, namely it is a private network, with many components being virtualized. From a user’s perspective, all we need is a virtual network int">
+<meta property="og:image" content="https://post.lxd.me/images/tunnel-demo-0.png">
+<meta property="og:image" content="https://post.lxd.me/images/tunnel-demo-1.png">
+<meta property="og:updated_time" content="2017-02-16T07:52:14.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="A simple VPN (tunnel with tun device) demo and some basic concepts">
+<meta name="twitter:description" content="As you may already know, VPN stands for Virtual Private Network, namely it is a private network, with many components being virtualized. From a user’s perspective, all we need is a virtual network int">
+<meta name="twitter:image" content="https://post.lxd.me/images/tunnel-demo-0.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://post.lxd.me/2017-02-16-a-simple-vpn-tunnel-with-tun-device-demo-and-some-basic-concepts/"/>
+
+
+
+
+
+  <title> A simple VPN (tunnel with tun device) demo and some basic concepts | Thoughts, notes and collections </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-53165668-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Thoughts, notes and collections</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://post.lxd.me/2017-02-16-a-simple-vpn-tunnel-with-tun-device-demo-and-some-basic-concepts/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="lxd">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/uploads/alex-alice.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Thoughts, notes and collections">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Thoughts, notes and collections" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                A simple VPN (tunnel with tun device) demo and some basic concepts
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-02-16T12:34:56+08:00">
+              2017-02-16
+            </time>
+
+            &nbsp;|&nbsp;
+
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-check-o"></i>
+            </span>
+            <time title="Post modified" itemprop="dateModified" datetime="2017-02-16T15:52:14+08:00">
+              2017-02-16
+            </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/tech/" itemprop="url" rel="index">
+                    <span itemprop="name">tech</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017-02-16-a-simple-vpn-tunnel-with-tun-device-demo-and-some-basic-concepts/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017-02-16-a-simple-vpn-tunnel-with-tun-device-demo-and-some-basic-concepts/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>As you may already know, VPN stands for Virtual Private Network, namely it is a private network, with many components being virtualized. From a user’s perspective, all we need is a virtual network interface (e.g. <code>/dev/tun0</code>) on my device and configure my routing table to route all or part of traffic going through that interface, but what happens then? This post provides a demo revealing some implementation details after the virtual network interface - <strong>tunneling</strong>, the code is <a href="https://github.com/lxdcn/simple-vpn-demo" target="_blank" rel="external">here</a>.</p>
+<p>In a nutshell, the process for client side tunneling is:</p>
+<ol>
+<li>Open an UDP socket whose other side is the server.</li>
+<li>Create the <code>tun</code> device, configure it and bring it up.</li>
+<li>Configure routing table.</li>
+<li>Read packets from <code>tun</code> device, encrypt, send to server via socket created in 1st step; And read from the socket, decrypt, write back to <code>tun</code> device. This step goes on and on.</li>
+</ol>
+<p><img src="/images/tunnel-demo-0.png" alt="image"></p>
+<p><br></p>
+<p>The following code snippet creates the UDP socket, which is basic UNIX network programming.<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">udp_bind</span><span class="params">(<span class="keyword">struct</span> sockaddr *addr, <span class="keyword">socklen_t</span>* addrlen)</span> </span>&#123;</div><div class="line">  <span class="keyword">struct</span> addrinfo hints;</div><div class="line">  <span class="keyword">struct</span> addrinfo *result;</div><div class="line">  <span class="keyword">int</span> sock, flags;</div><div class="line"></div><div class="line">  <span class="built_in">memset</span>(&amp;hints, <span class="number">0</span>, <span class="keyword">sizeof</span>(hints));</div><div class="line">  hints.ai_socktype = SOCK_DGRAM;</div><div class="line">  hints.ai_protocol = IPPROTO_UDP;</div><div class="line"></div><div class="line">  <span class="keyword">const</span> <span class="keyword">char</span> *host = SERVER_HOST;</div><div class="line"></div><div class="line">  <span class="keyword">if</span> (<span class="number">0</span> != getaddrinfo(host, <span class="literal">NULL</span>, &amp;hints, &amp;result)) &#123;</div><div class="line">    perror(<span class="string">"getaddrinfo error"</span>);</div><div class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">if</span> (result-&gt;ai_family == AF_INET)</div><div class="line">    ((<span class="keyword">struct</span> sockaddr_in *)result-&gt;ai_addr)-&gt;sin_port = htons(PORT);</div><div class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (result-&gt;ai_family == AF_INET6)</div><div class="line">    ((<span class="keyword">struct</span> sockaddr_in6 *)result-&gt;ai_addr)-&gt;sin6_port = htons(PORT);</div><div class="line"></div><div class="line">  <span class="built_in">memcpy</span>(addr, result-&gt;ai_addr, result-&gt;ai_addrlen);</div><div class="line">  *addrlen = result-&gt;ai_addrlen;</div><div class="line"></div><div class="line">  <span class="keyword">if</span> (<span class="number">-1</span> == (sock = socket(result-&gt;ai_family, SOCK_DGRAM, IPPROTO_UDP))) &#123;</div><div class="line">    perror(<span class="string">"Cannot create socket"</span>);</div><div class="line">    freeaddrinfo(result);</div><div class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">if</span> (<span class="number">0</span> != bind(sock, result-&gt;ai_addr, result-&gt;ai_addrlen)) &#123;</div><div class="line">    perror(<span class="string">"Cannot bind"</span>);</div><div class="line">    close(sock);</div><div class="line">    freeaddrinfo(result);</div><div class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  freeaddrinfo(result);</div><div class="line"></div><div class="line">  flags = fcntl(sock, F_GETFL, <span class="number">0</span>);</div><div class="line">  <span class="keyword">if</span> (flags != <span class="number">-1</span>) &#123;</div><div class="line">    <span class="keyword">if</span> (<span class="number">-1</span> != fcntl(sock, F_SETFL, flags | O_NONBLOCK))</div><div class="line">      <span class="keyword">return</span> sock;</div><div class="line">  &#125;</div><div class="line">  perror(<span class="string">"fcntl error"</span>);</div><div class="line"></div><div class="line">  close(sock);</div><div class="line">  <span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><br><br>The following code “clone” a new virtual interface named “tun0” from “/dev/net/tun”. <code>IFF_TUN</code> illustrates this virtual interface works on network layer while <code>IFF_TAP</code> will make the interface work on data link layer.<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">tun_alloc</span><span class="params">()</span> </span>&#123;</div><div class="line">  <span class="keyword">struct</span> ifreq ifr;</div><div class="line">  <span class="keyword">int</span> fd, e;</div><div class="line"></div><div class="line">  <span class="keyword">if</span> ((fd = open(<span class="string">"/dev/net/tun"</span>, O_RDWR)) &lt; <span class="number">0</span>) &#123;</div><div class="line">    perror(<span class="string">"Cannot open /dev/net/tun"</span>);</div><div class="line">    <span class="keyword">return</span> fd;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="built_in">memset</span>(&amp;ifr, <span class="number">0</span>, <span class="keyword">sizeof</span>(ifr));</div><div class="line"></div><div class="line">  ifr.ifr_flags = IFF_TUN | IFF_NO_PI;</div><div class="line">  <span class="built_in">strncpy</span>(ifr.ifr_name, <span class="string">"tun0"</span>, IFNAMSIZ);</div><div class="line"></div><div class="line">  <span class="keyword">if</span> ((e = ioctl(fd, TUNSETIFF, (<span class="keyword">void</span> *) &amp;ifr)) &lt; <span class="number">0</span>) &#123;</div><div class="line">    perror(<span class="string">"ioctl[TUNSETIFF]"</span>);</div><div class="line">    close(fd);</div><div class="line">    <span class="keyword">return</span> e;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">return</span> fd;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><br><br>The following Linux commands route all traffic to the virtual interface, but with exception of packets with destination to VPN server, since tunneling data needs to go straight to VPN server through normal network interfaces. So the above illustration is inaccurate, it should be like this:<br><img src="/images/tunnel-demo-1.png" alt="image"><br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">setup_route_table</span><span class="params">()</span> </span>&#123;</div><div class="line">  run(<span class="string">"sysctl -w net.ipv4.ip_forward=1"</span>);</div><div class="line">  run(<span class="string">"iptables -t nat -A POSTROUTING -o tun0 -j MASQUERADE"</span>);</div><div class="line">  run(<span class="string">"iptables -I FORWARD 1 -i tun0 -m state --state RELATED,ESTABLISHED -j ACCEPT"</span>);</div><div class="line">  run(<span class="string">"iptables -I FORWARD 1 -o tun0 -j ACCEPT"</span>);</div><div class="line">  <span class="keyword">char</span> cmd[<span class="number">1024</span>];</div><div class="line">  <span class="built_in">snprintf</span>(cmd, <span class="keyword">sizeof</span>(cmd), <span class="string">"ip route add %s via $(ip route show 0/0 | sed -e 's/.* via \([^ ]*\).*/\1/')"</span>, SERVER_HOST);</div><div class="line">  run(cmd);</div><div class="line">  run(<span class="string">"ip route add 0/1 dev tun0"</span>);</div><div class="line">  run(<span class="string">"ip route add 128/1 dev tun0"</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><br><br>The following code snippet is the core packet switch algorithm. It reads packets from <code>tun</code> device, encrypt, send UDP socket; And read from UDP socket, decrypt, write to <code>tun</code> device. I used <code>select</code> multiplexing to monitor on these 2 fds.<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">char</span> tun_buf[MTU], udp_buf[MTU];</div><div class="line">  bzero(tun_buf, MTU);</div><div class="line">  bzero(udp_buf, MTU);</div><div class="line"></div><div class="line">  <span class="keyword">while</span> (<span class="number">1</span>) &#123;</div><div class="line">    fd_set readset;</div><div class="line">    FD_ZERO(&amp;readset);</div><div class="line">    FD_SET(tun_fd, &amp;readset);</div><div class="line">    FD_SET(udp_fd, &amp;readset);</div><div class="line">    <span class="keyword">int</span> max_fd = max(tun_fd, udp_fd) + <span class="number">1</span>;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (<span class="number">-1</span> == select(max_fd, &amp;readset, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>)) &#123;</div><div class="line">      perror(<span class="string">"select error"</span>);</div><div class="line">      <span class="keyword">break</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">int</span> r;</div><div class="line">    <span class="keyword">if</span> (FD_ISSET(tun_fd, &amp;readset)) &#123;</div><div class="line">      r = read(tun_fd, tun_buf, MTU);</div><div class="line">      <span class="keyword">if</span> (r &lt; <span class="number">0</span>) &#123;</div><div class="line">        perror(<span class="string">"read from tun_fd error"</span>);</div><div class="line">        <span class="keyword">break</span>;</div><div class="line">      &#125;</div><div class="line"></div><div class="line">      encrypt(tun_buf, udp_buf, r);</div><div class="line"></div><div class="line">      r = sendto(udp_fd, udp_buf, r, <span class="number">0</span>, (<span class="keyword">const</span> <span class="keyword">struct</span> sockaddr *)&amp;client_addr, client_addrlen);</div><div class="line">      <span class="keyword">if</span> (r &lt; <span class="number">0</span>) &#123;</div><div class="line">        perror(<span class="string">"sendto udp_fd error"</span>);</div><div class="line">        <span class="keyword">break</span>;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (FD_ISSET(udp_fd, &amp;readset)) &#123;</div><div class="line">      r = recvfrom(udp_fd, udp_buf, MTU, <span class="number">0</span>, (<span class="keyword">struct</span> sockaddr *)&amp;client_addr, &amp;client_addrlen);</div><div class="line">      <span class="keyword">if</span> (r &lt; <span class="number">0</span>) &#123;</div><div class="line">        perror(<span class="string">"recvfrom udp_fd error"</span>);</div><div class="line">        <span class="keyword">break</span>;</div><div class="line">      &#125;</div><div class="line"></div><div class="line">      decrypt(udp_buf, tun_buf, r);</div><div class="line"></div><div class="line">      r = write(tun_fd, tun_buf, r);</div><div class="line">      <span class="keyword">if</span> (r &lt; <span class="number">0</span>) &#123;</div><div class="line">        perror(<span class="string">"write tun_fd error"</span>);</div><div class="line">        <span class="keyword">break</span>;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line"></div></pre></td></tr></table></figure></p>
+<p><br><br>As a simple Point-to-Point VPN tunnel, server side code is almost identical to the client side since the core packet switch logic is the same. The complete code for both server side and client side is <a href="https://github.com/lxdcn/simple-vpn-demo" target="_blank" rel="external">here</a>. And iOS demo written in Swift 3 is <a href="https://github.com/lxdcn/NEPacketTunnelVPNDemo" target="_blank" rel="external">here</a>.</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017-02-08-disorder/" rel="next" title="分裂">
+                <i class="fa fa-chevron-left"></i> 分裂
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/alex-alice.png"
+               alt="lxd" />
+          <p class="site-author-name" itemprop="name">lxd</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">19</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lxd</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'post-lxd-me';
+      var disqus_identifier = '2017-02-16-a-simple-vpn-tunnel-with-tun-device-demo-and-some-basic-concepts/';
+
+      var disqus_title = "A simple VPN (tunnel with tun device) demo and some basic concepts";
+
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        var disqus_config = function () {
+            this.page.url = disqus_url;
+            this.page.identifier = disqus_identifier;
+            this.page.title = disqus_title;
+        };
+        run_disqus_script('embed.js');
+      
+
+    </script>
+  
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

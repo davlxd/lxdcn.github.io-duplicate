@@ -253,6 +253,167 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://post.lxd.me/2017-02-16-a-simple-vpn-tunnel-with-tun-device-demo-and-some-basic-concepts/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="lxd">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/uploads/alex-alice.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Thoughts, notes and collections">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Thoughts, notes and collections" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017-02-16-a-simple-vpn-tunnel-with-tun-device-demo-and-some-basic-concepts/" itemprop="url">
+                  A simple VPN (tunnel with tun device) demo and some basic concepts
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-02-16T12:34:56+08:00">
+              2017-02-16
+            </time>
+
+            &nbsp;|&nbsp;
+
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-check-o"></i>
+            </span>
+            <time title="Post modified" itemprop="dateModified" datetime="2017-02-16T15:52:14+08:00">
+              2017-02-16
+            </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/tech/" itemprop="url" rel="index">
+                    <span itemprop="name">tech</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017-02-16-a-simple-vpn-tunnel-with-tun-device-demo-and-some-basic-concepts/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017-02-16-a-simple-vpn-tunnel-with-tun-device-demo-and-some-basic-concepts/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>As you may already know, VPN stands for Virtual Private Network, namely it is a private network, with many components being virtualized. From a user’s perspective, all we need is a virtual network interface (e.g. <code>/dev/tun0</code>) on my device and configure my routing table to route all or part of traffic going through that interface, but what happens then? This post provides a demo revealing some implementation details after the virtual network interface - <strong>tunneling</strong>, the code is <a href="https://github.com/lxdcn/simple-vpn-demo" target="_blank" rel="external">here</a>.</p>
+<p>In a nutshell, the process for client side tunneling is:</p>
+<ol>
+<li>Open an UDP socket whose other side is the server.</li>
+<li>Create the <code>tun</code> device, configure it and bring it up.</li>
+<li>Configure routing table.</li>
+<li>Read packets from <code>tun</code> device, encrypt, send to server via socket created in 1st step; And read from the socket, decrypt, write back to <code>tun</code> device. This step goes on and on.</li>
+</ol>
+<p><img src="/images/tunnel-demo-0.png" alt="image"></p>
+<p><br></p>
+<p>The following code snippet creates the UDP socket, which is basic UNIX network programming.<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">udp_bind</span><span class="params">(<span class="keyword">struct</span> sockaddr *addr, <span class="keyword">socklen_t</span>* addrlen)</span> </span>&#123;</div><div class="line">  <span class="keyword">struct</span> addrinfo hints;</div><div class="line">  <span class="keyword">struct</span> addrinfo *result;</div><div class="line">  <span class="keyword">int</span> sock, flags;</div><div class="line"></div><div class="line">  <span class="built_in">memset</span>(&amp;hints, <span class="number">0</span>, <span class="keyword">sizeof</span>(hints));</div><div class="line">  hints.ai_socktype = SOCK_DGRAM;</div><div class="line">  hints.ai_protocol = IPPROTO_UDP;</div><div class="line"></div><div class="line">  <span class="keyword">const</span> <span class="keyword">char</span> *host = SERVER_HOST;</div><div class="line"></div><div class="line">  <span class="keyword">if</span> (<span class="number">0</span> != getaddrinfo(host, <span class="literal">NULL</span>, &amp;hints, &amp;result)) &#123;</div><div class="line">    perror(<span class="string">"getaddrinfo error"</span>);</div><div class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">if</span> (result-&gt;ai_family == AF_INET)</div><div class="line">    ((<span class="keyword">struct</span> sockaddr_in *)result-&gt;ai_addr)-&gt;sin_port = htons(PORT);</div><div class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (result-&gt;ai_family == AF_INET6)</div><div class="line">    ((<span class="keyword">struct</span> sockaddr_in6 *)result-&gt;ai_addr)-&gt;sin6_port = htons(PORT);</div><div class="line"></div><div class="line">  <span class="built_in">memcpy</span>(addr, result-&gt;ai_addr, result-&gt;ai_addrlen);</div><div class="line">  *addrlen = result-&gt;ai_addrlen;</div><div class="line"></div><div class="line">  <span class="keyword">if</span> (<span class="number">-1</span> == (sock = socket(result-&gt;ai_family, SOCK_DGRAM, IPPROTO_UDP))) &#123;</div><div class="line">    perror(<span class="string">"Cannot create socket"</span>);</div><div class="line">    freeaddrinfo(result);</div><div class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">if</span> (<span class="number">0</span> != bind(sock, result-&gt;ai_addr, result-&gt;ai_addrlen)) &#123;</div><div class="line">    perror(<span class="string">"Cannot bind"</span>);</div><div class="line">    close(sock);</div><div class="line">    freeaddrinfo(result);</div><div class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  freeaddrinfo(result);</div><div class="line"></div><div class="line">  flags = fcntl(sock, F_GETFL, <span class="number">0</span>);</div><div class="line">  <span class="keyword">if</span> (flags != <span class="number">-1</span>) &#123;</div><div class="line">    <span class="keyword">if</span> (<span class="number">-1</span> != fcntl(sock, F_SETFL, flags | O_NONBLOCK))</div><div class="line">      <span class="keyword">return</span> sock;</div><div class="line">  &#125;</div><div class="line">  perror(<span class="string">"fcntl error"</span>);</div><div class="line"></div><div class="line">  close(sock);</div><div class="line">  <span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><br><br>The following code “clone” a new virtual interface named “tun0” from “/dev/net/tun”. <code>IFF_TUN</code> illustrates this virtual interface works on network layer while <code>IFF_TAP</code> will make the interface work on data link layer.<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">tun_alloc</span><span class="params">()</span> </span>&#123;</div><div class="line">  <span class="keyword">struct</span> ifreq ifr;</div><div class="line">  <span class="keyword">int</span> fd, e;</div><div class="line"></div><div class="line">  <span class="keyword">if</span> ((fd = open(<span class="string">"/dev/net/tun"</span>, O_RDWR)) &lt; <span class="number">0</span>) &#123;</div><div class="line">    perror(<span class="string">"Cannot open /dev/net/tun"</span>);</div><div class="line">    <span class="keyword">return</span> fd;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="built_in">memset</span>(&amp;ifr, <span class="number">0</span>, <span class="keyword">sizeof</span>(ifr));</div><div class="line"></div><div class="line">  ifr.ifr_flags = IFF_TUN | IFF_NO_PI;</div><div class="line">  <span class="built_in">strncpy</span>(ifr.ifr_name, <span class="string">"tun0"</span>, IFNAMSIZ);</div><div class="line"></div><div class="line">  <span class="keyword">if</span> ((e = ioctl(fd, TUNSETIFF, (<span class="keyword">void</span> *) &amp;ifr)) &lt; <span class="number">0</span>) &#123;</div><div class="line">    perror(<span class="string">"ioctl[TUNSETIFF]"</span>);</div><div class="line">    close(fd);</div><div class="line">    <span class="keyword">return</span> e;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">return</span> fd;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><br><br>The following Linux commands route all traffic to the virtual interface, but with exception of packets with destination to VPN server, since tunneling data needs to go straight to VPN server through normal network interfaces. So the above illustration is inaccurate, it should be like this:<br><img src="/images/tunnel-demo-1.png" alt="image"><br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">setup_route_table</span><span class="params">()</span> </span>&#123;</div><div class="line">  run(<span class="string">"sysctl -w net.ipv4.ip_forward=1"</span>);</div><div class="line">  run(<span class="string">"iptables -t nat -A POSTROUTING -o tun0 -j MASQUERADE"</span>);</div><div class="line">  run(<span class="string">"iptables -I FORWARD 1 -i tun0 -m state --state RELATED,ESTABLISHED -j ACCEPT"</span>);</div><div class="line">  run(<span class="string">"iptables -I FORWARD 1 -o tun0 -j ACCEPT"</span>);</div><div class="line">  <span class="keyword">char</span> cmd[<span class="number">1024</span>];</div><div class="line">  <span class="built_in">snprintf</span>(cmd, <span class="keyword">sizeof</span>(cmd), <span class="string">"ip route add %s via $(ip route show 0/0 | sed -e 's/.* via \([^ ]*\).*/\1/')"</span>, SERVER_HOST);</div><div class="line">  run(cmd);</div><div class="line">  run(<span class="string">"ip route add 0/1 dev tun0"</span>);</div><div class="line">  run(<span class="string">"ip route add 128/1 dev tun0"</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><br><br>The following code snippet is the core packet switch algorithm. It reads packets from <code>tun</code> device, encrypt, send UDP socket; And read from UDP socket, decrypt, write to <code>tun</code> device. I used <code>select</code> multiplexing to monitor on these 2 fds.<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">char</span> tun_buf[MTU], udp_buf[MTU];</div><div class="line">  bzero(tun_buf, MTU);</div><div class="line">  bzero(udp_buf, MTU);</div><div class="line"></div><div class="line">  <span class="keyword">while</span> (<span class="number">1</span>) &#123;</div><div class="line">    fd_set readset;</div><div class="line">    FD_ZERO(&amp;readset);</div><div class="line">    FD_SET(tun_fd, &amp;readset);</div><div class="line">    FD_SET(udp_fd, &amp;readset);</div><div class="line">    <span class="keyword">int</span> max_fd = max(tun_fd, udp_fd) + <span class="number">1</span>;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (<span class="number">-1</span> == select(max_fd, &amp;readset, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>)) &#123;</div><div class="line">      perror(<span class="string">"select error"</span>);</div><div class="line">      <span class="keyword">break</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">int</span> r;</div><div class="line">    <span class="keyword">if</span> (FD_ISSET(tun_fd, &amp;readset)) &#123;</div><div class="line">      r = read(tun_fd, tun_buf, MTU);</div><div class="line">      <span class="keyword">if</span> (r &lt; <span class="number">0</span>) &#123;</div><div class="line">        perror(<span class="string">"read from tun_fd error"</span>);</div><div class="line">        <span class="keyword">break</span>;</div><div class="line">      &#125;</div><div class="line"></div><div class="line">      encrypt(tun_buf, udp_buf, r);</div><div class="line"></div><div class="line">      r = sendto(udp_fd, udp_buf, r, <span class="number">0</span>, (<span class="keyword">const</span> <span class="keyword">struct</span> sockaddr *)&amp;client_addr, client_addrlen);</div><div class="line">      <span class="keyword">if</span> (r &lt; <span class="number">0</span>) &#123;</div><div class="line">        perror(<span class="string">"sendto udp_fd error"</span>);</div><div class="line">        <span class="keyword">break</span>;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (FD_ISSET(udp_fd, &amp;readset)) &#123;</div><div class="line">      r = recvfrom(udp_fd, udp_buf, MTU, <span class="number">0</span>, (<span class="keyword">struct</span> sockaddr *)&amp;client_addr, &amp;client_addrlen);</div><div class="line">      <span class="keyword">if</span> (r &lt; <span class="number">0</span>) &#123;</div><div class="line">        perror(<span class="string">"recvfrom udp_fd error"</span>);</div><div class="line">        <span class="keyword">break</span>;</div><div class="line">      &#125;</div><div class="line"></div><div class="line">      decrypt(udp_buf, tun_buf, r);</div><div class="line"></div><div class="line">      r = write(tun_fd, tun_buf, r);</div><div class="line">      <span class="keyword">if</span> (r &lt; <span class="number">0</span>) &#123;</div><div class="line">        perror(<span class="string">"write tun_fd error"</span>);</div><div class="line">        <span class="keyword">break</span>;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line"></div></pre></td></tr></table></figure></p>
+<p><br><br>As a simple Point-to-Point VPN tunnel, server side code is almost identical to the client side since the core packet switch logic is the same. The complete code for both server side and client side is <a href="https://github.com/lxdcn/simple-vpn-demo" target="_blank" rel="external">here</a>. And iOS demo written in Swift 3 is <a href="https://github.com/lxdcn/NEPacketTunnelVPNDemo" target="_blank" rel="external">here</a>.</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="https://post.lxd.me/2017-02-08-disorder/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1797,162 +1958,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="https://post.lxd.me/2015-12-17-sicario-review/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="lxd">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="/uploads/alex-alice.png">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="Thoughts, notes and collections">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="Thoughts, notes and collections" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015-12-17-sicario-review/" itemprop="url">
-                  边境杀手 Sicario 影评
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-17T12:34:56+08:00">
-              2015-12-17
-            </time>
-
-            &nbsp;|&nbsp;
-
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-check-o"></i>
-            </span>
-            <time title="Post modified" itemprop="dateModified" datetime="2016-11-09T18:25:53+08:00">
-              2016-11-09
-            </time>
-            
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/film-review/" itemprop="url" rel="index">
-                    <span itemprop="name">film review</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2015-12-17-sicario-review/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015-12-17-sicario-review/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-          
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Sicario 《边境杀手》是今年看过最亮眼的一部电影，风格犀利，年度最佳。</p>
-<p>电影的基调很冷、很压抑，从摄影到节奏都是这个气氛。一开始不明就理的叙事，故意让观众体会女主的困惑。在这种调调下面，依次安排进暴力元素：爆炸、虐囚、特种部队行动、枪战、复仇等等，开始的节奏比较快，到后来就变的舒张、慢性。摄影尤其讲究、画面极美。并且，别具一格的是，这些暴力，出于剧情里的政治目的，全都由女主角陪同，以观察者的身份，从她的视角，一一展开，在充满雄性激素的火药味里中融入了女性荷尔蒙。</p>
-<p>女权主义者可能会很失望，女主在这部电影里并不是巾帼英雄范儿，而是一个被碾压、牺牲者角色。电影里不断穿插着女主惶恐困惑的眼神，焦虑、疲惫的体态，乃至最后被枪指着下巴流泪，这些都让人看着很不忍，导演用如此种种撩拨着观众的神经，打开了这部电影真正的主角——<b>暴力</b>的另外一个视角。</p>
-<p><br><br>上一次看到女主Emily的表演是在《明日边缘》里给阿汤哥配绿叶，这次的角色和那部电影里的角色有一点相似，但是这一次的Kate比上一次的Full Metal Bitch要复杂和立体的多。Kate是一个坚强的FBI女探员，一开始在尸臭味熏天的屠杀现场表现的仍然足够镇定。但是她年轻、没有政治经验，在玻璃会议室里被一帮老男人盘问的时候即表现出了六神无主和一丝无助，Emily拿捏的特别好。这帮无耻的老男人成功激发出了Kate内心的正能量，让她加入到了特别行动小组，自此便是她噩梦的开始。一开始执行任务不知所措的眼神，渐渐的开始焦虑、疲惫，最后奔溃，Emily一步一步表演的特别好。Kate虽然坚强，但是并没有心机，在政治面前无力招架。枪炮火药是有形的暴力，政治是摧残人心的无形的暴力。</p>
-<p>男一和男二在电影里对自己角色的表演都很到位，毫无PS痕迹，但是毕竟角色简单，远不如Emily丰富。布洛林演一个痞子，虽然戏份不多，但痞气十足。本托罗，静若处子、动若脱兔，一开始觉得他静的部分太闷了，等看到后来了解了剧情，再返回去看的时候，他的闷，其实是表现一个家人惨遭毒手的男人内心的痛苦、麻木和疲惫，其实蛮到位的。</p>
-<p><br><br>这部电影的第二场动作戏（押送犯人那场）非常精彩。这场戏前后有15分钟左右，但是枪战的部分不超过1分钟，前面10分钟一直在铺垫，一直渲染气氛。剧情既然安排费这么大劲押送这么重要的犯人，那肯定是要被伏击的，但是到底什么时候伏击？导演用配角讲故事、低沉急促的音乐、夸张的车队、警笛等等不断挑动观众的神经，但迟迟不开打，直到车队返回入关被堵在路上了，背景音乐停了，终于松了一口气了，此时观众大概也明白了，正戏终于要开始了。</p>
-<p>根据我多年看港片街头巷战的经验，此时路上这么多车，应该是正邪双方依托这些私家车为掩护来一场枪战，子弹血肉横飞，无辜路人中弹，押送犯人的布洛林抱着嫌犯的头鼠窜。。最后要么犯人被打死，要么被解救，剩下的都成了炮灰。。。</p>
-<p>但是并没有，他们先spot到打算伏击他们的车，然后等待行动，确认行动后快刀出鞘，出鞘斩杀之后即归鞘，丝毫不拖泥带水，前面14分钟的铺垫的都是前戏，最后1分钟直接高潮，精彩的很！</p>
-<p><br><br>这部电影制作的很精美，但是故事弱。支撑整个故事框架的阴谋论既没有新意，也没有elaborate，也没有铺垫，站不住脚。</p>
-<p><br></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1998,7 +2003,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-count">19</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
