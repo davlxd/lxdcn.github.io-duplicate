@@ -253,6 +253,192 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://post.lxd.me/2017-03-17-spring-introduction-en/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="lxd">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/uploads/alex-alice.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Thoughts, notes and collections">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Thoughts, notes and collections" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017-03-17-spring-introduction-en/" itemprop="url">
+                  Spring Introduction
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-03-17T12:34:56+08:00">
+              2017-03-17
+            </time>
+
+            &nbsp;|&nbsp;
+
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-check-o"></i>
+            </span>
+            <time title="Post modified" itemprop="dateModified" datetime="2017-03-17T13:22:28+08:00">
+              2017-03-17
+            </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/tech/" itemprop="url" rel="index">
+                    <span itemprop="name">tech</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017-03-17-spring-introduction-en/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017-03-17-spring-introduction-en/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>This article is a recap of a presentation I gave to my teammates, a brief introduction to Spring framework and related concepts, and 3 common Spring projects (Spring MVC, Spring Data JAP, and Spring Boot).</p>
+<h3 id="Spring-and-Java-EE"><a href="#Spring-and-Java-EE" class="headerlink" title="Spring and Java EE"></a>Spring and Java EE</h3><p>Let’s talk a bit about Java first. Java has multiple <strong>edition</strong>s: Java SE, Java EE and Java ME. Java SE and Java EE are closely related to Spring framework. Java SE (Java Platform, Standard Edition) contains JVM and all core libraries and APIs, while Java EE (Java Platform, Enterprise Edition) is a set of specifications and APIs which will be used to develop large-scale enterprise applications, such as <code>servlet specification</code> used to handle HTTP request and <code>JPA</code> describes the management of relational database. Java EE constitutes of JSRs (Java Specification Request) maintained by JCP (Java Community Process), just like RFC to IETF.</p>
+<p>There are several Java EE implementations in the industry, all belong to IT giants, like IBM’s WebSphere Application Server (WAS), Oracle’s WebLogic, and JBoss which belongs to RedHat. They all comply to Java EE standards, and they all implement most of Java EE specifications like Servlet and JPA, and they mostly are called <code>Application Server</code>s since Java EE makes sure our applications can run upon. The open source alternatives of these application servers like Tomcat or Jetty are called <code>Web Container</code>, since they only implement Web related specifications such as Server spec and JSP specs. If we need dependency injection we bring in Spring, if we need to interact with relational databases, we bring in Hibernate.</p>
+<p>And strictly speaking, Spring is not an implementation of Java EE, since even she does implement lower level Java EE specs like Servlet and JPA, but she uses its own stuff for higher level APIs like dependency injection and RESTful web service. Java EE specs for dependency injection is CDI while Spring uses Spring DI, and for REST it’s JAX-RS vs Spring MVC.</p>
+<h3 id="Spring-IoC-DI"><a href="#Spring-IoC-DI" class="headerlink" title="Spring IoC / DI"></a>Spring IoC / DI</h3><p>At its core, the foundation concept of Spring Framework is DI (Dependency Injection) or a.k.a. IoC (Inversion of Control). These 2 abbreviations are really novice-unfriendly, and so require some explanations.</p>
+<p>IoC is a theory, a technology, not only exist in Spring. Generally speaking, for some entity, the work/flow which this entity should initiate, turns out to this entity passively receive, this active-passive turnover is IoC. For example you want to write a small trivial program at work, at the beginning it’s a small program calling some 3rd party libraries, this is the active role your code is playing, as your trivial program grew bigger you import a framework to sort things out, your code becomes callbacks or interface implementations, now your code plays the passive role. With the help of IoC we can achieve decoupling, free our hands by relieving responsibilities.  </p>
+<p>For Spring IoC, it’s the responsibility of object instantiation and dependency tree maintenance that being shifted from our hands to Spring.  For example, when we write Java application without Spring IoC, it could be like this:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">B</span> </span>&#123;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">C</span> </span>&#123;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> B b;</div><div class="line">    <span class="keyword">private</span> C c = <span class="keyword">new</span> C();</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">A</span><span class="params">(B b)</span> </span>&#123; <span class="keyword">this</span>.b = b; &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setB</span><span class="params">(B b)</span> </span>&#123; <span class="keyword">this</span>.b = b; &#125;</div><div class="line">&#125;</div><div class="line">A a = <span class="keyword">new</span> A(<span class="keyword">new</span> B());</div></pre></td></tr></table></figure></p>
+<p>It’s class A depends on Class B and Class C, we pass the objects of A and B through constructor and setter function. With the help of Spring IoC and some other Spring tricks, it could be like this:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Component</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">B</span> </span>&#123;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="meta">@Component</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">C</span> </span>&#123;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="meta">@Component</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> B b;</div><div class="line">    <span class="meta">@Autowired</span> <span class="keyword">private</span> C c;</div><div class="line"></div><div class="line">    <span class="meta">@Autowired</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">A</span><span class="params">(B b)</span> </span>&#123; <span class="keyword">this</span>.b = b; &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><code>@Component</code> annotations tell Spring the annotated classes need to be instantiated as beans, which are Java objects managed by Spring, while <code>@Autowired</code> annotations tell Spring to inject the type-matched beans to the annotated fields, and this is duly <code>dependency injection</code>.</p>
+<h3 id="Web-container"><a href="#Web-container" class="headerlink" title="Web container"></a>Web container</h3><p>Web container a.k.a. Servlet container is different from Web Server. Nginx and Apache are web servers, which mainly handle HTTP requests. Web containers like Tomcat, Jetty or GlassFish, however, are like fish tanks where Java Servlets live in. Application Server I mention above can be considered as a superset of Web container, since it’s capable of more than containing servlets. Almost all Java Web applications we write in the end are a bunch of servlets or facaded by servlets, these servlets cannot run on their own, neither can they directly handle HTTP requests. They need to be managed by Web containers, and web containers dispatch HTTP requests to servlets based on mapping rules, like below:</p>
+<p><img src="/images/servlet-container.png" alt="Servlet"></p>
+<p>The whole process is Java EE spec, which Web containers, application servers, and Java Web applications should all follow, so we can deploy our applications to any Web containers or application servers with minor adaptation.</p>
+<h3 id="Spring-MVC"><a href="#Spring-MVC" class="headerlink" title="Spring MVC"></a>Spring MVC</h3><p>Spring framework consists of many modules, spring-core and spring-beans are at at core, spring-jdbc and spring-orm are responsible for database interaction etc. It’s too common to use Spring to build backend RESTful APIs, so it’s necessary to give a quick view of Spring Web MVC module.</p>
+<p>As I stated before you cannot get away with servlets for HTTP in Java, Spring MVC is tangled with servlet as well. Spring MVC is facaded by <code>DispatchServlet</code> which accepts all HTTP requests and then dispatch to other HTTP endpoints in your application. The following is an HTTP endpoint demo with Spring MVC:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@RestController</span></div><div class="line"><span class="meta">@RequestMapping</span>(<span class="string">"/stores/&#123;storeId&#125;/items"</span>)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ItemController</span> </span>&#123;</div><div class="line">    <span class="meta">@RequestMapping</span>(path = <span class="string">"/&#123;itemId&#125;"</span>, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)</div><div class="line">    <span class="function"><span class="keyword">public</span> Item <span class="title">retrieveItem</span><span class="params">(@PathVariable String storeId, @PathVariable String itemId)</span> </span>&#123;</div><div class="line">        ...</div><div class="line">        <span class="keyword">return</span> item;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@RequestMapping</span>(method = RequestMethod.POST)</div><div class="line">    <span class="function"><span class="keyword">public</span> ResponseEntity <span class="title">createItem</span><span class="params">(@RequestBody Item item)</span> </span>&#123;</div><div class="line">        ...</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity&lt;&gt;(HttpStatus.OK);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li><code>@RestController</code> is annotated on Java Class, which means annotated Class is a RESTful API endpoint, hence the Controller in MVC architecture. All Controllers and RestControllers are Spring-managed beans as well.</li>
+<li><code>@RequestMapping</code> defines URL routing mapping rules, the one annotated on Class can specify absolute path while the one annotated on method specify the relative path. And methods annotated with <code>@RequestMapping</code> are responsible for handle HTTP requests and serve responses.</li>
+<li>Paths specified by <code>@RequestMapping</code> comply with URL Template<sup>[<a href="https://tools.ietf.org/html/rfc6570" target="_blank" rel="external">1</a>]</sup> and <code>@PathVariable</code> can extract variable values in it.</li>
+<li>By annotating <code>@RequestBody</code> on method parameters, Spring will convert HTTP request body to Java object and inject to annotated parameters. And Spring also will convert method return value to HTTP response in JSON format, since class is annotated with <code>@RestController</code></li>
+<li><code>ResponseEntity</code> is a generic class containing HTTP response body, and HTTP headers and status code which you can tweak. In this demo the method responds empty body with status code specified to 200. </li>
+</ul>
+<p>With an extremely simplified Class Item, the terminal should look like this if we call the RESTful API with cURL</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Item</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> String name;</div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> name; &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123; <span class="keyword">this</span>.name = name; &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ curl -v http://localhost:8080/stores/16/items/1</div><div class="line">...</div><div class="line">&gt; </div><div class="line">&lt; HTTP/1.1 200 OK</div><div class="line">&lt; Server: Apache-Coyote/1.1</div><div class="line">&lt; Content-Type: application/json;charset=UTF-8</div><div class="line">...</div><div class="line"></div><div class="line">&#123;&quot;name&quot;:&quot;hehe&quot;&#125;%</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">curl -v -H &quot;Content-Type: application/json&quot; -i -X POST -d &apos;&#123;&quot;name&quot;:&quot;haha&quot;&#125;&apos; http://localhost:8080/stores/16/items</div><div class="line">...</div><div class="line">&gt; Content-Type: application/json</div><div class="line">&gt; Content-Length: 15</div><div class="line">&gt; </div><div class="line">&lt; HTTP/1.1 200 OK</div><div class="line">&lt; Server: Apache-Coyote/1.1</div><div class="line">&lt; Content-Length: 0</div><div class="line">...</div><div class="line"></div></pre></td></tr></table></figure>
+<h3 id="Spring-Data-JPA"><a href="#Spring-Data-JPA" class="headerlink" title="Spring Data JPA"></a>Spring Data JPA</h3><p>Spring has always been considered a framework, but in recent years it’s more like a portfolio, contains dozens of <a href="https://spring.io/projects" target="_blank" rel="external">projects</a>, all based on original Spring framework but provide various abundant features, Spring Data is one of them. Spring Data provides consistent, elegant, and easy-to-use interfaces to access persistent facilities, and Spring Data JPA is one of the modules specifically deal with relational databases. As we can see soon, Spring Data JPA provides a set of very tidy interfaces for us to implement routine CRUDs.</p>
+<p>Spring Data JPA exposes a bunch of Java interfaces to users, behind the scenes it uses Dynamic Proxy AOP to inject actual work in runtime. The interface at the top is <code>Repository&lt;T, ID extends Serializable&gt;</code>, then it’s <code>CrudRepository&lt;T, ID extends Serializable&gt;</code> providing basic CRUD operations, and <code>JpaRepository&lt;T, ID extends Serializable&gt;</code> with JPA related actions etc. They all generic interfaces whose first type parameter is entity class corresponding to a database table, and the 2nd parameter is the type of ID in the entity class. To use Spring Data JPA all we need is create an interface extends one of these interfaces and then declare methods we will be calling in it.</p>
+<p>The following example demonstrates how Spring Data JPA simplifies the process of exposing CRUD interfaces to a simple data entity.</p>
+<p>Given the table structure and Entity class:<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> item (</div><div class="line">  <span class="keyword">id</span>          <span class="built_in">VARCHAR</span>(<span class="number">36</span>)  <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">  <span class="keyword">name</span>        <span class="built_in">VARCHAR</span>(<span class="number">128</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">  description <span class="built_in">VARCHAR</span>(<span class="number">128</span>),</div><div class="line">  <span class="keyword">CONSTRAINT</span> itemPk PRIMARY <span class="keyword">KEY</span> (<span class="keyword">id</span>)</div><div class="line">);</div></pre></td></tr></table></figure></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Entity</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Item</span> </span>&#123;</div><div class="line">    <span class="meta">@Id</span></div><div class="line">    <span class="meta">@GeneratedValue</span>(generator = <span class="string">"uuid"</span>)</div><div class="line">    <span class="meta">@GenericGenerator</span>(name = <span class="string">"uuid"</span>, strategy = <span class="string">"uuid2"</span>)</div><div class="line">    <span class="keyword">private</span> String id;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Item</span><span class="params">()</span> </span>&#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Item</span><span class="params">(String name, String description)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.name = name;</div><div class="line">        <span class="keyword">this</span>.description = description;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">private</span> String name;</div><div class="line">    <span class="keyword">private</span> String description;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Firstly we declare an interface extends <code>CrudRepository</code>, and designate type parameter explicitly<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ItemRepository</span> <span class="keyword">extends</span> <span class="title">CrudRepository</span>&lt;<span class="title">Item</span>, <span class="title">String</span>&gt; </span>&#123;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>Since <code>CrudRepository</code> already has common CRUD methods like <code>save(S entity)</code>, <code>findOne(ID id)</code>, <code>exists(ID id)</code> and <code>delete(ID id)</code>, so now we only need to fill in some query methods specific to our need, as long as follow naming conventions[1]. For example, if we’d like to find all items with the same name, we can declare <code>findByName</code> <a href="http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.query-methods.query-creation" target="_blank" rel="external">here</a><br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ItemRepository</span> <span class="keyword">extends</span> <span class="title">CrudRepository</span>&lt;<span class="title">Item</span>, <span class="title">String</span>&gt; </span>&#123;</div><div class="line">    <span class="function">List&lt;Item&gt; <span class="title">findByName</span><span class="params">(String name)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>Inject <code>ItemRepository</code> to wherever we need, then we are able to call these CURD methods directly.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SomeClient</span> </span>&#123;</div><div class="line">  <span class="meta">@Autowired</span> <span class="keyword">private</span> ItemRepository itemRepository;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSomething</span><span class="params">()</span> </span>&#123;</div><div class="line">    List&lt;Item&gt; items = itemRepository.findByName(<span class="string">"teapot"</span>);</div><div class="line">  &#125;</div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSomethingElse</span><span class="params">()</span> </span>&#123;</div><div class="line">    Item newItem = <span class="keyword">new</span> Item(<span class="string">"smug"</span>, <span class="string">"smug without mug"</span>);</div><div class="line">    itemRepository.save(newItem);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>User-defined query method mimics Rails <a href="http://guides.rubyonrails.org/active_record_querying.html#dynamic-finders" target="_blank" rel="external">Dynamic Finders</a> and it supports more sophisticated combinations like and, or, pagination, limit, asc/desc etc, you can refer to official documentation here[2].</p>
+<p>How does Spring Data JPA do all the magic tricks? Well, it’s not that magic for Spring core. During Spring application bootup, Spring creates a proxy bean for <code>ItemRepository</code> interface at first with the help of Spring AOP, then in that proxy Spring parses all user-defined query method names and store ASTs on the bean. When these query methods get called in runtime, Spring AOP intercepts the method call, fetch the AST, assemble into a Query object combined with query parameters, then hand over to JPA. I give a more thorough analysis in another post.</p>
+<h3 id="Spring-Boot"><a href="#Spring-Boot" class="headerlink" title="Spring Boot"></a>Spring Boot</h3><p>Spring Boot is another Spring project, a Convention over Configuration follower and a relatively successful one. It has done a lot of work based on Spring which makes it much easier to build a Spring application.</p>
+<p>In old days we need to list all depending artifacts in pom.xml or gradle.build, which is really annoying and cumbersome, Spring Boot thoughtfully gives us <code>Spring Boot Starters</code>, a one-stop-shop for all the Spring and related technology. It organizes related dependencies into groups from a Spring user’s perspective, we only need to include the group dependency descriptor artifactId in our pom.xml or build.gradle. For example when we develop a Spring Web application, generally we need to import Spring MVC, spring-web module, and Jackson etc, with Spring Boot we just import <code>spring-boot-starter-web</code> once for all. The same goes to <code>spring-boot-starter-test</code> which includes JUnit, Hamcrest and Mockito; and <code>spring-boot-starter-data-jpa</code> which includes everything related to relational database interaction.</p>
+<p>Like I said before Spring Web applications need to put into Servlet containers in order to run, however, <code>spring-boot-starter-web</code> starter includes an embedded Tomcat, which can be started through <code>SpringApplication.run()</code> within our code in main function. In this way, our Spring Web applications are directly runnable via commandline, or IDE, or <code>java -jar</code> after packaged into a independent jar file.</p>
+<p>Spring Boot also has fine-tuned a lot of details to keep to Convention over Configuration. Hibernate has <code>ImprovedNamingStrategy</code> class automatically map camelCase field names in Entity class to snake_case field names in DB tables, however it doesn’t support foreign keys. Spring Boot provides <code>SpringNamingStrategy</code> which inherits <code>ImprovedNamingStrategy</code> and adds foreign keys support.</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="https://post.lxd.me/2017-02-16-a-simple-vpn-tunnel-with-tun-device-demo-and-some-basic-concepts/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1774,190 +1960,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="https://post.lxd.me/2016-01-13-gitw-explanation/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="lxd">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="/uploads/alex-alice.png">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="Thoughts, notes and collections">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="Thoughts, notes and collections" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016-01-13-gitw-explanation/" itemprop="url">
-                  Git wrap script to ignore files that have already been committed
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-01-13T22:56:56+08:00">
-              2016-01-13
-            </time>
-
-            &nbsp;|&nbsp;
-
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-check-o"></i>
-            </span>
-            <time title="Post modified" itemprop="dateModified" datetime="2017-01-25T14:52:47+08:00">
-              2017-01-25
-            </time>
-            
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/tech/" itemprop="url" rel="index">
-                    <span itemprop="name">tech</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016-01-13-gitw-explanation/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016-01-13-gitw-explanation/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-          
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h3><p>As a git user, given this sceniro:</p>
-<blockquote>
-<p>You made certain changes to some files but you don’t want to commit it, nor do you want see them under <code>git status -s</code> or <code>git diff</code> etc.</p>
-</blockquote>
-<p>In other words:</p>
-<blockquote>
-<p>You want git to ignore certain files but unfortunately they have already been tracked.</p>
-</blockquote>
-<p>what you gonna do?</p>
-<p>I googled around a lot, all I can get is remove these files entirely from repo by run <code>git rm --cached &lt;file&gt;</code> (so <code>.gitignore</code> will take effect), but it’s not always doable, because your teammates may still need these files exist in repo.</p>
-<p>Then I checked git hooks, hoping I could write some scripts to preserve these local changes before execute <code>git status</code> and <code>git diff</code>. Unfortunately I failed again, what git hooks can do is pretty limited, furthermore I realized not only do I need to ‘deceive’ <code>git status</code> and <code>git diff</code>, <code>git add</code> <code>git checkout</code> <code>git pull</code> and a lot other commands also require the same trick.</p>
-<p>Up to this point I had very little choices, either I figure out a way to make <code>.gitignore</code> also ignore tracked files (git porcelain command <code>git check-ignore</code> has a switch to do this), or write a script wrap git entirely. I chose the latter.</p>
-<h3 id="Usage"><a href="#Usage" class="headerlink" title="Usage"></a>Usage</h3><p>The code is <a href="https://gist.github.com/lxdcn/c6ab6365bdde315e4722" target="_blank" rel="external">here</a>, you are very welcome to enhance or report issues, I’ll illustrate this script line by line in next section, but at first let’s see the usage.</p>
-<ul>
-<li>Download the script and put under $PATH directory and make it executable, make sure can run <code>gitw</code> directly from command line</li>
-<li>You may have aliased common git command to a shorter command (e.g. <code>alias gpr=&#39;git pull --rebase&#39;</code>) or shell plugins have done the same thing for you, in that case you need to put <code>alias git=&#39;gitw&#39;</code> in your shell initialization file. Also you probably need to give <code>gitw</code> the same command line completion as original git, so put <code>compdef gitw=git</code> in shell init file too.</li>
-<li>Add still-want-ignore-even-tracked files to <code>.gitignore</code> per git working directory, most likely you need to add .gitignore to <code>.gitignore</code> as well</li>
-</ul>
-<h3 id="Explanation"><a href="#Explanation" class="headerlink" title="Explanation"></a>Explanation</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> [[ ! <span class="_">-d</span> <span class="string">'.git'</span> ]]; <span class="keyword">then</span></div><div class="line">	\git <span class="string">"<span class="variable">$@</span>"</span></div><div class="line">	<span class="built_in">exit</span> $?</div><div class="line"><span class="keyword">fi</span></div><div class="line"></div><div class="line">mkdir -p .git/w</div></pre></td></tr></table></figure>
-<p>This script should not work on <code>git clone</code> or <code>git init</code>, so it will pass command arguments directly to original git then exit if we are not under a git working directory.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mkdir -p .git/w</div></pre></td></tr></table></figure>
-<p>This script preserves local change to a directory named <code>w</code> under <code>.git</code>, which will be created here if not exists.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">original_command=`\git <span class="string">"<span class="variable">$1</span>"</span> -h 2&gt;&amp;1 | head -n 1 | awk <span class="string">'&#123;print $3&#125;'</span>`</div></pre></td></tr></table></figure>
-<p>In following steps we need to pattern match git command to decide whether we wrap specific git command or not, but you probably already alias git command to a shorter name (eg. <code>co = checkout</code>, <code>di = diff</code>). We extract original git command by parsing <code>git &lt;command_or_alias&gt; -h</code>.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">function</span> <span class="function"><span class="title">ignored_dirty_index_func</span></span>() &#123;</div><div class="line">	<span class="keyword">for</span> dirty_file <span class="keyword">in</span> `\git status --porcelain | awk <span class="string">'&#123;print $2&#125;'</span>`; <span class="keyword">do</span></div><div class="line">		\git check-ignore -q --no-index <span class="variable">$dirty_file</span></div><div class="line">		<span class="keyword">if</span> [[ $? <span class="_">-eq</span> 0 ]]; <span class="keyword">then</span></div><div class="line">		  <span class="built_in">echo</span> <span class="variable">$dirty_file</span></div><div class="line">		<span class="keyword">fi</span></div><div class="line">	<span class="keyword">done</span></div><div class="line">&#125;</div><div class="line">ignored_dirty_index=`ignored_dirty_index_func`</div></pre></td></tr></table></figure>
-<p>This function here identifies local changed files need to be ignored. We use porcelain version<sup>[<a href="http://git-scm.com/book/en/Git-Internals-Plumbing-and-Porcelain" target="_blank" rel="external">0</a>]</sup> of <code>git status</code> (to list all local changed files) cross check with <code>git check-ignore</code> (to check if each file is ignored) to get a list of files with local changes but we’d like to ignore.</p>
-<p>Pay attention to <code>git check-ignore</code> has a switch <code>--no-index</code>, meaning not look in the index when undertaking ignore checks. This is exactly what we need for <code>.gitignore</code> but only exists in <code>git check-ignore</code><sup>[<a href="http://git-scm.com/docs/git-check-ignore.html" target="_blank" rel="external">1</a>]</sup>.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> <span class="string">"<span class="variable">$original_command</span>"</span> | grep <span class="string">'^\(add\|status\|checkout\|pull\|rebase\|merge\|diff\|stash\|reset\|commit\)$'</span> &gt; /dev/null</div></pre></td></tr></table></figure>
-<p>This script only works on these git commands.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> [[ $? <span class="_">-eq</span> 0 ]] &amp;&amp; [[ -n <span class="string">"<span class="variable">$ignored_dirty_index</span>"</span> ]]; <span class="keyword">then</span></div><div class="line">  <span class="built_in">echo</span> <span class="string">'gitw is helping...'</span></div><div class="line">	<span class="built_in">echo</span> <span class="string">"<span class="variable">$ignored_dirty_index</span>"</span> | rsync -R --files-from - . .git/w</div><div class="line">	<span class="built_in">echo</span> <span class="string">"<span class="variable">$ignored_dirty_index</span>"</span> | \git checkout-index <span class="_">-f</span> --stdin</div><div class="line">	\git <span class="string">"<span class="variable">$@</span>"</span></div><div class="line">	<span class="built_in">echo</span> <span class="string">"<span class="variable">$ignored_dirty_index</span>"</span> | rsync -R --files-from - .git/w .</div><div class="line"><span class="keyword">else</span></div><div class="line">	\git <span class="string">"<span class="variable">$@</span>"</span></div><div class="line"><span class="keyword">fi</span></div></pre></td></tr></table></figure>
-<p>If the current git command lies in commands we should wrap and there are local changes need to be ignored, this script should do the job. At first we copy all the target files to <code>.git/w</code> with directory structure perserved, then drop local changes for these files before execute original git, finally we recover local changes by copy target files from <code>.git/w</code> to workspace.</p>
-<p>References:</p>
-<ul>
-<li>[0] <a href="http://git-scm.com/book/en/Git-Internals-Plumbing-and-Porcelain" target="_blank" rel="external">http://git-scm.com/book/en/Git-Internals-Plumbing-and-Porcelain</a></li>
-<li>[1] <a href="http://git-scm.com/docs/git-check-ignore.html" target="_blank" rel="external">http://git-scm.com/docs/git-check-ignore.html</a></li>
-</ul>
-<p><br></p>
-<h3 id="Update-2016-01-31-22-22-22"><a href="#Update-2016-01-31-22-22-22" class="headerlink" title="Update 2016-01-31 22:22:22:"></a>Update 2016-01-31 22:22:22:</h3><p>Thanks to teammate <a href="https://github.com/SuXiaoKai" target="_blank" rel="external">@SuXiaoKai</a>, <code>git update-index --assume-unchanged &lt;path&gt;</code> can do this job pretty well.</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -2003,7 +2005,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">19</span>
+              <span class="site-state-item-count">20</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -2011,7 +2013,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-count">4</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>

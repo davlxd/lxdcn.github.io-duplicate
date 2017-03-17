@@ -253,6 +253,190 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://post.lxd.me/2016-01-13-gitw-explanation/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="lxd">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/uploads/alex-alice.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Thoughts, notes and collections">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Thoughts, notes and collections" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016-01-13-gitw-explanation/" itemprop="url">
+                  Git wrap script to ignore files that have already been committed
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-01-13T22:56:56+08:00">
+              2016-01-13
+            </time>
+
+            &nbsp;|&nbsp;
+
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-check-o"></i>
+            </span>
+            <time title="Post modified" itemprop="dateModified" datetime="2017-01-25T14:52:47+08:00">
+              2017-01-25
+            </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/tech/" itemprop="url" rel="index">
+                    <span itemprop="name">tech</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016-01-13-gitw-explanation/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016-01-13-gitw-explanation/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h3><p>As a git user, given this sceniro:</p>
+<blockquote>
+<p>You made certain changes to some files but you don’t want to commit it, nor do you want see them under <code>git status -s</code> or <code>git diff</code> etc.</p>
+</blockquote>
+<p>In other words:</p>
+<blockquote>
+<p>You want git to ignore certain files but unfortunately they have already been tracked.</p>
+</blockquote>
+<p>what you gonna do?</p>
+<p>I googled around a lot, all I can get is remove these files entirely from repo by run <code>git rm --cached &lt;file&gt;</code> (so <code>.gitignore</code> will take effect), but it’s not always doable, because your teammates may still need these files exist in repo.</p>
+<p>Then I checked git hooks, hoping I could write some scripts to preserve these local changes before execute <code>git status</code> and <code>git diff</code>. Unfortunately I failed again, what git hooks can do is pretty limited, furthermore I realized not only do I need to ‘deceive’ <code>git status</code> and <code>git diff</code>, <code>git add</code> <code>git checkout</code> <code>git pull</code> and a lot other commands also require the same trick.</p>
+<p>Up to this point I had very little choices, either I figure out a way to make <code>.gitignore</code> also ignore tracked files (git porcelain command <code>git check-ignore</code> has a switch to do this), or write a script wrap git entirely. I chose the latter.</p>
+<h3 id="Usage"><a href="#Usage" class="headerlink" title="Usage"></a>Usage</h3><p>The code is <a href="https://gist.github.com/lxdcn/c6ab6365bdde315e4722" target="_blank" rel="external">here</a>, you are very welcome to enhance or report issues, I’ll illustrate this script line by line in next section, but at first let’s see the usage.</p>
+<ul>
+<li>Download the script and put under $PATH directory and make it executable, make sure can run <code>gitw</code> directly from command line</li>
+<li>You may have aliased common git command to a shorter command (e.g. <code>alias gpr=&#39;git pull --rebase&#39;</code>) or shell plugins have done the same thing for you, in that case you need to put <code>alias git=&#39;gitw&#39;</code> in your shell initialization file. Also you probably need to give <code>gitw</code> the same command line completion as original git, so put <code>compdef gitw=git</code> in shell init file too.</li>
+<li>Add still-want-ignore-even-tracked files to <code>.gitignore</code> per git working directory, most likely you need to add .gitignore to <code>.gitignore</code> as well</li>
+</ul>
+<h3 id="Explanation"><a href="#Explanation" class="headerlink" title="Explanation"></a>Explanation</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> [[ ! <span class="_">-d</span> <span class="string">'.git'</span> ]]; <span class="keyword">then</span></div><div class="line">	\git <span class="string">"<span class="variable">$@</span>"</span></div><div class="line">	<span class="built_in">exit</span> $?</div><div class="line"><span class="keyword">fi</span></div><div class="line"></div><div class="line">mkdir -p .git/w</div></pre></td></tr></table></figure>
+<p>This script should not work on <code>git clone</code> or <code>git init</code>, so it will pass command arguments directly to original git then exit if we are not under a git working directory.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mkdir -p .git/w</div></pre></td></tr></table></figure>
+<p>This script preserves local change to a directory named <code>w</code> under <code>.git</code>, which will be created here if not exists.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">original_command=`\git <span class="string">"<span class="variable">$1</span>"</span> -h 2&gt;&amp;1 | head -n 1 | awk <span class="string">'&#123;print $3&#125;'</span>`</div></pre></td></tr></table></figure>
+<p>In following steps we need to pattern match git command to decide whether we wrap specific git command or not, but you probably already alias git command to a shorter name (eg. <code>co = checkout</code>, <code>di = diff</code>). We extract original git command by parsing <code>git &lt;command_or_alias&gt; -h</code>.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">function</span> <span class="function"><span class="title">ignored_dirty_index_func</span></span>() &#123;</div><div class="line">	<span class="keyword">for</span> dirty_file <span class="keyword">in</span> `\git status --porcelain | awk <span class="string">'&#123;print $2&#125;'</span>`; <span class="keyword">do</span></div><div class="line">		\git check-ignore -q --no-index <span class="variable">$dirty_file</span></div><div class="line">		<span class="keyword">if</span> [[ $? <span class="_">-eq</span> 0 ]]; <span class="keyword">then</span></div><div class="line">		  <span class="built_in">echo</span> <span class="variable">$dirty_file</span></div><div class="line">		<span class="keyword">fi</span></div><div class="line">	<span class="keyword">done</span></div><div class="line">&#125;</div><div class="line">ignored_dirty_index=`ignored_dirty_index_func`</div></pre></td></tr></table></figure>
+<p>This function here identifies local changed files need to be ignored. We use porcelain version<sup>[<a href="http://git-scm.com/book/en/Git-Internals-Plumbing-and-Porcelain" target="_blank" rel="external">0</a>]</sup> of <code>git status</code> (to list all local changed files) cross check with <code>git check-ignore</code> (to check if each file is ignored) to get a list of files with local changes but we’d like to ignore.</p>
+<p>Pay attention to <code>git check-ignore</code> has a switch <code>--no-index</code>, meaning not look in the index when undertaking ignore checks. This is exactly what we need for <code>.gitignore</code> but only exists in <code>git check-ignore</code><sup>[<a href="http://git-scm.com/docs/git-check-ignore.html" target="_blank" rel="external">1</a>]</sup>.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> <span class="string">"<span class="variable">$original_command</span>"</span> | grep <span class="string">'^\(add\|status\|checkout\|pull\|rebase\|merge\|diff\|stash\|reset\|commit\)$'</span> &gt; /dev/null</div></pre></td></tr></table></figure>
+<p>This script only works on these git commands.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> [[ $? <span class="_">-eq</span> 0 ]] &amp;&amp; [[ -n <span class="string">"<span class="variable">$ignored_dirty_index</span>"</span> ]]; <span class="keyword">then</span></div><div class="line">  <span class="built_in">echo</span> <span class="string">'gitw is helping...'</span></div><div class="line">	<span class="built_in">echo</span> <span class="string">"<span class="variable">$ignored_dirty_index</span>"</span> | rsync -R --files-from - . .git/w</div><div class="line">	<span class="built_in">echo</span> <span class="string">"<span class="variable">$ignored_dirty_index</span>"</span> | \git checkout-index <span class="_">-f</span> --stdin</div><div class="line">	\git <span class="string">"<span class="variable">$@</span>"</span></div><div class="line">	<span class="built_in">echo</span> <span class="string">"<span class="variable">$ignored_dirty_index</span>"</span> | rsync -R --files-from - .git/w .</div><div class="line"><span class="keyword">else</span></div><div class="line">	\git <span class="string">"<span class="variable">$@</span>"</span></div><div class="line"><span class="keyword">fi</span></div></pre></td></tr></table></figure>
+<p>If the current git command lies in commands we should wrap and there are local changes need to be ignored, this script should do the job. At first we copy all the target files to <code>.git/w</code> with directory structure perserved, then drop local changes for these files before execute original git, finally we recover local changes by copy target files from <code>.git/w</code> to workspace.</p>
+<p>References:</p>
+<ul>
+<li>[0] <a href="http://git-scm.com/book/en/Git-Internals-Plumbing-and-Porcelain" target="_blank" rel="external">http://git-scm.com/book/en/Git-Internals-Plumbing-and-Porcelain</a></li>
+<li>[1] <a href="http://git-scm.com/docs/git-check-ignore.html" target="_blank" rel="external">http://git-scm.com/docs/git-check-ignore.html</a></li>
+</ul>
+<p><br></p>
+<h3 id="Update-2016-01-31-22-22-22"><a href="#Update-2016-01-31-22-22-22" class="headerlink" title="Update 2016-01-31 22:22:22:"></a>Update 2016-01-31 22:22:22:</h3><p>Thanks to teammate <a href="https://github.com/SuXiaoKai" target="_blank" rel="external">@SuXiaoKai</a>, <code>git update-index --assume-unchanged &lt;path&gt;</code> can do this job pretty well.</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="https://post.lxd.me/2015-12-17-sicario-review/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1871,7 +2055,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">19</span>
+              <span class="site-state-item-count">20</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -1879,7 +2063,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-count">4</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
