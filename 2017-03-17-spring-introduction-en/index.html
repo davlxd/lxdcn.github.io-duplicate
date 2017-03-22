@@ -90,7 +90,7 @@
 <meta property="og:description" content="This article is a recap of a presentation I gave to my teammates, a brief introduction to Spring framework and related concepts, and 3 common Spring projects (Spring MVC, Spring Data JAP, and Spring B">
 <meta property="og:image" content="https://post.lxd.me/images/spring-java-ee.png">
 <meta property="og:image" content="https://post.lxd.me/images/servlet-container.png">
-<meta property="og:updated_time" content="2017-03-17T05:30:21.000Z">
+<meta property="og:updated_time" content="2017-03-22T07:19:23.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Spring Introduction">
 <meta name="twitter:description" content="This article is a recap of a presentation I gave to my teammates, a brief introduction to Spring framework and related concepts, and 3 common Spring projects (Spring MVC, Spring Data JAP, and Spring B">
@@ -303,8 +303,8 @@
             <span class="post-meta-item-icon">
               <i class="fa fa-calendar-check-o"></i>
             </span>
-            <time title="Post modified" itemprop="dateModified" datetime="2017-03-17T13:30:21+08:00">
-              2017-03-17
+            <time title="Post modified" itemprop="dateModified" datetime="2017-03-22T15:19:23+08:00">
+              2017-03-22
             </time>
             
           </span>
@@ -397,7 +397,7 @@
 <p>Since <code>CrudRepository</code> already has common CRUD methods like <code>save(S entity)</code>, <code>findOne(ID id)</code>, <code>exists(ID id)</code> and <code>delete(ID id)</code>, so now we only need to fill in some query methods specific to our need, as long as follow naming conventions[1]. For example, if we’d like to find all items with the same name, we can declare <code>findByName</code> <a href="http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.query-methods.query-creation" target="_blank" rel="external">here</a><br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ItemRepository</span> <span class="keyword">extends</span> <span class="title">CrudRepository</span>&lt;<span class="title">Item</span>, <span class="title">String</span>&gt; </span>&#123;</div><div class="line">    <span class="function">List&lt;Item&gt; <span class="title">findByName</span><span class="params">(String name)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>Inject <code>ItemRepository</code> to wherever we need, then we are able to call these CURD methods directly.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SomeClient</span> </span>&#123;</div><div class="line">  <span class="meta">@Autowired</span> <span class="keyword">private</span> ItemRepository itemRepository;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSomething</span><span class="params">()</span> </span>&#123;</div><div class="line">    List&lt;Item&gt; items = itemRepository.findByName(<span class="string">"teapot"</span>);</div><div class="line">  &#125;</div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSomethingElse</span><span class="params">()</span> </span>&#123;</div><div class="line">    Item newItem = <span class="keyword">new</span> Item(<span class="string">"smug"</span>, <span class="string">"smug without mug"</span>);</div><div class="line">    itemRepository.save(newItem);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>User-defined query method mimics Rails <a href="http://guides.rubyonrails.org/active_record_querying.html#dynamic-finders" target="_blank" rel="external">Dynamic Finders</a> and it supports more sophisticated combinations like and, or, pagination, limit, asc/desc etc, you can refer to official documentation here[2].</p>
-<p>How does Spring Data JPA do all the magic tricks? Well, it’s not that magic for Spring core. During Spring application bootup, Spring creates a proxy bean for <code>ItemRepository</code> interface at first with the help of Spring AOP, then in that proxy Spring parses all user-defined query method names and store ASTs on the bean. When these query methods get called in runtime, Spring AOP intercepts the method call, fetch the AST, assemble into a Query object combined with query parameters, then hand over to JPA. I give a more thorough analysis in another post.</p>
+<p>How does Spring Data JPA do all the magic tricks? Well, it’s not that magic for Spring core. During Spring application bootup, Spring creates a proxy bean for <code>ItemRepository</code> interface at first with the help of Spring AOP, then in that proxy Spring parses all user-defined query method names and store ASTs on the bean. When these query methods get called in runtime, Spring AOP intercepts the method call, fetch the AST, assemble into a Query object combined with query parameters, then hand over to JPA. I give a more thorough analysis in <a href="/2017-03-22-spring-data-jpa-internals-en">another post</a>.</p>
 <h3 id="Spring-Boot"><a href="#Spring-Boot" class="headerlink" title="Spring Boot"></a>Spring Boot</h3><p>Spring Boot is another Spring project, a Convention over Configuration follower and a relatively successful one. It has done a lot of work based on Spring which makes it much easier to build a Spring application.</p>
 <p>In old days we need to list all depending artifacts in pom.xml or gradle.build, which is really annoying and cumbersome, Spring Boot thoughtfully gives us <code>Spring Boot Starters</code>, a one-stop-shop for all the Spring and related technology. It organizes related dependencies into groups from a Spring user’s perspective, we only need to include the group dependency descriptor artifactId in our pom.xml or build.gradle. For example when we develop a Spring Web application, generally we need to import Spring MVC, spring-web module, and Jackson etc, with Spring Boot we just import <code>spring-boot-starter-web</code> once for all. The same goes to <code>spring-boot-starter-test</code> which includes JUnit, Hamcrest and Mockito; and <code>spring-boot-starter-data-jpa</code> which includes everything related to relational database interaction.</p>
 <p>Like I said before Spring Web applications need to put into Servlet containers in order to run, however, <code>spring-boot-starter-web</code> starter includes an embedded Tomcat, which can be started through <code>SpringApplication.run()</code> within our code in main function. In this way, our Spring Web applications are directly runnable via commandline, or IDE, or <code>java -jar</code> after packaged into a independent jar file.</p>
@@ -437,6 +437,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017-03-22-spring-data-jpa-internals-en/" rel="prev" title="Spring Data JPA Internals">
+                Spring Data JPA Internals <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -511,7 +515,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">20</span>
+              <span class="site-state-item-count">21</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
