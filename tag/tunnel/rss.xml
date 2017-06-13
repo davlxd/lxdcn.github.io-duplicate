@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+   
+      <title>post.lxd.me</title>
+   
+   <link>https://post.lxd.me/</link>
+   <description></description>
+   <language>en-uk</language>
+   <managingEditor>  </managingEditor>
+   <atom:link href="rss" rel="self" type="application/rss+xml" />
+   
+	<item>
+	  <title>A simple VPN (tunnel with tun device) demo and some basic concepts</title>
+	  <link>//a-simple-vpn-tunnel-with-tun-device-demo-and-some-basic-concepts</link>
+	  <author> </author>
+	  <pubDate>2017-02-16T20:34:56+08:00</pubDate>
+	  <guid>//a-simple-vpn-tunnel-with-tun-device-demo-and-some-basic-concepts</guid>
+	  <description><![CDATA[
+	     <p>As you may already know, VPN stands for Virtual Private Network, namely it is a private network, with many components being virtualized. From a user’s perspective, all we need is a virtual network interface (e.g. <code class="highlighter-rouge">/dev/tun0</code>) on my device and configure my routing table to route all or part of traffic going through that interface, but what happens then? This post provides a demo revealing some implementation details after the virtual network interface - <strong>tunneling</strong>, the code is <a href="https://github.com/lxdcn/simple-vpn-demo">here</a>.</p>
+
+<p>In a nutshell, the process for client side tunneling is:</p>
+
+<ol>
+  <li>Open an UDP socket whose other side is the server.</li>
+  <li>Create the <code class="highlighter-rouge">tun</code> device, configure it and bring it up.</li>
+  <li>Configure routing table.</li>
+  <li>Read packets from <code class="highlighter-rouge">tun</code> device, encrypt, send to server via socket created in 1st step; And read from the socket, decrypt, write back to <code class="highlighter-rouge">tun</code> device. This step goes on and on.</li>
+</ol>
+
+<p><img src="/assets/images/tunnel-demo-0.png" alt="image" /></p>
+
+<p><br /></p>
+
+<p>The following code snippet creates the UDP socket, which is basic UNIX network programming.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">udp_bind</span><span class="p">(</span><span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="n">addr</span><span class="p">,</span> <span class="n">socklen_t</span><span class="o">*</span> <span class="n">addrlen</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">struct</span> <span class="n">addrinfo</span> <span class="n">hints</span><span class="p">;</span>
+  <span class="k">struct</span> <span class="n">addrinfo</span> <span class="o">*</span><span class="n">result</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">sock</span><span class="p">,</span> <span class="n">flags</span><span class="p">;</span>
+
+  <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">hints</span><span class="p">));</span>
+  <span class="n">hints</span><span class="p">.</span><span class="n">ai_socktype</span> <span class="o">=</span> <span class="n">SOCK_DGRAM</span><span class="p">;</span>
+  <span class="n">hints</span><span class="p">.</span><span class="n">ai_protocol</span> <span class="o">=</span> <span class="n">IPPROTO_UDP</span><span class="p">;</span>
+
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">host</span> <span class="o">=</span> <span class="n">SERVER_HOST</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="mi">0</span> <span class="o">!=</span> <span class="n">getaddrinfo</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">result</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">perror</span><span class="p">(</span><span class="s">"getaddrinfo error"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_family</span> <span class="o">==</span> <span class="n">AF_INET</span><span class="p">)</span>
+    <span class="p">((</span><span class="k">struct</span> <span class="n">sockaddr_in</span> <span class="o">*</span><span class="p">)</span><span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_addr</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">sin_port</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">PORT</span><span class="p">);</span>
+  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_family</span> <span class="o">==</span> <span class="n">AF_INET6</span><span class="p">)</span>
+    <span class="p">((</span><span class="k">struct</span> <span class="n">sockaddr_in6</span> <span class="o">*</span><span class="p">)</span><span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_addr</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">sin6_port</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">PORT</span><span class="p">);</span>
+
+  <span class="n">memcpy</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_addr</span><span class="p">,</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_addrlen</span><span class="p">);</span>
+  <span class="o">*</span><span class="n">addrlen</span> <span class="o">=</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_addrlen</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">==</span> <span class="p">(</span><span class="n">sock</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_family</span><span class="p">,</span> <span class="n">SOCK_DGRAM</span><span class="p">,</span> <span class="n">IPPROTO_UDP</span><span class="p">)))</span> <span class="p">{</span>
+    <span class="n">perror</span><span class="p">(</span><span class="s">"Cannot create socket"</span><span class="p">);</span>
+    <span class="n">freeaddrinfo</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="mi">0</span> <span class="o">!=</span> <span class="n">bind</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_addr</span><span class="p">,</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_addrlen</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">perror</span><span class="p">(</span><span class="s">"Cannot bind"</span><span class="p">);</span>
+    <span class="n">close</span><span class="p">(</span><span class="n">sock</span><span class="p">);</span>
+    <span class="n">freeaddrinfo</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">freeaddrinfo</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+
+  <span class="n">flags</span> <span class="o">=</span> <span class="n">fcntl</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">F_GETFL</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">flags</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">!=</span> <span class="n">fcntl</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">F_SETFL</span><span class="p">,</span> <span class="n">flags</span> <span class="o">|</span> <span class="n">O_NONBLOCK</span><span class="p">))</span>
+      <span class="k">return</span> <span class="n">sock</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="n">perror</span><span class="p">(</span><span class="s">"fcntl error"</span><span class="p">);</span>
+
+  <span class="n">close</span><span class="p">(</span><span class="n">sock</span><span class="p">);</span>
+  <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p><br />
+The following code “clone” a new virtual interface named “tun0” from “/dev/net/tun”. <code class="highlighter-rouge">IFF_TUN</code> illustrates this virtual interface works on network layer while <code class="highlighter-rouge">IFF_TAP</code> will make the interface work on data link layer.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">tun_alloc</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">struct</span> <span class="n">ifreq</span> <span class="n">ifr</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="n">e</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">((</span><span class="n">fd</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="s">"/dev/net/tun"</span><span class="p">,</span> <span class="n">O_RDWR</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">perror</span><span class="p">(</span><span class="s">"Cannot open /dev/net/tun"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">fd</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ifr</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ifr</span><span class="p">));</span>
+
+  <span class="n">ifr</span><span class="p">.</span><span class="n">ifr_flags</span> <span class="o">=</span> <span class="n">IFF_TUN</span> <span class="o">|</span> <span class="n">IFF_NO_PI</span><span class="p">;</span>
+  <span class="n">strncpy</span><span class="p">(</span><span class="n">ifr</span><span class="p">.</span><span class="n">ifr_name</span><span class="p">,</span> <span class="s">"tun0"</span><span class="p">,</span> <span class="n">IFNAMSIZ</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">((</span><span class="n">e</span> <span class="o">=</span> <span class="n">ioctl</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">TUNSETIFF</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">ifr</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">perror</span><span class="p">(</span><span class="s">"ioctl[TUNSETIFF]"</span><span class="p">);</span>
+    <span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">e</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="n">fd</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p><br />
+The following Linux commands route all traffic to the virtual interface, but with exception of packets with destination to VPN server, since tunneling data needs to go straight to VPN server through normal network interfaces. So the above illustration is inaccurate, it should be like this:
+<img src="/assets/images/tunnel-demo-1.png" alt="image" /></p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">setup_route_table</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">run</span><span class="p">(</span><span class="s">"sysctl -w net.ipv4.ip_forward=1"</span><span class="p">);</span>
+  <span class="n">run</span><span class="p">(</span><span class="s">"iptables -t nat -A POSTROUTING -o tun0 -j MASQUERADE"</span><span class="p">);</span>
+  <span class="n">run</span><span class="p">(</span><span class="s">"iptables -I FORWARD 1 -i tun0 -m state --state RELATED,ESTABLISHED -j ACCEPT"</span><span class="p">);</span>
+  <span class="n">run</span><span class="p">(</span><span class="s">"iptables -I FORWARD 1 -o tun0 -j ACCEPT"</span><span class="p">);</span>
+  <span class="kt">char</span> <span class="n">cmd</span><span class="p">[</span><span class="mi">1024</span><span class="p">];</span>
+  <span class="n">snprintf</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">cmd</span><span class="p">),</span> <span class="s">"ip route add %s via $(ip route show 0/0 | sed -e 's/.* via \([^ ]*\).*/</span><span class="se">\1</span><span class="s">/')"</span><span class="p">,</span> <span class="n">SERVER_HOST</span><span class="p">);</span>
+  <span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">);</span>
+  <span class="n">run</span><span class="p">(</span><span class="s">"ip route add 0/1 dev tun0"</span><span class="p">);</span>
+  <span class="n">run</span><span class="p">(</span><span class="s">"ip route add 128/1 dev tun0"</span><span class="p">);</span>
+<span class="p">}</span></code></pre></figure>
+
+<p><br />
+The following code snippet is the core packet switch algorithm. It reads packets from <code class="highlighter-rouge">tun</code> device, encrypt, send UDP socket; And read from UDP socket, decrypt, write to <code class="highlighter-rouge">tun</code> device. I used <code class="highlighter-rouge">select</code> multiplexing to monitor on these 2 fds.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">char</span> <span class="n">tun_buf</span><span class="p">[</span><span class="n">MTU</span><span class="p">],</span> <span class="n">udp_buf</span><span class="p">[</span><span class="n">MTU</span><span class="p">];</span>
+  <span class="n">bzero</span><span class="p">(</span><span class="n">tun_buf</span><span class="p">,</span> <span class="n">MTU</span><span class="p">);</span>
+  <span class="n">bzero</span><span class="p">(</span><span class="n">udp_buf</span><span class="p">,</span> <span class="n">MTU</span><span class="p">);</span>
+
+  <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">fd_set</span> <span class="n">readset</span><span class="p">;</span>
+    <span class="n">FD_ZERO</span><span class="p">(</span><span class="o">&amp;</span><span class="n">readset</span><span class="p">);</span>
+    <span class="n">FD_SET</span><span class="p">(</span><span class="n">tun_fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readset</span><span class="p">);</span>
+    <span class="n">FD_SET</span><span class="p">(</span><span class="n">udp_fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readset</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">max_fd</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">tun_fd</span><span class="p">,</span> <span class="n">udp_fd</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">==</span> <span class="n">select</span><span class="p">(</span><span class="n">max_fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readset</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">))</span> <span class="p">{</span>
+      <span class="n">perror</span><span class="p">(</span><span class="s">"select error"</span><span class="p">);</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kt">int</span> <span class="n">r</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">FD_ISSET</span><span class="p">(</span><span class="n">tun_fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readset</span><span class="p">))</span> <span class="p">{</span>
+      <span class="n">r</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">tun_fd</span><span class="p">,</span> <span class="n">tun_buf</span><span class="p">,</span> <span class="n">MTU</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"read from tun_fd error"</span><span class="p">);</span>
+        <span class="k">break</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="n">encrypt</span><span class="p">(</span><span class="n">tun_buf</span><span class="p">,</span> <span class="n">udp_buf</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>
+
+      <span class="n">r</span> <span class="o">=</span> <span class="n">sendto</span><span class="p">(</span><span class="n">udp_fd</span><span class="p">,</span> <span class="n">udp_buf</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="k">const</span> <span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">client_addr</span><span class="p">,</span> <span class="n">client_addrlen</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"sendto udp_fd error"</span><span class="p">);</span>
+        <span class="k">break</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">FD_ISSET</span><span class="p">(</span><span class="n">udp_fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readset</span><span class="p">))</span> <span class="p">{</span>
+      <span class="n">r</span> <span class="o">=</span> <span class="n">recvfrom</span><span class="p">(</span><span class="n">udp_fd</span><span class="p">,</span> <span class="n">udp_buf</span><span class="p">,</span> <span class="n">MTU</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">client_addr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">client_addrlen</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"recvfrom udp_fd error"</span><span class="p">);</span>
+        <span class="k">break</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="n">decrypt</span><span class="p">(</span><span class="n">udp_buf</span><span class="p">,</span> <span class="n">tun_buf</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>
+
+      <span class="n">r</span> <span class="o">=</span> <span class="n">write</span><span class="p">(</span><span class="n">tun_fd</span><span class="p">,</span> <span class="n">tun_buf</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"write tun_fd error"</span><span class="p">);</span>
+        <span class="k">break</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span></code></pre></figure>
+
+<p><br />
+As a simple Point-to-Point VPN tunnel, server side code is almost identical to the client side since the core packet switch logic is the same. The complete code for both server side and client side is <a href="https://github.com/lxdcn/simple-vpn-demo">here</a>. And iOS demo written in Swift 3 is <a href="https://github.com/lxdcn/NEPacketTunnelVPNDemo">here</a>.</p>
+
+
+	  ]]></description>
+	</item>
+
+	<item>
+	  <title>Let SSH Tunnel Rescue You in Restricted Network Environment</title>
+	  <link>//let-ssh-tunnel-rescue-you-in-restricted-network-environment</link>
+	  <author> </author>
+	  <pubDate>2016-08-27T20:34:56+08:00</pubDate>
+	  <guid>//let-ssh-tunnel-rescue-you-in-restricted-network-environment</guid>
+	  <description><![CDATA[
+	     <p>Networking policies in traditional companies are very strict due to its traditional nature. This may mean a lot from administrative or audit point of view, but as a developer, it makes me very difficult to apply DevOps practices like build CD pipeline, or at least deploy software to multiple environments automatically. And I seriously doubt how much it contributes to information security comparing how much trouble it makes.</p>
+
+<p>One of many tough scenarios we’ve faced is this: we have 3 servers, <code class="highlighter-rouge">workstation</code> is a Windows server, which can ssh to Linux server <code class="highlighter-rouge">A</code> and <code class="highlighter-rouge">B</code>, but <code class="highlighter-rouge">A</code> and <code class="highlighter-rouge">B</code> are network isolated from each other, we need <code class="highlighter-rouge">A</code> to access the HTTP server on <code class="highlighter-rouge">B</code>.</p>
+
+<p>The optimal way to solve these kinds of problems is trying to solve at higher levels, like convince policy makers to lower their strictness as it hurts productivity, sadly it’s always almost impossible, then we have to ask technology for help. Since the whole stack above OS is built on software so basically technology can do almost anything. But after all it’s local optimization, a twisted use case of technology.</p>
+
+<p>Before I illustrate the solution by using SSH tunnel, let’s recap some basic concepts.</p>
+
+<h2 id="concepts-about-ssh-tunnel">Concepts about SSH Tunnel</h2>
+
+<p>SSH tunnel a.k.a. SSH port forwarding - as the name suggests - provides a way to forward connections to a local port, through SSH connection, to another server on behalf of SSH server, or the other way around, based on an established SSH connection. There are 3 kinds of SSH port forwarding: Local port forwarding, Remote port forwarding, and Dynamic port forwarding.</p>
+
+<p>Let’s say Alice usually uses <code class="highlighter-rouge">laptop</code> to ssh to her  <code class="highlighter-rouge">ec2</code> on AWS like this: <code class="highlighter-rouge">[alice@laptop ~] $ ssh -p 22 alice@ec2</code> (with security group already configured to allow this connection).</p>
+
+<p><strong>Local port forwarding</strong> makes TCP connections to a specific port on <code class="highlighter-rouge">laptop</code> get forwarded to another server by <code class="highlighter-rouge">ec2</code>, the magic option is <code class="highlighter-rouge">-L</code>. Alice can run <code class="highlighter-rouge">[alice@laptop ~] $ ssh -L 3000:server:4000 -p 22 alice@ec2</code> on her laptop, during the SSH session, accessing port 3000 on <code class="highlighter-rouge">laptop</code> is kind of the same as <code class="highlighter-rouge">ec2</code> accessing port 4000 on <code class="highlighter-rouge">server</code>.</p>
+
+<p>For instance, there is a another Linux server <code class="highlighter-rouge">ec2_secret</code> to which <code class="highlighter-rouge">laptop</code> cannot ssh, but <code class="highlighter-rouge">ec2</code> can. After running <code class="highlighter-rouge">[alice@laptop ~] $ ssh -L 2200:ec2_secret:22 alice@ec2</code>, during the session, Alice can directly ssh to <code class="highlighter-rouge">ec2_secret</code> by running <code class="highlighter-rouge">[alice@laptop ~] $ ssh alice@localhost -p 2200</code>, instead of ssh to <code class="highlighter-rouge">ec2</code> then ssh to <code class="highlighter-rouge">ec2_secret</code> manually. This is <code class="highlighter-rouge">SSH Relay</code>.</p>
+
+<p><strong>Remote port forwarding</strong> is kind of in the opposite direction, with magic option <code class="highlighter-rouge">-R</code>. After running <code class="highlighter-rouge">[alice@laptop ~] $ ssh -R 3000:server:4000 -p 22 alice@ec2</code>, during the ssh session, accessing port 3000 on <code class="highlighter-rouge">ec2</code> is the same as <code class="highlighter-rouge">laptop</code> accessing port 4000 on <code class="highlighter-rouge">server</code>.</p>
+
+<p>For both <code class="highlighter-rouge">Local port forwarding</code> and <code class="highlighter-rouge">Remote port forwarding</code>, <code class="highlighter-rouge">server</code> can be same as a forwarding machine (<code class="highlighter-rouge">ec2</code> for <code class="highlighter-rouge">Local port forwarding</code>, <code class="highlighter-rouge">laptop</code> for <code class="highlighter-rouge">Remote port forwarding</code>), which is especially useful for <code class="highlighter-rouge">Remote port forwarding</code>. Consider this scenario: Alice usually leaves her laptop at home with a Wi-Fi network connection to a wireless router, when she goes to work, every now and then she wants to access her laptop by the PC in the company, what she gonna do? The pure command-line/SSH solution is very straightforward with the help of <code class="highlighter-rouge">Remote port forwarding</code>: Before she leaves home in the morning, she opens a <code class="highlighter-rouge">Remote port forwarding</code> ssh connection from her <code class="highlighter-rouge">laptop</code> to <code class="highlighter-rouge">ec2</code> like this <code class="highlighter-rouge">[alice@laptop ~] $ ssh -R 2200:localhost:22 -p 22 alice@ec2</code>, thus ssh connection to port 2200 on <code class="highlighter-rouge">ec2</code> itself will be forwarded to port 22 on <code class="highlighter-rouge">laptop</code> itself. When she arrives at company, she can ssh to <code class="highlighter-rouge">ec2</code> from her <code class="highlighter-rouge">PC</code> at first, then ssh to her <code class="highlighter-rouge">laptop</code> by <code class="highlighter-rouge">[alice@ec2 ~] $ ssh -p 2200 alice@localhost</code>.</p>
+
+<p><strong>Dynamic port forwarding</strong> opens a SOCKS proxy port on top of an established SSH connection, we people in China use this to bypass GFW very often. Let’s assume Alice gets very lucky and takes a business trip to China, after she lands she finds herself won’t be able to access Google, Facebook, Twitter etc. If she can still access <code class="highlighter-rouge">ec2</code>, by running <code class="highlighter-rouge">[alice@laptop ~] $ ssh -D 1080 -C -p 22 alice@ec2</code> in terminal where <code class="highlighter-rouge">-D</code> stands for <strong>Dynamic port forwarding</strong> and <code class="highlighter-rouge">-C</code> stands for compress payload data, opens a SOCKS proxy on port 1080 on her laptop. The world will come back to live again after she sets SOCKS proxy to <code class="highlighter-rouge">127.0.0.1:1080</code> for the browser.</p>
+
+<h2 id="connecting-the-dots">Connecting the Dots</h2>
+
+<p>After a full understanding of <code class="highlighter-rouge">Local port forwarding</code> and <code class="highlighter-rouge">Remote port forwarding</code>, the tough scenario at the beginning of this post can be easily handled by using <code class="highlighter-rouge">Local port forwarding</code> and <code class="highlighter-rouge">Remote port forwarding</code> together:
+[alice@workstation ~] $ ssh -R 2000:localhost:3000 alice@A
+[alice@workstation ~] $ ssh -L 3000:localhost:4000 alice@B</p>
+
+<p>thus, server <code class="highlighter-rouge">A</code> can access HTTP service of port 4000 on server <code class="highlighter-rouge">B</code> by access http://localhost:2000.</p>
+
+<p>Furthermore, if HTTP port 2000 on server <code class="highlighter-rouge">A</code> needs to accept HTTP connection from other servers in the same network, just change <code class="highlighter-rouge">GatewayPorts</code> to <code class="highlighter-rouge">yes</code> in <code class="highlighter-rouge">/etc/ssh/sshd_config</code> on server <code class="highlighter-rouge">A</code>.</p>
+
+<p>In a word, if one machine can ssh to another machine, these 2 machines then closely associated with each other: they can exchange files by <code class="highlighter-rouge">scp</code>, one can provision another by <code class="highlighter-rouge">Ansible</code>, and by <code class="highlighter-rouge">SSH Tunnel</code> one can access another’s resource on its behalf.</p>
+
+<hr />
+
+<h3 id="refers">Refers</h3>
+<ul>
+  <li>https://help.ubuntu.com/community/SSH/OpenSSH/PortForwarding</li>
+</ul>
+
+
+	  ]]></description>
+	</item>
+
+	<item>
+	  <title>受限环境中的奇淫技巧之 — ssh通道</title>
+	  <link>//ssh-tunnel-in-restricted-env</link>
+	  <author> </author>
+	  <pubDate>2016-08-15T20:34:56+08:00</pubDate>
+	  <guid>//ssh-tunnel-in-restricted-env</guid>
+	  <description><![CDATA[
+	     <h3 id="ssh-">ssh 端口转发</h3>
+<p>先复习一下基础知识，ssh 端口转发（ssh Port Forwarding），也叫ssh通道（ssh tunnel），是openSSH提供的~~中国~~特色功能。它的功能，是在一条已经建立的ssh连接的基础上，将对本地端口的请求，经由ssh，通过ssh server转发到另外一台服务器；或者对ssh server端口的请求经由ssh，通过本地机器转发到另外一台服务器。它有3种：</p>
+
+<ul>
+  <li>ssh本地端口转发（Local port forwarding）</li>
+  <li>ssh远端端口转发（Remote port forwarding）</li>
+  <li>ssh动态端口转发（Dynamic port forwarding）</li>
+</ul>
+
+<p>假定有一个程序员叫Alice，她有一台笔记本（laptop），还有一个在云提供商上的Linux server（workstation），她平时ssh连接到workstation上是这样操作的：<code class="highlighter-rouge">[alice@laptop ~] $ ssh -p 22 alice@workstation</code> —— Alice在她的笔记本（laptop）上，用ssh默认端口22，连接到她的workstation上。</p>
+
+<p><strong>ssh本地端口转发</strong>，是将Alice对laptop的某个端口的TCP请求，通过ssh，经由workstation，转发到另外一台server的特定端口上，靠ssh的<code class="highlighter-rouge">-L</code>开关 ，命令是这样的：<code class="highlighter-rouge">[alice@laptop ~] $ ssh -L 3000:server:4000 -p 22 alice@workstation</code>。如是，Alice在laptop上访问3000端口，就相当于<u>在workstation上访问server的4000端口</u>。比如有个HTTP服务Alice在laptop上访问不到，但是可以在workstation上访问到，借助<code class="highlighter-rouge">ssh -L 8080:server:80 -p 22 alice@workstation</code>本地端口转发，Alice在laptop上用浏览器访问<code class="highlighter-rouge">http://localhost:8080</code>，相当于在workstation上访问<code class="highlighter-rouge">http://server</code>。</p>
+
+<p>再比如Alice还有一台更早的Linux server，但由于常年用来翻墙，已经被功夫网封禁掉了（就叫workstation_blocked），除了先手动ssh到workstation上再ssh到workstation_blocked上之外，她还可以先执行：<code class="highlighter-rouge">[alice@laptop ~] $ ssh -L 2000:workstation_blocked:22 alice@workstation</code>，然后每次需要访问workstation_blocked的时候执行<code class="highlighter-rouge">[alice@laptop ~] $ ssh alice@localhost -p 2000</code>就可以了。——这个就是ssh中继（ssh relay）。</p>
+
+<p><strong>ssh远端端口转发</strong>，和本地端口转发相反。Alice建立了ssh连接之后，使得对workstation上某个端口的TCP访问，经由ssh，通过laptop，转发到另外一台server上。靠的是ssh的<code class="highlighter-rouge">-R</code>开关，命令是这样的：<code class="highlighter-rouge">[alice@laptop ~] $ ssh -R 3000:server:4000 -p 22 alice@workstation</code>。如是，Alice在workstation上访问3000端口，就相当于在laptop上访问server的4000端口。</p>
+
+<p>无论是本地端口转发还是远端端口转发，server都可以是localhost，这个对远端端口转发来说就很有用。比如有这样的场景：Alice的laptop平时搁家里，连无线路由Wi-Fi上网，Alice在公司上班的时候，忙里偷闲，想通过公司的PC访问远在家里的laptop怎么办？首先，Alice在早上上班出门前需要先在laptop上用ssh连接到workstation上，打开远端端口转发到laptop的22端口：<code class="highlighter-rouge">[alice@laptop ~] $ ssh -R 2000:localhost:22 -p 22 alice@workstation</code>，这样，在workstation上对2000端口的TCP连接，都会经由ssh，通过laptop，转发到laptop本身（localhost）的22端口上。然后她在公司的PC上，先ssh普通连接到workstation，再<code class="highlighter-rouge">[alice@workstation ~] $ ssh -p 2000 alice@localhost</code>，就可以偷闲了。</p>
+
+<p><strong>ssh动态端口转发</strong>，即在ssh连接上开启一个SOCKS的代理端口，是翻墙3大法器（VPN、HTTP Proxy、SOCKS Proxy）中SOCKS Proxy的ssh分支。命令是<code class="highlighter-rouge">[alice@laptop ~] $ ssh -D 1080 -C -p 22 alice@server_ip</code>，然后在浏览器中设置SOCKS代理到127.0.0.1，1080端口，即可翻墙。</p>
+
+<p>openSSH还提供了两个开关可以结合端口转发使用，<code class="highlighter-rouge">-N</code>在ssh连接成功后不开启shell，<code class="highlighter-rouge">-f</code>在ssh连接成功后会把ssh搁到后台。</p>
+
+<hr />
+
+<h3 id="section">实际场景</h3>
+<p>复习完基础知识，就到实际场景应用了，既然是受限环境，那各式各样政策规定和陈腐的基础设施，就会导致各种奇葩的问题需要解决。事实上，我们这些软件从业者工作在一个纯软件堆砌的工作平台上，可以说软件，或者说技术，理论上可以解决一切问题，前提是成本的考量和政策规范的允许。当软件因故做不到一些事情的时候，政策规定和游戏规则可以来弥补；当博弈成本太高不堪重负的时候，软件可以来帮忙。这儿其实在做第3类事情：技术救场，算是局部优化，虽然有效，终究不是正途。</p>
+
+<p>场景是这样的，有这样1台服务器，我们称它为workstation，它分别可以ssh到另外2台服务器上去，我们分别称为A和B。workstation可以分别和A、B ssh连接，但是反之则不行，而A和B之间是网络隔离的，现在我们需要让A可以从B获取数据，比如B上面开启一个HTTP Server，让A能够访问。哦，对了， workstation还是一台Windows Server，呵呵。</p>
+
+<p>首先需要在Windows上能够进行ssh操作，并且可以打开端口转发，精品小工具Putty就可以完成这个操作，只不过它的<a href="https://howto.ccs.neu.edu/howto/windows/ssh-port-tunneling-with-putty/">tunnels设置</a>不如命令行明快，如果内心深处对命令行/Linux有追求，可以安装Cygwin，Git Bash等工具。</p>
+
+<p>有了前面Local Port Forwarding和Remote Port Forwarding的知识准备，串联起来就可以达到效果，假定serverB上面开启了一个4000端口的HTTP Server，分别启用下面两个端口转发：</p>
+
+<ul>
+  <li><code class="highlighter-rouge">[alice@workstation ~] $ ssh -R 2000:localhost:3000 alice@serverA</code></li>
+  <li><code class="highlighter-rouge">[alice@workstation ~] $ ssh -L 3000:localhost:4000 alice@serverB</code></li>
+</ul>
+
+<p>那么在serverA上访问本地端口2000，就可以访问到serverB的4000。</p>
+
+<p>这个场景可以再扩展一点点，假定serverA所在的机房有个集群，除了serverA还有serverA1、serverA2、serverA3 ……，这些serverAn网络互通，并且都需要访问serverB上端口4000的HTTP Server，怎么办？
+首先，针对ssh的远端端口转发，绑定在远端host上的那个端口，（比如<code class="highlighter-rouge">[alice@workstation ~] $ ssh -R 2000:localhost:3000 alice@serverA</code>中的2000），默认只接受来自localhost的请求。想要破坏掉这一点，修改<code class="highlighter-rouge">/etc/ssh/sshd_config</code>配置文件中的<code class="highlighter-rouge">GatewayPorts</code>为<code class="highlighter-rouge">yes</code>，重新加载sshd服务就可以了，这样，这些serverAn机器，统一访问serverA上的2000端口，即可以访问到serverB的4000端口。</p>
+
+<hr />
+
+<h3 id="refers">Refers</h3>
+<ul>
+  <li>https://help.ubuntu.com/community/SSH/OpenSSH/PortForwarding</li>
+</ul>
+
+
+	  ]]></description>
+	</item>
+
+
+</channel>
+</rss>

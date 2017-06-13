@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- [[! Document Settings ]] -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- [[! Page Meta ]] -->
+    <title>Spring Introduction</title>
+    <meta name="description" content="Thoughts, Notes and Collections - " />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="/assets/images/favicon.ico" >
+
+    <!-- [[! Styles'n'Scripts ]] -->
+    <link rel="stylesheet" type="text/css" href="/assets/css/screen.css" />
+    <link rel="stylesheet" type="text/css"
+          href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/syntax.css" />
+
+    <!-- [[! highlight.js ]] -->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/styles/default.min.css">
+    <style>.hljs { background: none; }</style>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <!-- [[! Ghost outputs important style and meta data with this tag ]] -->
+        <link rel="canonical" href="/" />
+    <meta name="referrer" content="origin" />
+    <link rel="next" href="/page2/" />
+
+    <meta property="og:site_name" content="Thoughts, Notes and Collections" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Thoughts, Notes and Collections" />
+    <meta property="og:description" content="" />
+    <meta property="og:url" content="/" />
+    <meta property="og:image" content="/assets/images/cover1.jpg" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Thoughts, Notes and Collections" />
+    <meta name="twitter:description" content="" />
+    <meta name="twitter:url" content="/" />
+    <meta name="twitter:image:src" content="/assets/images/cover1.jpg" />
+
+    <script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "Website",
+    "publisher": "Finding The Way Home",
+    "url": "/",
+    "image": "/assets/images/cover1.jpg",
+    "description": ""
+}
+    </script>
+
+    <meta name="generator" content="Jekyll 3.0.0" />
+    <link rel="alternate" type="application/rss+xml" title="Thoughts, Notes and Collections" href="/feed.xml" />
+
+
+</head>
+<body class="home-template nav-closed">
+
+    <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+        <li class="nav-home " role="presentation"><a href="/">Home</a></li>
+        <li class="nav-author " role="presentation"><a href="/author/lxd">Author</a></li>
+        <li class="nav-en  nav-current" role="presentation"><a href="/tag/en">English posts</a></li>
+        <li class="nav-chs " role="presentation"><a href="/tag/chs">中文 posts</a></li>
+        <li class="nav-tech " role="presentation"><a href="/tag/tech">Tech related posts</a></li>
+        <li class="nav-novella " role="presentation"><a href="/tag/novella">Novella</a></li>
+
+    </ul>
+    <a class="subscribe-button icon-feed" href="/feed.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+
+    <div class="site-wrapper">
+
+        <!-- [[! Everything else gets inserted here ]] -->
+        <!-- < default -->
+
+<!-- The comment above "< default" means - insert everything in this file into -->
+    <!-- the [body] of the default.hbs template, which contains our header/footer. -->
+
+<!-- Everything inside the #post tags pulls data from the post -->
+<!-- #post -->
+
+<header class="main-header post-head " style="background-image: url(/assets/images/spring-java-ee.png) ">
+    <nav class="main-nav  overlay  clearfix">
+        <a class="blog-logo" href="/"><img src="/assets/images/host.png" alt="Blog Logo" /></a>
+        
+            <a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+        
+    </nav>
+</header>
+
+<main class="content" role="main">
+
+    <article class="post">
+
+        <header class="post-header within-layout-post">
+            <h1 class="post-title">Spring Introduction</h1>
+            <section class="post-meta">
+            <!-- <a href='/'> </a> -->
+            <time class="post-date" datetime="2017-03-17">17 Mar 2017</time>
+                <!-- [[tags prefix=" on "]] -->
+                 
+                on 
+                
+                    
+                       <a href='/tag/tech'>Tech</a>,
+                       
+                
+                    
+                       <a href='/tag/java'>Java</a>,
+                       
+                
+                    
+                       <a href='/tag/spring'>Spring</a>,
+                       
+                
+                    
+                       <a href='/tag/aop'>Aop</a>,
+                       
+                
+                    
+                       <a href='/tag/ioc'>Ioc</a>,
+                       
+                
+                    
+                       <a href='/tag/spring-DI'>Spring-di</a>,
+                       
+                
+                    
+                       <a href='/tag/spring-boot'>Spring-boot</a>,
+                       
+                
+                    
+                       <a href='/tag/spring-mvc'>Spring-mvc</a>,
+                       
+                
+                    
+                       <a href='/tag/en'>En</a>
+                       
+                
+                
+            </section>
+        </header>
+
+        <section class="post-content">
+            
+            <p>This article is a recap of a presentation I gave to my teammates, a brief introduction to Spring framework and related concepts, and 3 common Spring projects (Spring MVC, Spring Data JAP, and Spring Boot).</p>
+
+<h3 id="spring-and-java-ee">Spring and Java EE</h3>
+
+<p><img src="/assets/images/spring-java-ee.png" alt="Spring and Java EE" /></p>
+
+<p>Let’s talk a bit about Java first. Java has multiple <strong>edition</strong>s: Java SE, Java EE and Java ME. Java SE and Java EE are closely related to Spring framework. Java SE (Java Platform, Standard Edition) contains JVM and all core libraries and APIs, while Java EE (Java Platform, Enterprise Edition) is a set of specifications and APIs which will be used to develop large-scale enterprise applications, such as <code class="highlighter-rouge">servlet specification</code> used to handle HTTP request and <code class="highlighter-rouge">JPA</code> describes the management of relational database. Java EE constitutes of JSRs (Java Specification Request) maintained by JCP (Java Community Process), just like RFC to IETF.</p>
+
+<p>There are several Java EE implementations in the industry, all belong to IT giants, like IBM’s WebSphere Application Server (WAS), Oracle’s WebLogic, and JBoss which belongs to RedHat. They all comply to Java EE standards, and they all implement most of Java EE specifications like Servlet and JPA, and they mostly are called <code class="highlighter-rouge">Application Server</code>s since Java EE makes sure our applications can run upon. The open source alternatives of these application servers like Tomcat or Jetty are called <code class="highlighter-rouge">Web Container</code>, since they only implement Web related specifications such as Server spec and JSP specs. If we need dependency injection we bring in Spring, if we need to interact with relational databases, we bring in Hibernate.</p>
+
+<p>And strictly speaking, Spring is not an implementation of Java EE, since even she does implement lower level Java EE specs like Servlet and JPA, but she uses its own stuff for higher level APIs like dependency injection and RESTful web service. Java EE specs for dependency injection is CDI while Spring uses Spring DI, and for REST it’s JAX-RS vs Spring MVC.</p>
+
+<h3 id="spring-ioc--di">Spring IoC / DI</h3>
+<p>At its core, the foundation concept of Spring Framework is DI (Dependency Injection) or a.k.a. IoC (Inversion of Control). These 2 abbreviations are really novice-unfriendly, and so require some explanations.</p>
+
+<p>IoC is a theory, a technology, not only exist in Spring. Generally speaking, for some entity, the work/flow which this entity should initiate, turns out to this entity passively receive, this active-passive turnover is IoC. For example you want to write a small trivial program at work, at the beginning it’s a small program calling some 3rd party libraries, this is the active role your code is playing, as your trivial program grew bigger you import a framework to sort things out, your code becomes callbacks or interface implementations, now your code plays the passive role. With the help of IoC we can achieve decoupling, free our hands by relieving responsibilities.</p>
+
+<p>For Spring IoC, it’s the responsibility of object instantiation and dependency tree maintenance that being shifted from our hands to Spring.  For example, when we write Java application without Spring IoC, it could be like this:</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">B</span> <span class="o">{</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">C</span> <span class="o">{</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">A</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">B</span> <span class="n">b</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">C</span> <span class="n">c</span> <span class="o">=</span> <span class="k">new</span> <span class="n">C</span><span class="o">();</span>
+
+    <span class="kd">public</span> <span class="n">A</span><span class="o">(</span><span class="n">B</span> <span class="n">b</span><span class="o">)</span> <span class="o">{</span> <span class="k">this</span><span class="o">.</span><span class="na">b</span> <span class="o">=</span> <span class="n">b</span><span class="o">;</span> <span class="o">}</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="n">setB</span><span class="o">(</span><span class="n">B</span> <span class="n">b</span><span class="o">)</span> <span class="o">{</span> <span class="k">this</span><span class="o">.</span><span class="na">b</span> <span class="o">=</span> <span class="n">b</span><span class="o">;</span> <span class="o">}</span>
+<span class="o">}</span>
+<span class="n">A</span> <span class="n">a</span> <span class="o">=</span> <span class="k">new</span> <span class="n">A</span><span class="o">(</span><span class="k">new</span> <span class="n">B</span><span class="o">());</span></code></pre></figure>
+
+<p>It’s class A depends on Class B and Class C, we pass the objects of A and B through constructor and setter function. With the help of Spring IoC and some other Spring tricks, it could be like this:</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Component</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">B</span> <span class="o">{</span>
+<span class="o">}</span>
+
+<span class="nd">@Component</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">C</span> <span class="o">{</span>
+<span class="o">}</span>
+
+<span class="nd">@Component</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">A</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">B</span> <span class="n">b</span><span class="o">;</span>
+    <span class="nd">@Autowired</span> <span class="kd">private</span> <span class="n">C</span> <span class="n">c</span><span class="o">;</span>
+
+    <span class="nd">@Autowired</span>
+    <span class="kd">public</span> <span class="n">A</span><span class="o">(</span><span class="n">B</span> <span class="n">b</span><span class="o">)</span> <span class="o">{</span> <span class="k">this</span><span class="o">.</span><span class="na">b</span> <span class="o">=</span> <span class="n">b</span><span class="o">;</span> <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<p><code class="highlighter-rouge">@Component</code> annotations tell Spring the annotated classes need to be instantiated as beans, which are Java objects managed by Spring, while <code class="highlighter-rouge">@Autowired</code> annotations tell Spring to inject the type-matched beans to the annotated fields, and this is duly <code class="highlighter-rouge">dependency injection</code>.</p>
+
+<h3 id="web-container">Web container</h3>
+<p>Web container a.k.a. Servlet container is different from Web Server. Nginx and Apache are web servers, which mainly handle HTTP requests. Web containers like Tomcat, Jetty or GlassFish, however, are like fish tanks where Java Servlets live in. Application Server I mention above can be considered as a superset of Web container, since it’s capable of more than containing servlets. Almost all Java Web applications we write in the end are a bunch of servlets or facaded by servlets, these servlets cannot run on their own, neither can they directly handle HTTP requests. They need to be managed by Web containers, and web containers dispatch HTTP requests to servlets based on mapping rules, like below:</p>
+
+<p><img src="/assets/images/servlet-container.png" alt="Servlet" /></p>
+
+<p>The whole process is Java EE spec, which Web containers, application servers, and Java Web applications should all follow, so we can deploy our applications to any Web containers or application servers with minor adaptation.</p>
+
+<h3 id="spring-mvc">Spring MVC</h3>
+<p>Spring framework consists of many modules, spring-core and spring-beans are at at core, spring-jdbc and spring-orm are responsible for database interaction etc. It’s too common to use Spring to build backend RESTful APIs, so it’s necessary to give a quick view of Spring Web MVC module.</p>
+
+<p>As I stated before you cannot get away with servlets for HTTP in Java, Spring MVC is tangled with servlet as well. Spring MVC is facaded by <code class="highlighter-rouge">DispatchServlet</code> which accepts all HTTP requests and then dispatch to other HTTP endpoints in your application. The following is an HTTP endpoint demo with Spring MVC:</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@RestController</span>
+<span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">"/stores/{storeId}/items"</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ItemController</span> <span class="o">{</span>
+    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">path</span> <span class="o">=</span> <span class="s">"/{itemId}"</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">,</span> <span class="n">produces</span> <span class="o">=</span> <span class="n">MediaType</span><span class="o">.</span><span class="na">APPLICATION_JSON_UTF8_VALUE</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="n">Item</span> <span class="n">retrieveItem</span><span class="o">(</span><span class="nd">@PathVariable</span> <span class="n">String</span> <span class="n">storeId</span><span class="o">,</span> <span class="nd">@PathVariable</span> <span class="n">String</span> <span class="n">itemId</span><span class="o">)</span> <span class="o">{</span>
+        <span class="o">...</span>
+        <span class="k">return</span> <span class="n">item</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">POST</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="n">ResponseEntity</span> <span class="n">createItem</span><span class="o">(</span><span class="nd">@RequestBody</span> <span class="n">Item</span> <span class="n">item</span><span class="o">)</span> <span class="o">{</span>
+        <span class="o">...</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="n">ResponseEntity</span><span class="o">&lt;&gt;(</span><span class="n">HttpStatus</span><span class="o">.</span><span class="na">OK</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<ul>
+  <li><code class="highlighter-rouge">@RestController</code> is annotated on Java Class, which means annotated Class is a RESTful API endpoint, hence the Controller in MVC architecture. All Controllers and RestControllers are Spring-managed beans as well.</li>
+  <li><code class="highlighter-rouge">@RequestMapping</code> defines URL routing mapping rules, the one annotated on Class can specify absolute path while the one annotated on method specify the relative path. And methods annotated with <code class="highlighter-rouge">@RequestMapping</code> are responsible for handle HTTP requests and serve responses.</li>
+  <li>Paths specified by <code class="highlighter-rouge">@RequestMapping</code> comply with URL Template<sup>[<a href="https://tools.ietf.org/html/rfc6570">1</a>]</sup> and <code class="highlighter-rouge">@PathVariable</code> can extract variable values in it.</li>
+  <li>By annotating <code class="highlighter-rouge">@RequestBody</code> on method parameters, Spring will convert HTTP request body to Java object and inject to annotated parameters. And Spring also will convert method return value to HTTP response in JSON format, since class is annotated with <code class="highlighter-rouge">@RestController</code></li>
+  <li><code class="highlighter-rouge">ResponseEntity</code> is a generic class containing HTTP response body, and HTTP headers and status code which you can tweak. In this demo the method responds empty body with status code specified to 200.</li>
+</ul>
+
+<p>With an extremely simplified Class Item, the terminal should look like this if we call the RESTful API with cURL</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Item</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="n">getName</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="n">name</span><span class="o">;</span> <span class="o">}</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="n">setName</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span> <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span> <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">$ curl -v http://localhost:8080/stores/16/items/1
+...
+&gt; 
+&lt; HTTP/1.1 200 OK
+&lt; Server: Apache-Coyote/1.1
+&lt; Content-Type: application/json;charset=UTF-8
+...
+
+{"name":"hehe"}%</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">curl -v -H "Content-Type: application/json" -i -X POST -d '{"name":"haha"}' http://localhost:8080/stores/16/items
+...
+&gt; Content-Type: application/json
+&gt; Content-Length: 15
+&gt; 
+&lt; HTTP/1.1 200 OK
+&lt; Server: Apache-Coyote/1.1
+&lt; Content-Length: 0
+...</code></pre></figure>
+
+<h3 id="spring-data-jpa">Spring Data JPA</h3>
+<p>Spring has always been considered a framework, but in recent years it’s more like a portfolio, contains dozens of <a href="https://spring.io/projects">projects</a>, all based on original Spring framework but provide various abundant features, Spring Data is one of them. Spring Data provides consistent, elegant, and easy-to-use interfaces to access persistent facilities, and Spring Data JPA is one of the modules specifically deal with relational databases. As we can see soon, Spring Data JPA provides a set of very tidy interfaces for us to implement routine CRUDs.</p>
+
+<p>Spring Data JPA exposes a bunch of Java interfaces to users, behind the scenes it uses Dynamic Proxy AOP to inject actual work in runtime. The interface at the top is <code class="highlighter-rouge">Repository&lt;T, ID extends Serializable&gt;</code>, then it’s <code class="highlighter-rouge">CrudRepository&lt;T, ID extends Serializable&gt;</code> providing basic CRUD operations, and <code class="highlighter-rouge">JpaRepository&lt;T, ID extends Serializable&gt;</code> with JPA related actions etc. They all generic interfaces whose first type parameter is entity class corresponding to a database table, and the 2nd parameter is the type of ID in the entity class. To use Spring Data JPA all we need is create an interface extends one of these interfaces and then declare methods we will be calling in it.</p>
+
+<p>The following example demonstrates how Spring Data JPA simplifies the process of exposing CRUD interfaces to a simple data entity.</p>
+
+<p>Given the table structure and Entity class:</p>
+
+<figure class="highlight"><pre><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">item</span> <span class="p">(</span>
+  <span class="n">id</span>          <span class="n">VARCHAR</span><span class="p">(</span><span class="mi">36</span><span class="p">)</span>  <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="n">name</span>        <span class="n">VARCHAR</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="n">description</span> <span class="n">VARCHAR</span><span class="p">(</span><span class="mi">128</span><span class="p">),</span>
+  <span class="k">CONSTRAINT</span> <span class="n">itemPk</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Entity</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Item</span> <span class="o">{</span>
+    <span class="nd">@Id</span>
+    <span class="nd">@GeneratedValue</span><span class="o">(</span><span class="n">generator</span> <span class="o">=</span> <span class="s">"uuid"</span><span class="o">)</span>
+    <span class="nd">@GenericGenerator</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"uuid"</span><span class="o">,</span> <span class="n">strategy</span> <span class="o">=</span> <span class="s">"uuid2"</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">id</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="n">Item</span><span class="o">()</span> <span class="o">{</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="n">Item</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">String</span> <span class="n">description</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">description</span> <span class="o">=</span> <span class="n">description</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">description</span><span class="o">;</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>Firstly we declare an interface extends <code class="highlighter-rouge">CrudRepository</code>, and designate type parameter explicitly</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ItemRepository</span> <span class="kd">extends</span> <span class="n">CrudRepository</span><span class="o">&lt;</span><span class="n">Item</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="o">{</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>Since <code class="highlighter-rouge">CrudRepository</code> already has common CRUD methods like <code class="highlighter-rouge">save(S entity)</code>, <code class="highlighter-rouge">findOne(ID id)</code>, <code class="highlighter-rouge">exists(ID id)</code> and <code class="highlighter-rouge">delete(ID id)</code>, so now we only need to fill in some query methods specific to our need, as long as follow naming conventions[1]. For example, if we’d like to find all items with the same name, we can declare <code class="highlighter-rouge">findByName</code> <a href="http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.query-methods.query-creation">here</a></p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ItemRepository</span> <span class="kd">extends</span> <span class="n">CrudRepository</span><span class="o">&lt;</span><span class="n">Item</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">Item</span><span class="o">&gt;</span> <span class="n">findByName</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">);</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>Inject <code class="highlighter-rouge">ItemRepository</code> to wherever we need, then we are able to call these CURD methods directly.</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SomeClient</span> <span class="o">{</span>
+  <span class="nd">@Autowired</span> <span class="kd">private</span> <span class="n">ItemRepository</span> <span class="n">itemRepository</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="kt">void</span> <span class="n">doSomething</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">Item</span><span class="o">&gt;</span> <span class="n">items</span> <span class="o">=</span> <span class="n">itemRepository</span><span class="o">.</span><span class="na">findByName</span><span class="o">(</span><span class="s">"teapot"</span><span class="o">);</span>
+  <span class="o">}</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="n">doSomethingElse</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">Item</span> <span class="n">newItem</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Item</span><span class="o">(</span><span class="s">"smug"</span><span class="o">,</span> <span class="s">"smug without mug"</span><span class="o">);</span>
+    <span class="n">itemRepository</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">newItem</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>User-defined query method mimics Rails <a href="http://guides.rubyonrails.org/active_record_querying.html#dynamic-finders">Dynamic Finders</a> and it supports more sophisticated combinations like and, or, pagination, limit, asc/desc etc, you can refer to official documentation here[2].</p>
+
+<p>How does Spring Data JPA do all the magic tricks? Well, it’s not that magic for Spring core. During Spring application bootup, Spring creates a proxy bean for <code class="highlighter-rouge">ItemRepository</code> interface at first with the help of Spring AOP, then in that proxy Spring parses all user-defined query method names and store ASTs on the bean. When these query methods get called in runtime, Spring AOP intercepts the method call, fetch the AST, assemble into a Query object combined with query parameters, then hand over to JPA. I give a more thorough analysis in <a href="/spring-data-jpa-internals-en">another post</a>.</p>
+
+<h3 id="spring-boot">Spring Boot</h3>
+
+<p>Spring Boot is another Spring project, a Convention over Configuration follower and a relatively successful one. It has done a lot of work based on Spring which makes it much easier to build a Spring application.</p>
+
+<p>In old days we need to list all depending artifacts in pom.xml or gradle.build, which is really annoying and cumbersome, Spring Boot thoughtfully gives us <code class="highlighter-rouge">Spring Boot Starters</code>, a one-stop-shop for all the Spring and related technology. It organizes related dependencies into groups from a Spring user’s perspective, we only need to include the group dependency descriptor artifactId in our pom.xml or build.gradle. For example when we develop a Spring Web application, generally we need to import Spring MVC, spring-web module, and Jackson etc, with Spring Boot we just import <code class="highlighter-rouge">spring-boot-starter-web</code> once for all. The same goes to <code class="highlighter-rouge">spring-boot-starter-test</code> which includes JUnit, Hamcrest and Mockito; and <code class="highlighter-rouge">spring-boot-starter-data-jpa</code> which includes everything related to relational database interaction.</p>
+
+<p>Like I said before Spring Web applications need to put into Servlet containers in order to run, however, <code class="highlighter-rouge">spring-boot-starter-web</code> starter includes an embedded Tomcat, which can be started through <code class="highlighter-rouge">SpringApplication.run()</code> within our code in main function. In this way, our Spring Web applications are directly runnable via commandline, or IDE, or <code class="highlighter-rouge">java -jar</code> after packaged into a independent jar file.</p>
+
+<p>Spring Boot also has fine-tuned a lot of details to keep to Convention over Configuration. Hibernate has <code class="highlighter-rouge">ImprovedNamingStrategy</code> class automatically map camelCase field names in Entity class to snake_case field names in DB tables, however it doesn’t support foreign keys. Spring Boot provides <code class="highlighter-rouge">SpringNamingStrategy</code> which inherits <code class="highlighter-rouge">ImprovedNamingStrategy</code> and adds foreign keys support.</p>
+
+
+
+        </section>
+
+        <footer class="post-footer">
+
+            <!-- Everything inside the #author tags pulls data from the author -->
+            <!-- #author-->
+
+            
+            <figure class="author-image">
+                <a class="img" href="/author/lxd" style="background-image: url(/assets/images/lxd.png)"><span class="hidden">'s Picture</span></a>
+            </figure>
+            
+
+            <section class="author">
+                <h4><a href="/author/lxd"> </a></h4>
+                
+                
+                    <p> A pragmatic, lazy, flexible, sporty, rentless, introverted, charismatic, sophisticated, superficial, impulsive, abnormal badass.</p>
+                
+                <div class="author-meta">
+                    <span class="author-location icon-location"> shenzhen, CN</span> 
+                    <span class="author-link icon-link"><a href="https://post.lxd.me/"> post.lxd.me</a></span> 
+                </div>
+            </section>
+
+            <!-- /author  -->
+
+            <section class="share">
+                <h4>Share this post</h4>
+                <a class="icon-twitter" href="http://twitter.com/share?text=Spring Introduction&amp;url=https://post.lxd.me/spring-introduction-en"
+                    onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                    <span class="hidden">Twitter</span>
+                </a>
+                <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://post.lxd.me/spring-introduction-en"
+                    onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                    <span class="hidden">Facebook</span>
+                </a>
+                <a class="icon-google-plus" href="https://plus.google.com/share?url=https://post.lxd.me/spring-introduction-en"
+                   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                    <span class="hidden">Google+</span>
+                </a>
+            </section>
+            
+            <!-- Add Disqus Comments -->
+            
+            
+        </footer>
+
+    </article>
+
+</main>
+
+<aside class="read-next">
+
+    <!-- [[! next_post ]] -->
+    
+        <a class="read-next-story " style="background-image: url(/assets/images/ast-of-a-long-query-method.png)" href="/spring-data-jpa-internals-en">
+            <section class="post">
+                <h2>Spring Data JPA Internals</h2>
+                <p>In the previous post[[1](/spring-introduction-en)], I showed how brief it can be for Spring Data JPA to expose routine CRUD interfaces of simple database entities. This post goes a little bit further, by revealing the work Spring has done behind t...</p>
+            </section>
+        </a>
+    
+    <!-- [[! /next_post ]] -->
+    <!-- [[! prev_post ]] -->
+    
+        <a class="read-next-story prev " style="background-image: url(/assets/images/tunnel-demo-0.png)" href="/a-simple-vpn-tunnel-with-tun-device-demo-and-some-basic-concepts">
+            <section class="post">
+                <h2>A simple VPN (tunnel with tun device) demo and some basic concepts</h2>
+                <p>As you may already know, VPN stands for Virtual Private Network, namely it is a private network, with many components being virtualized. From a user’s perspective, all we need is a virtual network interface (e.g. /dev/tun0) on my device and config...</p>
+            </section>
+        </a>
+    
+    <!-- [[! /prev_post ]] -->
+</aside>
+
+<!-- /post -->
+
+
+        <footer class="site-footer clearfix">
+          <section class="copyright"><a href="/">Thoughts, Notes and Collections</a> &copy; 2017</section>
+          <section class="poweredby">Proudly published with <a href="https://jekyllrb.com/">Jekyll</a> using <a href="https://github.com/biomadeira/jasper">Jasper</a></section>
+        </footer>
+    </div>
+    <!-- [[! Ghost outputs important scripts and data with this tag ]] -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <!-- [[! The main JavaScript file for Casper ]] -->
+    <script type="text/javascript" src="/assets/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="/assets/js/index.js"></script>
+
+    <!-- Add Google Analytics  -->
+        <!-- Google Analytics Tracking code -->
+     <script>
+	    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	    ga('create', 'UA-69281367-1', 'auto');
+	    ga('send', 'pageview');
+
+     </script>   
+</body>
+</html>

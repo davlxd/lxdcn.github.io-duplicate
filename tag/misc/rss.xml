@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+   
+      <title>post.lxd.me</title>
+   
+   <link>https://post.lxd.me/</link>
+   <description></description>
+   <language>en-uk</language>
+   <managingEditor>  </managingEditor>
+   <atom:link href="rss" rel="self" type="application/rss+xml" />
+   
+	<item>
+	  <title>Git wrap script to ignore files that have already been committed</title>
+	  <link>//gitw-explanation</link>
+	  <author> </author>
+	  <pubDate>2016-01-14T06:56:56+08:00</pubDate>
+	  <guid>//gitw-explanation</guid>
+	  <description><![CDATA[
+	     <h3 id="motivation">Motivation</h3>
+
+<p>As a git user, given this sceniro:</p>
+
+<blockquote>
+  <p>You made certain changes to some files but you don’t want to commit it, nor do you want see them under <code class="highlighter-rouge">git status -s</code> or <code class="highlighter-rouge">git diff</code> etc.</p>
+</blockquote>
+
+<p>In other words:</p>
+
+<blockquote>
+  <p>You want git to ignore certain files but unfortunately they have already been tracked.</p>
+</blockquote>
+
+<p>what you gonna do?</p>
+
+<p>I googled around a lot, all I can get is remove these files entirely from repo by run <code class="highlighter-rouge">git rm --cached &lt;file&gt;</code> (so <code class="highlighter-rouge">.gitignore</code> will take effect), but it’s not always doable, because your teammates may still need these files exist in repo.</p>
+
+<p>Then I checked git hooks, hoping I could write some scripts to preserve these local changes before execute <code class="highlighter-rouge">git status</code> and <code class="highlighter-rouge">git diff</code>. Unfortunately I failed again, what git hooks can do is pretty limited, furthermore I realized not only do I need to ‘deceive’ <code class="highlighter-rouge">git status</code> and <code class="highlighter-rouge">git diff</code>, <code class="highlighter-rouge">git add</code> <code class="highlighter-rouge">git checkout</code> <code class="highlighter-rouge">git pull</code> and a lot other commands also require the same trick.</p>
+
+<p>Up to this point I had very little choices, either I figure out a way to make <code class="highlighter-rouge">.gitignore</code> also ignore tracked files (git porcelain command <code class="highlighter-rouge">git check-ignore</code> has a switch to do this), or write a script wrap git entirely. I chose the latter.</p>
+
+<h3 id="usage">Usage</h3>
+
+<p>The code is <a href="https://gist.github.com/lxdcn/c6ab6365bdde315e4722">here</a>, you are very welcome to enhance or report issues, I’ll illustrate this script line by line in next section, but at first let’s see the usage.</p>
+
+<ul>
+  <li>Download the script and put under $PATH directory and make it executable, make sure can run <code class="highlighter-rouge">gitw</code> directly from command line</li>
+  <li>You may have aliased common git command to a shorter command (e.g. <code class="highlighter-rouge">alias gpr='git pull --rebase'</code>) or shell plugins have done the same thing for you, in that case you need to put <code class="highlighter-rouge">alias git='gitw'</code> in your shell initialization file. Also you probably need to give <code class="highlighter-rouge">gitw</code> the same command line completion as original git, so put <code class="highlighter-rouge">compdef gitw=git</code> in shell init file too.</li>
+  <li>Add still-want-ignore-even-tracked files to <code class="highlighter-rouge">.gitignore</code> per git working directory, most likely you need to add .gitignore to <code class="highlighter-rouge">.gitignore</code> as well</li>
+</ul>
+
+<h3 id="explanation">Explanation</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="k">if</span> <span class="o">[[</span> ! -d <span class="s1">'.git'</span> <span class="o">]]</span>; <span class="k">then</span>
+	<span class="se">\g</span>it <span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span>
+	<span class="nb">exit</span> <span class="nv">$?</span>
+<span class="k">fi
+
+</span>mkdir -p .git/w</code></pre></figure>
+
+<p>This script should not work on <code class="highlighter-rouge">git clone</code> or <code class="highlighter-rouge">git init</code>, so it will pass command arguments directly to original git then exit if we are not under a git working directory.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">mkdir -p .git/w</code></pre></figure>
+
+<p>This script preserves local change to a directory named <code class="highlighter-rouge">w</code> under <code class="highlighter-rouge">.git</code>, which will be created here if not exists.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">original_command</span><span class="o">=</span><span class="sb">`</span><span class="se">\g</span>it <span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span> -h 2&gt;&amp;1 | head -n 1 | awk <span class="s1">'{print $3}'</span><span class="sb">`</span></code></pre></figure>
+
+<p>In following steps we need to pattern match git command to decide whether we wrap specific git command or not, but you probably already alias git command to a shorter name (eg. <code class="highlighter-rouge">co = checkout</code>, <code class="highlighter-rouge">di = diff</code>). We extract original git command by parsing <code class="highlighter-rouge">git &lt;command_or_alias&gt; -h</code>.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="k">function </span>ignored_dirty_index_func<span class="o">()</span> <span class="o">{</span>
+	<span class="k">for </span>dirty_file <span class="k">in</span> <span class="sb">`</span><span class="se">\g</span>it status --porcelain | awk <span class="s1">'{print $2}'</span><span class="sb">`</span>; <span class="k">do</span>
+		<span class="se">\g</span>it check-ignore -q --no-index <span class="nv">$dirty_file</span>
+		<span class="k">if</span> <span class="o">[[</span> <span class="nv">$?</span> -eq 0 <span class="o">]]</span>; <span class="k">then
+		  </span><span class="nb">echo</span> <span class="nv">$dirty_file</span>
+		<span class="k">fi
+	done</span>
+<span class="o">}</span>
+<span class="nv">ignored_dirty_index</span><span class="o">=</span><span class="sb">`</span>ignored_dirty_index_func<span class="sb">`</span></code></pre></figure>
+
+<p>This function here identifies local changed files need to be ignored. We use porcelain version<sup>[<a href="http://git-scm.com/book/en/Git-Internals-Plumbing-and-Porcelain">0</a>]</sup> of <code class="highlighter-rouge">git status</code> (to list all local changed files) cross check with <code class="highlighter-rouge">git check-ignore</code> (to check if each file is ignored) to get a list of files with local changes but we’d like to ignore.</p>
+
+<p>Pay attention to <code class="highlighter-rouge">git check-ignore</code> has a switch <code class="highlighter-rouge">--no-index</code>, meaning not look in the index when undertaking ignore checks. This is exactly what we need for <code class="highlighter-rouge">.gitignore</code> but only exists in <code class="highlighter-rouge">git check-ignore</code><sup>[<a href="http://git-scm.com/docs/git-check-ignore.html">1</a>]</sup>.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$original_command</span><span class="s2">"</span> | grep <span class="s1">'^\(add\|status\|checkout\|pull\|rebase\|merge\|diff\|stash\|reset\|commit\)$'</span> &gt; /dev/null</code></pre></figure>
+
+<p>This script only works on these git commands.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="k">if</span> <span class="o">[[</span> <span class="nv">$?</span> -eq 0 <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="o">[[</span> -n <span class="s2">"</span><span class="nv">$ignored_dirty_index</span><span class="s2">"</span> <span class="o">]]</span>; <span class="k">then
+  </span><span class="nb">echo</span> <span class="s1">'gitw is helping...'</span>
+	<span class="nb">echo</span> <span class="s2">"</span><span class="nv">$ignored_dirty_index</span><span class="s2">"</span> | rsync -R --files-from - . .git/w
+	<span class="nb">echo</span> <span class="s2">"</span><span class="nv">$ignored_dirty_index</span><span class="s2">"</span> | <span class="se">\g</span>it checkout-index -f --stdin
+	<span class="se">\g</span>it <span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span>
+	<span class="nb">echo</span> <span class="s2">"</span><span class="nv">$ignored_dirty_index</span><span class="s2">"</span> | rsync -R --files-from - .git/w .
+<span class="k">else</span>
+	<span class="se">\g</span>it <span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span>
+<span class="k">fi</span></code></pre></figure>
+
+<p>If the current git command lies in commands we should wrap and there are local changes need to be ignored, this script should do the job. At first we copy all the target files to <code class="highlighter-rouge">.git/w</code> with directory structure perserved, then drop local changes for these files before execute original git, finally we recover local changes by copy target files from <code class="highlighter-rouge">.git/w</code> to workspace.</p>
+
+<p>References:</p>
+
+<ul>
+  <li>[0] http://git-scm.com/book/en/Git-Internals-Plumbing-and-Porcelain</li>
+  <li>[1] http://git-scm.com/docs/git-check-ignore.html</li>
+</ul>
+
+<p><br />
+### Update 2016-01-31 22:22:22:
+Thanks to teammate <a href="https://github.com/SuXiaoKai">@SuXiaoKai</a>, <code class="highlighter-rouge">git update-index --assume-unchanged &lt;path&gt;</code> can do this job pretty well.</p>
+
+
+	  ]]></description>
+	</item>
+
+	<item>
+	  <title>用OSX的say命令让Nagios报警叫出来</title>
+	  <link>//using-osx-say-command-to-make-nagios-alert-speak</link>
+	  <author> </author>
+	  <pubDate>2014-09-04T20:34:56+08:00</pubDate>
+	  <guid>//using-osx-say-command-to-make-nagios-alert-speak</guid>
+	  <description><![CDATA[
+	     <p>Mac OSX系统有个有趣的命令<code class="highlighter-rouge">say</code>，传入一段文本就可以让系统读出来。比如你可以打开OSX的Terminal.app，然后输入<code class="highlighter-rouge">say hello OSX</code>，听听会不会响。</p>
+
+<p>因为机缘巧合，我们项目的CI服务器装在一台Mac Pro上了，在写脚本监控CI Server进程或者做CI monitor的报警的时候，就可以用这个<code class="highlighter-rouge">say</code>命令把一些信息读出来，再在Mac上插个大喇叭，这样整个项目组都能听得见了。</p>
+
+<p>比如：<code class="highlighter-rouge">say Go server went down, no dzuo no die, ha ha ha ha ha</code></p>
+
+<p>当然这样还不够完美，<code class="highlighter-rouge">say</code>命令只能在Mac上写脚本的时候可以用，于是我们可以写一个HTTP Server，把<code class="highlighter-rouge">say</code>命令包装一下，放在Mac Pro上跑起来，代码可以是这个样子的：</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">http</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'http'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">exec</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'child_process'</span><span class="p">).</span><span class="nx">exec</span><span class="p">;</span> 
+
+<span class="nx">http</span><span class="p">.</span><span class="nx">createServer</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+	<span class="kd">var</span> <span class="nx">body</span> <span class="o">=</span> <span class="s2">""</span><span class="p">;</span>
+	<span class="nx">req</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'data'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">chunk</span><span class="p">)</span> <span class="p">{</span>
+		<span class="nx">body</span> <span class="o">+=</span> <span class="nx">chunk</span><span class="p">;</span>
+	<span class="p">});</span>
+	<span class="nx">req</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'end'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+		<span class="nx">res</span><span class="p">.</span><span class="nx">end</span><span class="p">();</span>
+		<span class="nx">exec</span><span class="p">(</span><span class="s1">'say '</span> <span class="o">+</span> <span class="nx">body</span><span class="p">);</span>
+	<span class="p">});</span>
+<span class="p">}).</span><span class="nx">listen</span><span class="p">(</span><span class="mi">7788</span><span class="p">);</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'http say now listen on 7788'</span><span class="p">);</span></code></pre></figure>
+
+<p>然后我们在别的机器上，POST数据到这台Mac，这台Mac就可以念出来了，比如这样：<code class="highlighter-rouge">curl -X POST -d "No dzuo no die" &lt;MAC_IP_addr&gt;:7788</code></p>
+
+<p>Nagios的报警缺省是发邮件的，很不方便，那么就可以tweak一下Nagios发邮件的配置，让它把消息文本POST到Mac上去念出来，config的配置修改是这样的：</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c"># From</span>
+<span class="n">define</span> <span class="n">command</span><span class="p">{</span>
+        <span class="n">command_name</span>    <span class="n">notify</span><span class="o">-</span><span class="n">service</span><span class="o">-</span><span class="n">by</span><span class="o">-</span><span class="n">email</span>
+        <span class="n">command_line</span>    <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">printf</span> <span class="s">"</span><span class="si">%</span><span class="s">b"</span> <span class="s">"***** Icinga *****</span><span class="se">\n\n</span><span class="s">Notification Type: $NOTIFICATIONTYPE$</span><span class="se">\n\n</span><span class="s">Service: $SERVICEDESC$</span><span class="se">\n</span><span class="s">Host: $HOSTALIAS$</span><span class="se">\n</span><span class="s">Address: $HOSTADDRESS$</span><span class="se">\n</span><span class="s">State: $SERVICESTATE$</span><span class="se">\n\n</span><span class="s">Date/Time: $LONGDATETIME$</span><span class="se">\n\n</span><span class="s">Additional Info:</span><span class="se">\n\n</span><span class="s">$SERVICEOUTPUT$</span><span class="se">\n</span><span class="s">"</span> <span class="o">|</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">mail</span> <span class="o">-</span><span class="n">s</span> <span class="s">"** $NOTIFICATIONTYPE$ Service Alert: $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **"</span> <span class="err">$</span><span class="n">CONTACTEMAIL</span><span class="err">$</span>
+<span class="p">}</span>
+
+<span class="c"># To</span>
+<span class="n">define</span> <span class="n">command</span><span class="p">{</span>
+        <span class="n">command_name</span>    <span class="n">notify</span><span class="o">-</span><span class="n">service</span><span class="o">-</span><span class="n">by</span><span class="o">-</span><span class="n">http</span><span class="o">-</span><span class="n">say</span>
+        <span class="n">command_line</span>    <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">printf</span> <span class="s">"</span><span class="si">%</span><span class="s">b"</span> <span class="s">"$NOTIFICATIONTYPE$, $SERVICEDESC$ on Host $HOSTALIAS$. $SERVICEOUTPUT$"</span> <span class="o">|</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">curl</span> <span class="o">-</span><span class="n">X</span> <span class="n">POST</span> <span class="o">-</span><span class="n">d</span> <span class="err">@</span><span class="o">-</span> <span class="mf">10.18</span><span class="o">.</span><span class="mf">7.153</span><span class="p">:</span><span class="mi">7788</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>curl的<code class="highlighter-rouge">-d</code>开关的值<code class="highlighter-rouge">@-</code>是让curl从标准输入读数据。</p>
+
+<p>一点奇技淫巧，自娱自乐一下 :)</p>
+
+	  ]]></description>
+	</item>
+
+
+</channel>
+</rss>

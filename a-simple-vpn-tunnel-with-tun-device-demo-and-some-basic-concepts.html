@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- [[! Document Settings ]] -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- [[! Page Meta ]] -->
+    <title>A simple VPN (tunnel with tun device) demo and some basic concepts</title>
+    <meta name="description" content="Thoughts, Notes and Collections - " />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="/assets/images/favicon.ico" >
+
+    <!-- [[! Styles'n'Scripts ]] -->
+    <link rel="stylesheet" type="text/css" href="/assets/css/screen.css" />
+    <link rel="stylesheet" type="text/css"
+          href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/syntax.css" />
+
+    <!-- [[! highlight.js ]] -->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/styles/default.min.css">
+    <style>.hljs { background: none; }</style>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <!-- [[! Ghost outputs important style and meta data with this tag ]] -->
+        <link rel="canonical" href="/" />
+    <meta name="referrer" content="origin" />
+    <link rel="next" href="/page2/" />
+
+    <meta property="og:site_name" content="Thoughts, Notes and Collections" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Thoughts, Notes and Collections" />
+    <meta property="og:description" content="" />
+    <meta property="og:url" content="/" />
+    <meta property="og:image" content="/assets/images/cover1.jpg" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Thoughts, Notes and Collections" />
+    <meta name="twitter:description" content="" />
+    <meta name="twitter:url" content="/" />
+    <meta name="twitter:image:src" content="/assets/images/cover1.jpg" />
+
+    <script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "Website",
+    "publisher": "Finding The Way Home",
+    "url": "/",
+    "image": "/assets/images/cover1.jpg",
+    "description": ""
+}
+    </script>
+
+    <meta name="generator" content="Jekyll 3.0.0" />
+    <link rel="alternate" type="application/rss+xml" title="Thoughts, Notes and Collections" href="/feed.xml" />
+
+
+</head>
+<body class="home-template nav-closed">
+
+    <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+        <li class="nav-home " role="presentation"><a href="/">Home</a></li>
+        <li class="nav-author " role="presentation"><a href="/author/lxd">Author</a></li>
+        <li class="nav-en " role="presentation"><a href="/tag/en">English posts</a></li>
+        <li class="nav-chs " role="presentation"><a href="/tag/chs">中文 posts</a></li>
+        <li class="nav-tech " role="presentation"><a href="/tag/tech">Tech related posts</a></li>
+        <li class="nav-novella " role="presentation"><a href="/tag/novella">Novella</a></li>
+
+    </ul>
+    <a class="subscribe-button icon-feed" href="/feed.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+
+    <div class="site-wrapper">
+
+        <!-- [[! Everything else gets inserted here ]] -->
+        <!-- < default -->
+
+<!-- The comment above "< default" means - insert everything in this file into -->
+    <!-- the [body] of the default.hbs template, which contains our header/footer. -->
+
+<!-- Everything inside the #post tags pulls data from the post -->
+<!-- #post -->
+
+<header class="main-header post-head " style="background-image: url(/assets/images/tunnel-demo-0.png) ">
+    <nav class="main-nav  overlay  clearfix">
+        <a class="blog-logo" href="/"><img src="/assets/images/host.png" alt="Blog Logo" /></a>
+        
+            <a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+        
+    </nav>
+</header>
+
+<main class="content" role="main">
+
+    <article class="post">
+
+        <header class="post-header within-layout-post">
+            <h1 class="post-title">A simple VPN (tunnel with tun device) demo and some basic concepts</h1>
+            <section class="post-meta">
+            <!-- <a href='/'> </a> -->
+            <time class="post-date" datetime="2017-02-16">16 Feb 2017</time>
+                <!-- [[tags prefix=" on "]] -->
+                 
+                on 
+                
+                    
+                       <a href='/tag/tech'>Tech</a>,
+                       
+                
+                    
+                       <a href='/tag/c'>C</a>,
+                       
+                
+                    
+                       <a href='/tag/tunnel'>Tunnel</a>,
+                       
+                
+                    
+                       <a href='/tag/vpn'>Vpn</a>,
+                       
+                
+                    
+                       <a href='/tag/linux'>Linux</a>,
+                       
+                
+                    
+                       <a href='/tag/network'>Network</a>,
+                       
+                
+                    
+                       <a href='/tag/github'>Github</a>,
+                       
+                
+                    
+                       <a href='/tag/en'>En</a>
+                       
+                
+                
+            </section>
+        </header>
+
+        <section class="post-content">
+            
+            <p>As you may already know, VPN stands for Virtual Private Network, namely it is a private network, with many components being virtualized. From a user’s perspective, all we need is a virtual network interface (e.g. <code class="highlighter-rouge">/dev/tun0</code>) on my device and configure my routing table to route all or part of traffic going through that interface, but what happens then? This post provides a demo revealing some implementation details after the virtual network interface - <strong>tunneling</strong>, the code is <a href="https://github.com/lxdcn/simple-vpn-demo">here</a>.</p>
+
+<p>In a nutshell, the process for client side tunneling is:</p>
+
+<ol>
+  <li>Open an UDP socket whose other side is the server.</li>
+  <li>Create the <code class="highlighter-rouge">tun</code> device, configure it and bring it up.</li>
+  <li>Configure routing table.</li>
+  <li>Read packets from <code class="highlighter-rouge">tun</code> device, encrypt, send to server via socket created in 1st step; And read from the socket, decrypt, write back to <code class="highlighter-rouge">tun</code> device. This step goes on and on.</li>
+</ol>
+
+<p><img src="/assets/images/tunnel-demo-0.png" alt="image" /></p>
+
+<p><br /></p>
+
+<p>The following code snippet creates the UDP socket, which is basic UNIX network programming.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">udp_bind</span><span class="p">(</span><span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="n">addr</span><span class="p">,</span> <span class="n">socklen_t</span><span class="o">*</span> <span class="n">addrlen</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">struct</span> <span class="n">addrinfo</span> <span class="n">hints</span><span class="p">;</span>
+  <span class="k">struct</span> <span class="n">addrinfo</span> <span class="o">*</span><span class="n">result</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">sock</span><span class="p">,</span> <span class="n">flags</span><span class="p">;</span>
+
+  <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">hints</span><span class="p">));</span>
+  <span class="n">hints</span><span class="p">.</span><span class="n">ai_socktype</span> <span class="o">=</span> <span class="n">SOCK_DGRAM</span><span class="p">;</span>
+  <span class="n">hints</span><span class="p">.</span><span class="n">ai_protocol</span> <span class="o">=</span> <span class="n">IPPROTO_UDP</span><span class="p">;</span>
+
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">host</span> <span class="o">=</span> <span class="n">SERVER_HOST</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="mi">0</span> <span class="o">!=</span> <span class="n">getaddrinfo</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">result</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">perror</span><span class="p">(</span><span class="s">"getaddrinfo error"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_family</span> <span class="o">==</span> <span class="n">AF_INET</span><span class="p">)</span>
+    <span class="p">((</span><span class="k">struct</span> <span class="n">sockaddr_in</span> <span class="o">*</span><span class="p">)</span><span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_addr</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">sin_port</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">PORT</span><span class="p">);</span>
+  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_family</span> <span class="o">==</span> <span class="n">AF_INET6</span><span class="p">)</span>
+    <span class="p">((</span><span class="k">struct</span> <span class="n">sockaddr_in6</span> <span class="o">*</span><span class="p">)</span><span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_addr</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">sin6_port</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">PORT</span><span class="p">);</span>
+
+  <span class="n">memcpy</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_addr</span><span class="p">,</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_addrlen</span><span class="p">);</span>
+  <span class="o">*</span><span class="n">addrlen</span> <span class="o">=</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_addrlen</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">==</span> <span class="p">(</span><span class="n">sock</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_family</span><span class="p">,</span> <span class="n">SOCK_DGRAM</span><span class="p">,</span> <span class="n">IPPROTO_UDP</span><span class="p">)))</span> <span class="p">{</span>
+    <span class="n">perror</span><span class="p">(</span><span class="s">"Cannot create socket"</span><span class="p">);</span>
+    <span class="n">freeaddrinfo</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="mi">0</span> <span class="o">!=</span> <span class="n">bind</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_addr</span><span class="p">,</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_addrlen</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">perror</span><span class="p">(</span><span class="s">"Cannot bind"</span><span class="p">);</span>
+    <span class="n">close</span><span class="p">(</span><span class="n">sock</span><span class="p">);</span>
+    <span class="n">freeaddrinfo</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">freeaddrinfo</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+
+  <span class="n">flags</span> <span class="o">=</span> <span class="n">fcntl</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">F_GETFL</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">flags</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">!=</span> <span class="n">fcntl</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">F_SETFL</span><span class="p">,</span> <span class="n">flags</span> <span class="o">|</span> <span class="n">O_NONBLOCK</span><span class="p">))</span>
+      <span class="k">return</span> <span class="n">sock</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="n">perror</span><span class="p">(</span><span class="s">"fcntl error"</span><span class="p">);</span>
+
+  <span class="n">close</span><span class="p">(</span><span class="n">sock</span><span class="p">);</span>
+  <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p><br />
+The following code “clone” a new virtual interface named “tun0” from “/dev/net/tun”. <code class="highlighter-rouge">IFF_TUN</code> illustrates this virtual interface works on network layer while <code class="highlighter-rouge">IFF_TAP</code> will make the interface work on data link layer.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">tun_alloc</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">struct</span> <span class="n">ifreq</span> <span class="n">ifr</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="n">e</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">((</span><span class="n">fd</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="s">"/dev/net/tun"</span><span class="p">,</span> <span class="n">O_RDWR</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">perror</span><span class="p">(</span><span class="s">"Cannot open /dev/net/tun"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">fd</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ifr</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ifr</span><span class="p">));</span>
+
+  <span class="n">ifr</span><span class="p">.</span><span class="n">ifr_flags</span> <span class="o">=</span> <span class="n">IFF_TUN</span> <span class="o">|</span> <span class="n">IFF_NO_PI</span><span class="p">;</span>
+  <span class="n">strncpy</span><span class="p">(</span><span class="n">ifr</span><span class="p">.</span><span class="n">ifr_name</span><span class="p">,</span> <span class="s">"tun0"</span><span class="p">,</span> <span class="n">IFNAMSIZ</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">((</span><span class="n">e</span> <span class="o">=</span> <span class="n">ioctl</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">TUNSETIFF</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">ifr</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">perror</span><span class="p">(</span><span class="s">"ioctl[TUNSETIFF]"</span><span class="p">);</span>
+    <span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">e</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="n">fd</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p><br />
+The following Linux commands route all traffic to the virtual interface, but with exception of packets with destination to VPN server, since tunneling data needs to go straight to VPN server through normal network interfaces. So the above illustration is inaccurate, it should be like this:
+<img src="/assets/images/tunnel-demo-1.png" alt="image" /></p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">setup_route_table</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">run</span><span class="p">(</span><span class="s">"sysctl -w net.ipv4.ip_forward=1"</span><span class="p">);</span>
+  <span class="n">run</span><span class="p">(</span><span class="s">"iptables -t nat -A POSTROUTING -o tun0 -j MASQUERADE"</span><span class="p">);</span>
+  <span class="n">run</span><span class="p">(</span><span class="s">"iptables -I FORWARD 1 -i tun0 -m state --state RELATED,ESTABLISHED -j ACCEPT"</span><span class="p">);</span>
+  <span class="n">run</span><span class="p">(</span><span class="s">"iptables -I FORWARD 1 -o tun0 -j ACCEPT"</span><span class="p">);</span>
+  <span class="kt">char</span> <span class="n">cmd</span><span class="p">[</span><span class="mi">1024</span><span class="p">];</span>
+  <span class="n">snprintf</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">cmd</span><span class="p">),</span> <span class="s">"ip route add %s via $(ip route show 0/0 | sed -e 's/.* via \([^ ]*\).*/</span><span class="se">\1</span><span class="s">/')"</span><span class="p">,</span> <span class="n">SERVER_HOST</span><span class="p">);</span>
+  <span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">);</span>
+  <span class="n">run</span><span class="p">(</span><span class="s">"ip route add 0/1 dev tun0"</span><span class="p">);</span>
+  <span class="n">run</span><span class="p">(</span><span class="s">"ip route add 128/1 dev tun0"</span><span class="p">);</span>
+<span class="p">}</span></code></pre></figure>
+
+<p><br />
+The following code snippet is the core packet switch algorithm. It reads packets from <code class="highlighter-rouge">tun</code> device, encrypt, send UDP socket; And read from UDP socket, decrypt, write to <code class="highlighter-rouge">tun</code> device. I used <code class="highlighter-rouge">select</code> multiplexing to monitor on these 2 fds.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">char</span> <span class="n">tun_buf</span><span class="p">[</span><span class="n">MTU</span><span class="p">],</span> <span class="n">udp_buf</span><span class="p">[</span><span class="n">MTU</span><span class="p">];</span>
+  <span class="n">bzero</span><span class="p">(</span><span class="n">tun_buf</span><span class="p">,</span> <span class="n">MTU</span><span class="p">);</span>
+  <span class="n">bzero</span><span class="p">(</span><span class="n">udp_buf</span><span class="p">,</span> <span class="n">MTU</span><span class="p">);</span>
+
+  <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">fd_set</span> <span class="n">readset</span><span class="p">;</span>
+    <span class="n">FD_ZERO</span><span class="p">(</span><span class="o">&amp;</span><span class="n">readset</span><span class="p">);</span>
+    <span class="n">FD_SET</span><span class="p">(</span><span class="n">tun_fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readset</span><span class="p">);</span>
+    <span class="n">FD_SET</span><span class="p">(</span><span class="n">udp_fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readset</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">max_fd</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">tun_fd</span><span class="p">,</span> <span class="n">udp_fd</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">==</span> <span class="n">select</span><span class="p">(</span><span class="n">max_fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readset</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">))</span> <span class="p">{</span>
+      <span class="n">perror</span><span class="p">(</span><span class="s">"select error"</span><span class="p">);</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kt">int</span> <span class="n">r</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">FD_ISSET</span><span class="p">(</span><span class="n">tun_fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readset</span><span class="p">))</span> <span class="p">{</span>
+      <span class="n">r</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">tun_fd</span><span class="p">,</span> <span class="n">tun_buf</span><span class="p">,</span> <span class="n">MTU</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"read from tun_fd error"</span><span class="p">);</span>
+        <span class="k">break</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="n">encrypt</span><span class="p">(</span><span class="n">tun_buf</span><span class="p">,</span> <span class="n">udp_buf</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>
+
+      <span class="n">r</span> <span class="o">=</span> <span class="n">sendto</span><span class="p">(</span><span class="n">udp_fd</span><span class="p">,</span> <span class="n">udp_buf</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="k">const</span> <span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">client_addr</span><span class="p">,</span> <span class="n">client_addrlen</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"sendto udp_fd error"</span><span class="p">);</span>
+        <span class="k">break</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">FD_ISSET</span><span class="p">(</span><span class="n">udp_fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readset</span><span class="p">))</span> <span class="p">{</span>
+      <span class="n">r</span> <span class="o">=</span> <span class="n">recvfrom</span><span class="p">(</span><span class="n">udp_fd</span><span class="p">,</span> <span class="n">udp_buf</span><span class="p">,</span> <span class="n">MTU</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">client_addr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">client_addrlen</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"recvfrom udp_fd error"</span><span class="p">);</span>
+        <span class="k">break</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="n">decrypt</span><span class="p">(</span><span class="n">udp_buf</span><span class="p">,</span> <span class="n">tun_buf</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>
+
+      <span class="n">r</span> <span class="o">=</span> <span class="n">write</span><span class="p">(</span><span class="n">tun_fd</span><span class="p">,</span> <span class="n">tun_buf</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"write tun_fd error"</span><span class="p">);</span>
+        <span class="k">break</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span></code></pre></figure>
+
+<p><br />
+As a simple Point-to-Point VPN tunnel, server side code is almost identical to the client side since the core packet switch logic is the same. The complete code for both server side and client side is <a href="https://github.com/lxdcn/simple-vpn-demo">here</a>. And iOS demo written in Swift 3 is <a href="https://github.com/lxdcn/NEPacketTunnelVPNDemo">here</a>.</p>
+
+
+
+        </section>
+
+        <footer class="post-footer">
+
+            <!-- Everything inside the #author tags pulls data from the author -->
+            <!-- #author-->
+
+            
+            <figure class="author-image">
+                <a class="img" href="/author/lxd" style="background-image: url(/assets/images/lxd.png)"><span class="hidden">'s Picture</span></a>
+            </figure>
+            
+
+            <section class="author">
+                <h4><a href="/author/lxd"> </a></h4>
+                
+                
+                    <p> A pragmatic, lazy, flexible, sporty, rentless, introverted, charismatic, sophisticated, superficial, impulsive, abnormal badass.</p>
+                
+                <div class="author-meta">
+                    <span class="author-location icon-location"> shenzhen, CN</span> 
+                    <span class="author-link icon-link"><a href="https://post.lxd.me/"> post.lxd.me</a></span> 
+                </div>
+            </section>
+
+            <!-- /author  -->
+
+            <section class="share">
+                <h4>Share this post</h4>
+                <a class="icon-twitter" href="http://twitter.com/share?text=A simple VPN (tunnel with tun device) demo and some basic concepts&amp;url=https://post.lxd.me/a-simple-vpn-tunnel-with-tun-device-demo-and-some-basic-concepts"
+                    onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                    <span class="hidden">Twitter</span>
+                </a>
+                <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://post.lxd.me/a-simple-vpn-tunnel-with-tun-device-demo-and-some-basic-concepts"
+                    onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                    <span class="hidden">Facebook</span>
+                </a>
+                <a class="icon-google-plus" href="https://plus.google.com/share?url=https://post.lxd.me/a-simple-vpn-tunnel-with-tun-device-demo-and-some-basic-concepts"
+                   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                    <span class="hidden">Google+</span>
+                </a>
+            </section>
+            
+            <!-- Add Disqus Comments -->
+            
+            
+        </footer>
+
+    </article>
+
+</main>
+
+<aside class="read-next">
+
+    <!-- [[! next_post ]] -->
+    
+        <a class="read-next-story " style="background-image: url(/assets/images/spring-java-ee.png)" href="/spring-introduction-en">
+            <section class="post">
+                <h2>Spring Introduction</h2>
+                <p>This article is a recap of a presentation I gave to my teammates, a brief introduction to Spring framework and related concepts, and 3 common Spring projects (Spring MVC, Spring Data JAP, and Spring Boot).
+
+### Spring and Java EE
+
+![Spring and Jav...</p>
+            </section>
+        </a>
+    
+    <!-- [[! /next_post ]] -->
+    <!-- [[! prev_post ]] -->
+    
+        <a class="read-next-story prev " style="background-image: url(/assets/images/cover-disorder.png)" href="/disorder">
+            <section class="post">
+                <h2>分裂</h2>
+                <p>老李躺在沙发上，有点紧张，对面的张医生看起来挺年轻的，也不知道行不行。老婆小琳陪着一起过来的，正坐在外面等。理论上的老婆，老李默默的想，可别折腾太久了啊。
+
+“您的这个症状什么时候开始出现的？”，张医生先发话了。
+
+“嗯……要不……我从头开始讲？”
+
+“可以。”
+
+
+
+事情是从三个半月前开始的，当时老李赶上一个大项目，不巧手下的得力干将又离职了四个，大大小小的事情就都压在他身上了。老李一忙就烦躁，烦躁了就控制不住自己的脾气了，特别容易发火。其实老李是个好人，每次发完火心里也觉得很愧疚，但是...</p>
+            </section>
+        </a>
+    
+    <!-- [[! /prev_post ]] -->
+</aside>
+
+<!-- /post -->
+
+
+        <footer class="site-footer clearfix">
+          <section class="copyright"><a href="/">Thoughts, Notes and Collections</a> &copy; 2017</section>
+          <section class="poweredby">Proudly published with <a href="https://jekyllrb.com/">Jekyll</a> using <a href="https://github.com/biomadeira/jasper">Jasper</a></section>
+        </footer>
+    </div>
+    <!-- [[! Ghost outputs important scripts and data with this tag ]] -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <!-- [[! The main JavaScript file for Casper ]] -->
+    <script type="text/javascript" src="/assets/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="/assets/js/index.js"></script>
+
+    <!-- Add Google Analytics  -->
+        <!-- Google Analytics Tracking code -->
+     <script>
+	    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	    ga('create', 'UA-69281367-1', 'auto');
+	    ga('send', 'pageview');
+
+     </script>   
+</body>
+</html>

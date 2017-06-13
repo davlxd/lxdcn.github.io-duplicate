@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- [[! Document Settings ]] -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- [[! Page Meta ]] -->
+    <title>Spring 介绍</title>
+    <meta name="description" content="Thoughts, Notes and Collections - " />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="/assets/images/favicon.ico" >
+
+    <!-- [[! Styles'n'Scripts ]] -->
+    <link rel="stylesheet" type="text/css" href="/assets/css/screen.css" />
+    <link rel="stylesheet" type="text/css"
+          href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/syntax.css" />
+
+    <!-- [[! highlight.js ]] -->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/styles/default.min.css">
+    <style>.hljs { background: none; }</style>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <!-- [[! Ghost outputs important style and meta data with this tag ]] -->
+        <link rel="canonical" href="/" />
+    <meta name="referrer" content="origin" />
+    <link rel="next" href="/page2/" />
+
+    <meta property="og:site_name" content="Thoughts, Notes and Collections" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Thoughts, Notes and Collections" />
+    <meta property="og:description" content="" />
+    <meta property="og:url" content="/" />
+    <meta property="og:image" content="/assets/images/cover1.jpg" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Thoughts, Notes and Collections" />
+    <meta name="twitter:description" content="" />
+    <meta name="twitter:url" content="/" />
+    <meta name="twitter:image:src" content="/assets/images/cover1.jpg" />
+
+    <script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "Website",
+    "publisher": "Finding The Way Home",
+    "url": "/",
+    "image": "/assets/images/cover1.jpg",
+    "description": ""
+}
+    </script>
+
+    <meta name="generator" content="Jekyll 3.0.0" />
+    <link rel="alternate" type="application/rss+xml" title="Thoughts, Notes and Collections" href="/feed.xml" />
+
+
+</head>
+<body class="home-template nav-closed">
+
+    <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+        <li class="nav-home " role="presentation"><a href="/">Home</a></li>
+        <li class="nav-author " role="presentation"><a href="/author/lxd">Author</a></li>
+        <li class="nav-en " role="presentation"><a href="/tag/en">English posts</a></li>
+        <li class="nav-chs " role="presentation"><a href="/tag/chs">中文 posts</a></li>
+        <li class="nav-tech " role="presentation"><a href="/tag/tech">Tech related posts</a></li>
+        <li class="nav-novella " role="presentation"><a href="/tag/novella">Novella</a></li>
+
+    </ul>
+    <a class="subscribe-button icon-feed" href="/feed.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+
+    <div class="site-wrapper">
+
+        <!-- [[! Everything else gets inserted here ]] -->
+        <!-- < default -->
+
+<!-- The comment above "< default" means - insert everything in this file into -->
+    <!-- the [body] of the default.hbs template, which contains our header/footer. -->
+
+<!-- Everything inside the #post tags pulls data from the post -->
+<!-- #post -->
+
+<header class="main-header post-head " style="background-image: url(/assets/images/spring-java-ee.png) ">
+    <nav class="main-nav  overlay  clearfix">
+        <a class="blog-logo" href="/"><img src="/assets/images/host.png" alt="Blog Logo" /></a>
+        
+            <a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+        
+    </nav>
+</header>
+
+<main class="content" role="main">
+
+    <article class="post">
+
+        <header class="post-header within-layout-post">
+            <h1 class="post-title">Spring 介绍</h1>
+            <section class="post-meta">
+            <!-- <a href='/'> </a> -->
+            <time class="post-date" datetime="2015-12-01">01 Dec 2015</time>
+                <!-- [[tags prefix=" on "]] -->
+                 
+                on 
+                
+                    
+                       <a href='/tag/tech'>Tech</a>,
+                       
+                
+                    
+                       <a href='/tag/java'>Java</a>,
+                       
+                
+                    
+                       <a href='/tag/spring'>Spring</a>,
+                       
+                
+                    
+                       <a href='/tag/aop'>Aop</a>,
+                       
+                
+                    
+                       <a href='/tag/ioc'>Ioc</a>,
+                       
+                
+                    
+                       <a href='/tag/spring-DI'>Spring-di</a>,
+                       
+                
+                    
+                       <a href='/tag/spring-boot'>Spring-boot</a>,
+                       
+                
+                    
+                       <a href='/tag/spring-mvc'>Spring-mvc</a>,
+                       
+                
+                    
+                       <a href='/tag/chs'>Chs</a>
+                       
+                
+                
+            </section>
+        </header>
+
+        <section class="post-content">
+            
+            <p>这篇文章对Spring Framework做一个基础的介绍，先介绍Spring和Spring相关的几个概念，再介绍3个常用的Spring项目/模块：Spring MVC、Spring Data JPA、和Spring Boot。</p>
+
+<h3 id="spring--java-ee">Spring 和 Java EE</h3>
+
+<p><img src="/assets/images/spring-java-ee.png" alt="Spring and Java EE" /></p>
+
+<p>Java平台有多个“版本”，和Spring相关的有两个：Java SE和Java EE。Java SE（Java Platform, Standard Edition）包含JVM和Java最核心/基本的类库API；而Java EE（Java Platform, Enterprise Edition）是在Java SE之上，定义的一套specifications，用来支持所谓的Enterprise/企业级开发，比如用来接受处理HTTP请求的servlet specification、和关系型数据库交互的API（JPA）等。Java EE定义的每一条规范称为JSR（Java Specification Request），由JCP（Java Community Process）开发维护，就像RFC之于IETF。</p>
+
+<p>有标准就有实现，基于Java EE的标准，业界有好些个实现，这些实现基本都是“大公司”的产品，比如IBM的WebSphere Application Server（WAS），Oracle的WebLogic，RedHat的JBoss/WildFly等等，这些实现都遵循Java EE的标准，而且实现了Servlet spec、JPA spec等大部分重要的specification，称为应用服务器（Application Server），Java EE规范保证了我们编写的应用能够部署/运行在上面；而在开源界更常用的Tomcat/Jetty则称为Web容器（Web Container），只实现了Java EE里的Servlet spec、JSP spec等和Web相关的specification，我们如果需要依赖注入，就需要自己引入Spring，需要用JPA访问关系型数据库，就需要自己引入Hibernate。</p>
+
+<p>而且Spring在严格意义上来说并不是Java EE的实现，因为它一方面遵循了Java EE的Servlet、JPA等核心接口，但是对于更上层的API，Spring用的是自己的东西，比如依赖注入（Spring DI vs CDI），RESTful Web Service（Spring MVC vs JAX-RS）。</p>
+
+<h3 id="spring-ioc--di">Spring IoC / DI</h3>
+
+<p>Spring框架最核心的概念就是它基于控制反转技术（Inversion of Control - IoC）的依赖注入（Dependency Injection - DI），这两个狰狞的名词到底是什么意思？我简单描述一下。</p>
+
+<p>抛开Spring，IoC是一种思想，一种技术，即对于一个主体而言，原来由他主动负责/发起的工作，变成了由它被动接受，这个由主动变被动的过程，称为IoC。比如library和framework就是一个很典型的好例子：当我们使用library，我们编写的代码调用lib，我们是主动方、发起方；而当我们改用framework，我们编写的代码则作为framework的回调、实现、或被托管对象，我们从主动方变成了被动方。通过IoC，我们可以解耦，可以解除主体的责任，可以解放自己。</p>
+
+<p>Spring IoC（a.k.a. Spring DI）就是IoC在Spring里的一个应用，它把本来应该由我们自己写代码主动负责的对象实例化和依赖引用的过程，交由Spring来完成，举个例子：</p>
+
+<p>在不借助DI，我们用Java写一个application的时候，如果Class A依赖于Class B和Class C，我们可以把B的实例由构造函数/setter函数传进去，C的实例由A自己实例化一个出来，就像这样：</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">B</span> <span class="o">{</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">C</span> <span class="o">{</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">A</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">B</span> <span class="n">b</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">C</span> <span class="n">c</span> <span class="o">=</span> <span class="k">new</span> <span class="n">C</span><span class="o">();</span>
+
+    <span class="kd">public</span> <span class="n">A</span><span class="o">(</span><span class="n">B</span> <span class="n">b</span><span class="o">)</span> <span class="o">{</span> <span class="k">this</span><span class="o">.</span><span class="na">b</span> <span class="o">=</span> <span class="n">b</span><span class="o">;</span> <span class="o">}</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="n">setB</span><span class="o">(</span><span class="n">B</span> <span class="n">b</span><span class="o">)</span> <span class="o">{</span> <span class="k">this</span><span class="o">.</span><span class="na">b</span> <span class="o">=</span> <span class="n">b</span><span class="o">;</span> <span class="o">}</span>
+<span class="o">}</span>
+<span class="n">A</span> <span class="n">a</span> <span class="o">=</span> <span class="k">new</span> <span class="n">A</span><span class="o">(</span><span class="k">new</span> <span class="n">B</span><span class="o">());</span></code></pre></figure>
+
+<p>借助Spring DI和其他一些技术，可以这样：</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Component</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">B</span> <span class="o">{</span>
+<span class="o">}</span>
+
+<span class="nd">@Component</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">C</span> <span class="o">{</span>
+<span class="o">}</span>
+
+<span class="nd">@Component</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">A</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">B</span> <span class="n">b</span><span class="o">;</span>
+    <span class="nd">@Autowired</span> <span class="kd">private</span> <span class="n">C</span> <span class="n">c</span><span class="o">;</span>
+
+    <span class="nd">@Autowired</span>
+    <span class="kd">public</span> <span class="n">A</span><span class="o">(</span><span class="n">B</span> <span class="n">b</span><span class="o">)</span> <span class="o">{</span> <span class="k">this</span><span class="o">.</span><span class="na">b</span> <span class="o">=</span> <span class="n">b</span><span class="o">;</span> <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>这里步子跨的有点大，<code class="highlighter-rouge">@Component</code>标签告诉Spring这个类需要被实例化为一个bean，bean是由Spring管理的一个Java对象实例，所以在这里Class A B C都会被Spring实例化为bean。<code class="highlighter-rouge">@Autowired</code>标签告诉Spring去寻找一个类型匹配的bean注入到该字段/方法，形成对B和C的引用，这便是<u>依赖注入</u>。</p>
+
+<p>所以，本来应该由的代码负责的，把B和C的实例交给A的实例引用的过程，变成了在代码中只声明依赖，由Spring完成实例化和实例之间的引用，这就是IoC — Inversion of Control——<u>控制反转</u>。</p>
+
+<h3 id="web-container">Web Container</h3>
+
+<p>Web Container，Web容器，也叫Servlet容器。我们用Spring构建的Web应用是要借助一个容器来运行的，比如Tomcat、Jetty，GlassFish。因为无论是用Spring还是其他Java EE框架编写出来的Web应用，都是是一个个独立的servlet，或者基于servlet的东西，这些独立的servlet不能直接运行，也不能直接接收来自浏览器的HTTP请求。Tomcat/Jetty这些容器一方面是一个Web服务器——即和浏览器交互，接收/响应HTTP请求；另一方面是Servlet容器——加载servlet，负责管理他们的生命周期，根据mapping规则把分发给响应的servlet，如下图</p>
+
+<p><img src="/assets/images/servlet-container.png" alt="Servlet" /></p>
+
+<p>这一整套都是Java EE Servlet规范，Spring和容器都得遵守这些规范，用Spring写的Web应用才可以部署到Web容器里去。</p>
+
+<h3 id="spring-mvc">Spring MVC</h3>
+
+<p>Spring框架由诸多模块组成，最核心的有spring-core、spring-beans，和数据库交互的有spring-jdbc、spring-orm等，我们用Spring来构建Web项目比较多，所以介绍一下Spring Web MVC模块。</p>
+
+<p>Servlet是Java EE里处理HTTP请求的技术/规范，Spring MVC也是基于servlet来设计的，基于一个核心的<code class="highlighter-rouge">DispatcherServlet</code>，HTTP请求进来之后由它分发给其他的Controller处理。下面是在Spring里写一个Controller的demo，另外Spring MVC提供了Model-View-Controller的完整功能，但在这前后端分离的年代，就只demo提供RESTful API、返回JSON的Controller写法：</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@RestController</span>
+<span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">"/stores/{storeId}/items"</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ItemController</span> <span class="o">{</span>
+    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">path</span> <span class="o">=</span> <span class="s">"/{itemId}"</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">,</span> <span class="n">produces</span> <span class="o">=</span> <span class="n">MediaType</span><span class="o">.</span><span class="na">APPLICATION_JSON_UTF8_VALUE</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="n">Item</span> <span class="n">retrieveItem</span><span class="o">(</span><span class="nd">@PathVariable</span> <span class="n">String</span> <span class="n">storeId</span><span class="o">,</span> <span class="nd">@PathVariable</span> <span class="n">String</span> <span class="n">itemId</span><span class="o">)</span> <span class="o">{</span>
+        <span class="o">...</span>
+        <span class="k">return</span> <span class="n">item</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">POST</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="n">ResponseEntity</span> <span class="n">createItem</span><span class="o">(</span><span class="nd">@RequestBody</span> <span class="n">Item</span> <span class="n">item</span><span class="o">)</span> <span class="o">{</span>
+        <span class="o">...</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="n">ResponseEntity</span><span class="o">&lt;&gt;(</span><span class="n">HttpStatus</span><span class="o">.</span><span class="na">OK</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<ul>
+  <li><code class="highlighter-rouge">@RestController</code>标记在一个Java类上，告诉Spring MVC这是一个RESTful API Controller，所有的Controller同时也都是Spring管理的bean；</li>
+  <li><code class="highlighter-rouge">@RequestMapping</code>描述了URL的路由映射。标记在类上的<code class="highlighter-rouge">@RequestMapping</code>定义了顶层的路径，结合在方法上的<code class="highlighter-rouge">@RequestMapping</code>的路径和HTTP method，将一个HTTP请求映射到一个Java方法上，由这个方法来处理HTTP请求，返回HTTP响应。</li>
+  <li><code class="highlighter-rouge">@RequestMapping</code>中定义路径的字符串支持URI Template<sup>[<a href="https://tools.ietf.org/html/rfc6570">1</a>]</sup>，路径中{变量}所代表的的值，用<code class="highlighter-rouge">@PathVariable</code>标记在同名的Java方法参数上提取出来。</li>
+  <li><code class="highlighter-rouge">@RequestBody</code>标记在Java方法参数上，Spring MVC会自动把HTTP请求转成Java对象，绑定在这个参数上；同样的，因为我们标记了这个类为RESTful Controller，Java方法的返回值会直接转成JSON；</li>
+  <li><code class="highlighter-rouge">ResponseEntity</code>是一个泛型类，包装了Controller返回的HTTP response内容，增加了可以控制HTTP响应头、状态码的方法，代码里返回一个空的HTTP响应，状态码设置为200。</li>
+</ul>
+
+<p>写一个最简单的Item类，用cURL调用RESTful接口可以看到下面的执行结果：</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Item</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="n">getName</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="n">name</span><span class="o">;</span> <span class="o">}</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="n">setName</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span> <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span> <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">$ curl -v http://localhost:8080/stores/16/items/1
+...
+&gt; 
+&lt; HTTP/1.1 200 OK
+&lt; Server: Apache-Coyote/1.1
+&lt; Content-Type: application/json;charset=UTF-8
+...
+
+{"name":"hehe"}%</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">curl -v -H "Content-Type: application/json" -i -X POST -d '{"name":"haha"}' http://localhost:8080/stores/16/items
+...
+&gt; Content-Type: application/json
+&gt; Content-Length: 15
+&gt; 
+&lt; HTTP/1.1 200 OK
+&lt; Server: Apache-Coyote/1.1
+&lt; Content-Length: 0
+...</code></pre></figure>
+
+<h3 id="spring-data-jpa">Spring Data JPA</h3>
+
+<p>过去我们谈起Spring是一个framework，但是现在的Spring更多的像一个family/collection，基于核心的Spring Framework之上做了好些project<sup>[<a href="https://spring.io/projects">2</a>]</sup>，Spring Data就是其中之一。Spring Data给数据库的访问提供了一个更优雅/强大的接口，Spring Data JPA是基于JPA、针对关系型数据库的子模块，给我们写应用日常遇到的简单CRUD提供了一个非常干净的接口。</p>
+
+<p>Spring Data / JPA 提供给我们用户的是一系列Java interface，它在背后用基于Dynamic Proxy的AOP帮我们完成了实际的工作。最顶层的<code class="highlighter-rouge">Repository&lt;T, ID extends Serializable&gt;</code>，提供了最基本CRUD操作的<code class="highlighter-rouge">CrudRepository&lt;T, ID extends Serializable&gt;</code>，JPA相关操作的<code class="highlighter-rouge">JpaRepository&lt;T, ID extends Serializable&gt;</code>等。它们都是泛型接口，第一个类型参数是对应到数据库的实体类，第二个参数是实体类里ID的类型。我们声明一个接口继承这些接口，再申明一些我们自己的方法进去，就可以完成大部分简单的数据库操作了。</p>
+
+<p>借助Spring Data JPA，对数据库做简单的CRUD需要四步操作：</p>
+
+<p>第一步，在数据库中创建表，然后创建一个entity类映射它</p>
+
+<figure class="highlight"><pre><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">item</span> <span class="p">(</span>
+  <span class="n">id</span>          <span class="n">VARCHAR</span><span class="p">(</span><span class="mi">36</span><span class="p">)</span>  <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="n">name</span>        <span class="n">VARCHAR</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="n">description</span> <span class="n">VARCHAR</span><span class="p">(</span><span class="mi">128</span><span class="p">),</span>
+  <span class="k">CONSTRAINT</span> <span class="n">itemPk</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Entity</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Item</span> <span class="o">{</span>
+    <span class="nd">@Id</span>
+    <span class="nd">@GeneratedValue</span><span class="o">(</span><span class="n">generator</span> <span class="o">=</span> <span class="s">"uuid"</span><span class="o">)</span>
+    <span class="nd">@GenericGenerator</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"uuid"</span><span class="o">,</span> <span class="n">strategy</span> <span class="o">=</span> <span class="s">"uuid2"</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">id</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="n">Item</span><span class="o">()</span> <span class="o">{</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="n">Item</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">String</span> <span class="n">description</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">description</span> <span class="o">=</span> <span class="n">description</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">description</span><span class="o">;</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>第二步，声明一个接口，继承填入类型参数的<code class="highlighter-rouge">CrudRepository</code>接口</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ItemRepository</span> <span class="kd">extends</span> <span class="n">CrudRepository</span><span class="o">&lt;</span><span class="n">Item</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="o">{</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>第三步，<code class="highlighter-rouge">CrudRepository</code>接口里已经声明了一些最基本的CRUD方法<code class="highlighter-rouge">save(S entity)</code>，<code class="highlighter-rouge">findOne(ID id)</code>，<code class="highlighter-rouge">exists(ID id)</code>，<code class="highlighter-rouge">delete(ID id)</code>等，我们可以在声明的接口里再进一步声明一些我们业务上需要的方法，但是要根据一定的命名规则<sup>[<a href="http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.query-methods.query-creation">3</a>]</sup>。比如根据<code class="highlighter-rouge">name</code>查找出所有同名的item的方法声明为<code class="highlighter-rouge">findByName</code>。</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ItemRepository</span> <span class="kd">extends</span> <span class="n">CrudRepository</span><span class="o">&lt;</span><span class="n">Item</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">Item</span><span class="o">&gt;</span> <span class="n">findByName</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">);</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>第四步，把<code class="highlighter-rouge">ItemRepository</code>注入到我们需要用到的地方，调用就可以了</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SomeClient</span> <span class="o">{</span>
+  <span class="nd">@Autowired</span> <span class="kd">private</span> <span class="n">ItemRepository</span> <span class="n">itemRepository</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="kt">void</span> <span class="n">doSomething</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">Item</span><span class="o">&gt;</span> <span class="n">items</span> <span class="o">=</span> <span class="n">itemRepository</span><span class="o">.</span><span class="na">findByName</span><span class="o">(</span><span class="s">"teapot"</span><span class="o">);</span>
+  <span class="o">}</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="n">doSomethingElse</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">Item</span> <span class="n">newItem</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Item</span><span class="o">(</span><span class="s">"smug"</span><span class="o">,</span> <span class="s">"smug without mug"</span><span class="o">);</span>
+    <span class="n">itemRepository</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">newItem</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>自定义查询方法除了简单的findBy…以外还可以进行更丰富的组合：and、or、pagination、limit、asc/desc等<sup>[<a href="http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.query-methods.query-creation">3</a>]</sup>。</p>
+
+<p>那么Spring Data是怎么做这些magic的？其实这对Spring核心来说来说都不是很困难。首先用基于Dynamic Proxy的Spring AOP，创建一个proxy作为<code class="highlighter-rouge">itemRepository</code>的bean实例，然后解析所有的自定义方法如<code class="highlighter-rouge">findByName</code>，用一个迷你的parser解析方法名，将AST保存在bean上；当应用启动我们的代码调用到<code class="highlighter-rouge">findByName</code>的时候，Spring AOP拦截了方法调用，取出AST，解析成一个Query对象，再结合参数交给JPA实现做查询，我在另外一篇文章<sup>[<a href="http://post.lxd.me/2015-12-07-spring-data-jpa-internals">4</a>]</sup>做了更详细的分析。</p>
+
+<h3 id="spring-boot">Spring Boot</h3>
+
+<p>Spring Boot是另一个Spring project，Convention over Configuration风的追随者。它基于Spring做了很多工作，使得编写一个Spring应用变的非常容易。</p>
+
+<p>以往我们初始化一个Java应用需要在maven/gradle配置文件里历数写上它的依赖，非常繁复，Spring Boot非常体贴的给我们提供了<code class="highlighter-rouge">Start POMs</code>——一站式的jar包依赖解决方案。它从Spring用户的视角，对有关联的、通常会一起使用的第三方依赖做了编组，当我们需要Spring的哪部分功能的时候，在配置文件里写入对应编组的artifactId作为依赖就好了。比如我们需要做Web应用，一般需要Spring MVC的依赖，spring-web模块，Jackson的依赖等，在Spring Boot里我们引入<code class="highlighter-rouge">spring-boot-starter-web</code>就可以了。类似的还有包含JUnit、Hamcrest和Mockito等测试工具的<code class="highlighter-rouge">spring-boot-starter-test</code>，Spring Data JPA相关的<code class="highlighter-rouge">spring-boot-starter-data-jpa</code>等。</p>
+
+<p>传统的Spring Web应用打包之后需要放在Tomcat/Jetty容器下面运行，Spring Boot应用引入<code class="highlighter-rouge">spring-boot-starter-web</code>依赖之后还会引入一个内嵌的Tomcat，这个内嵌的Tomcat可以通过调用<code class="highlighter-rouge">SpringApplication.run()</code>再借助Spring Boot的自动配置启动。这样我们编写一个入口main函数，就可以直接启动Web应用了，无论是命令行、IDE、亦或打成一个独立的jar包用<code class="highlighter-rouge">java -jar</code>运行。</p>
+
+<p>Spring Boot在减少配置方面还做了很多细的调优。比如对于ORM，一个Java entity类对应到数据库的一张表的时候，默认Java entity类的字段名对应到数据库的字段名。如果JPA用的是Hibernate，并且配置了<code class="highlighter-rouge">ImprovedNamingStrategy</code>，就可以把entity类里的camelCase的字段名映射到数据库表里snake_case的字段名，很有Convention Over Configuration的范儿了，但是对于外键却是不生效的。Spring Boot提供了一个<code class="highlighter-rouge">SpringNamingStrategy</code>继承<code class="highlighter-rouge">ImprovedNamingStrategy</code>，添加了对外键的支持。</p>
+
+<h3 id="section">一些细节</h3>
+<blockquote>
+  <p>不要在意那些细节！</p>
+
+  <p>  <span style="float:right; margin-right:10%">—— Coney Wu</span></p>
+</blockquote>
+
+<p>Spring 自动装配（autowire）就是自动发现匹配的bean注入到有依赖的bean里面去。所谓自动发现，就是Spring扫描ApplicationContext。所谓匹配，有两种，一种是byName——有依赖的bean的属性名字和被依赖的bean名字相同；另一种是byType——有依赖的bean的属性类型和被依赖的bean类型相同，当有多个同一类型的bean的时候，就会抛exception。@Autowired annotation是byType匹配的，如果有多个同类型的bean，可以结合@Qualifier annotation<sup>[<a href="http://docs.spring.io/spring/docs/current/spring-framework-reference/html/beans.html#beans-autowired-annotation-qualifiers">5</a>]</sup>指定到特定的bean上。</p>
+
+<p>如果bean之间互相依赖，或者出现环会不会报错？——如果整条环上的bean之间都是<u>构造函数依赖注入</u>的方式互相依赖的话就会报错，前面实例代码里的注入方式即<u>构造函数依赖注入</u>，这种依赖注入方式表明要想实例化class A，必须先注入class B的实例化bean，如果class B也构造函数注入依赖于class A，那么就陷入死循环了。解决方法是把Spring启动先初始化的那个bean的<u>构造函数依赖注入</u>换成基于setter函数的依赖注入，或者用<code class="highlighter-rouge">@Autowired</code>注入到类的字段。但是通常情况下我们又不想去关心/控制bean的初始化顺序，这时候全部用setter函数注入或者用<code class="highlighter-rouge">@Autowired</code>注入类字段就是比较省心的方案。</p>
+
+<p>Web容器和Web应用交互的入口点是一个称为deployment descriptor file的文件，即web.xml，再WEB-INF/文件夹下面，它定义了诸如servlet、servlet和URL的mapping、event listeners等</p>
+
+<p>Java对象到JSON的相互转换只是属于Java和HTTP req/res相互转换中的一种，转换方法都继承于<code class="highlighter-rouge">HttpMessageConverter&lt;T&gt;</code>接口。在Spring里注册有有多个实现类，JSON的转换是由<code class="highlighter-rouge">MappingJackson2HttpMessageConverter</code>完成的，依赖于Jackson。</p>
+
+<p>Spring Boot的另一个消灭手动配置的重要手法是自动配置，即根据应用现在CLASSPATH里的依赖的jar自动配置Spring，用<code class="highlighter-rouge">@EnableAutoConfiguration</code>注解开启，对Spring Boot来说几乎也是必须的。</p>
+
+<p>Spring Boot应用有一个入口类标记了<code class="highlighter-rouge">@Configuration</code>。还有一个静态的main方法作为程序的入口，main方法再调用<code class="highlighter-rouge">SpringApplication</code>，把当前类作为入口配置传参数进去，<code class="highlighter-rouge">SpringApplication</code>再去启动内嵌tomcat等后续过程。</p>
+
+<h3 id="further-reading">Further Reading</h3>
+
+<p>这篇文章对Spring做了一个很基本的介绍，略去了很多的细节，Spring的官方文档提供了更全面和详细的阐述<sup>[<a href="http://docs.spring.io/spring/docs/current/spring-framework-reference/html/">0</a>]</sup>。Spring的模块/项目/子框架很多，除了我介绍的这三个，还有如切面编程的Spring AOP，Authentication和Authorization的框架Spring Security等等都是易学好用的车轮子。Spring Boot除了我上述的几个特性以外也还有很多值得关注的内容，如Spring Initializer、用于生产环境监控的actuator等等，一切的一切，都在Spring的官方文档里。</p>
+
+<p><br /></p>
+
+<p>参考资料：</p>
+
+<ul>
+  <li>https://docs.oracle.com/javase/8/docs/technotes/guides/reflection/proxy.html</li>
+  <li>http://docs.spring.io/spring/docs/current/spring-framework-reference/html/aop-api.html</li>
+  <li>http://docs.spring.io/spring-data/jpa/docs/current/reference/html</li>
+  <li>http://sivalabs.in/2015/06/a-developers-perspective-on-spring-vs-javaee.html</li>
+  <li>[0]http://docs.spring.io/spring/docs/current/spring-framework-reference/html/</li>
+  <li>[1]https://tools.ietf.org/html/rfc6570</li>
+  <li>[2]https://spring.io/projects</li>
+  <li>[3]http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.query-methods.query-creation</li>
+  <li>[4]http://post.lxd.me/2015-12-07-spring-data-jpa-internals/</li>
+  <li>[5]http://docs.spring.io/spring/docs/current/spring-framework-reference/html/beans.html#beans-autowired-annotation-qualifiers</li>
+</ul>
+
+
+
+        </section>
+
+        <footer class="post-footer">
+
+            <!-- Everything inside the #author tags pulls data from the author -->
+            <!-- #author-->
+
+            
+            <figure class="author-image">
+                <a class="img" href="/author/lxd" style="background-image: url(/assets/images/lxd.png)"><span class="hidden">'s Picture</span></a>
+            </figure>
+            
+
+            <section class="author">
+                <h4><a href="/author/lxd"> </a></h4>
+                
+                
+                    <p> A pragmatic, lazy, flexible, sporty, rentless, introverted, charismatic, sophisticated, superficial, impulsive, abnormal badass.</p>
+                
+                <div class="author-meta">
+                    <span class="author-location icon-location"> shenzhen, CN</span> 
+                    <span class="author-link icon-link"><a href="https://post.lxd.me/"> post.lxd.me</a></span> 
+                </div>
+            </section>
+
+            <!-- /author  -->
+
+            <section class="share">
+                <h4>Share this post</h4>
+                <a class="icon-twitter" href="http://twitter.com/share?text=Spring 介绍&amp;url=https://post.lxd.me/spring-introduction"
+                    onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                    <span class="hidden">Twitter</span>
+                </a>
+                <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://post.lxd.me/spring-introduction"
+                    onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                    <span class="hidden">Facebook</span>
+                </a>
+                <a class="icon-google-plus" href="https://plus.google.com/share?url=https://post.lxd.me/spring-introduction"
+                   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                    <span class="hidden">Google+</span>
+                </a>
+            </section>
+            
+            <!-- Add Disqus Comments -->
+            
+            
+        </footer>
+
+    </article>
+
+</main>
+
+<aside class="read-next">
+
+    <!-- [[! next_post ]] -->
+    
+        <a class="read-next-story " style="background-image: url(/assets/images/ast-of-a-long-query-method.png)" href="/spring-data-jpa-internals">
+            <section class="post">
+                <h2>Spring Data JPA 技术分析</h2>
+                <p>在另一篇介绍Spring的文章[[1](/spring-introduction)]里我介绍了Spring Data JPA，借助Spring Data JPA，对数据库做CRUD需要简单的四步操作：先创建数据库表和Java entity类；声明一个接口`ItemRepository`继承`CrudRepository`；再在接口`ItemRepository`里声明Query Method`findByName`；最后把`ItemRepository`注入到我们需要用到的地方，调用就可以...</p>
+            </section>
+        </a>
+    
+    <!-- [[! /next_post ]] -->
+    <!-- [[! prev_post ]] -->
+    
+        <a class="read-next-story prev " style="background-image: url(/assets/images/cover-wangjing.png)" href="/Jing-Wong-autobiography-review">
+            <section class="post">
+                <h2>王晶的香港电影史</h2>
+                <p>
+
+
+王晶导演的电影不怎么喜欢，但是形象很可爱，胖胖的、笑眯眯的，憨态可掬。最近翻到到他写的自传：《少年王晶创江湖》（原发于明报周刊，这是单行本）。写的很好，很精彩，说了不少大实话，我拣几段抄在这里。
+
+王晶先入行电视业做编剧，积累了深厚的喜剧功底，年少成名，很早就制作出了一批收视率极高的剧集，“一九七九年《网中人》达到三百万人收看。当年我二十四岁”。后来转入电影业做导演，说起为什么做导演，王晶开了个玩笑：
+
+
+  有人为了艺术理想做电影导演。
+有人为了虚荣心做电影导演。
+有人为了娱乐圈的...</p>
+            </section>
+        </a>
+    
+    <!-- [[! /prev_post ]] -->
+</aside>
+
+<!-- /post -->
+
+
+        <footer class="site-footer clearfix">
+          <section class="copyright"><a href="/">Thoughts, Notes and Collections</a> &copy; 2017</section>
+          <section class="poweredby">Proudly published with <a href="https://jekyllrb.com/">Jekyll</a> using <a href="https://github.com/biomadeira/jasper">Jasper</a></section>
+        </footer>
+    </div>
+    <!-- [[! Ghost outputs important scripts and data with this tag ]] -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <!-- [[! The main JavaScript file for Casper ]] -->
+    <script type="text/javascript" src="/assets/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="/assets/js/index.js"></script>
+
+    <!-- Add Google Analytics  -->
+        <!-- Google Analytics Tracking code -->
+     <script>
+	    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	    ga('create', 'UA-69281367-1', 'auto');
+	    ga('send', 'pageview');
+
+     </script>   
+</body>
+</html>

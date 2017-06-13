@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- [[! Document Settings ]] -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- [[! Page Meta ]] -->
+    <title>Ansible Pitfalls</title>
+    <meta name="description" content="Thoughts, Notes and Collections - " />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="/assets/images/favicon.ico" >
+
+    <!-- [[! Styles'n'Scripts ]] -->
+    <link rel="stylesheet" type="text/css" href="/assets/css/screen.css" />
+    <link rel="stylesheet" type="text/css"
+          href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/syntax.css" />
+
+    <!-- [[! highlight.js ]] -->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/styles/default.min.css">
+    <style>.hljs { background: none; }</style>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <!-- [[! Ghost outputs important style and meta data with this tag ]] -->
+        <link rel="canonical" href="/" />
+    <meta name="referrer" content="origin" />
+    <link rel="next" href="/page2/" />
+
+    <meta property="og:site_name" content="Thoughts, Notes and Collections" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Thoughts, Notes and Collections" />
+    <meta property="og:description" content="" />
+    <meta property="og:url" content="/" />
+    <meta property="og:image" content="/assets/images/cover1.jpg" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Thoughts, Notes and Collections" />
+    <meta name="twitter:description" content="" />
+    <meta name="twitter:url" content="/" />
+    <meta name="twitter:image:src" content="/assets/images/cover1.jpg" />
+
+    <script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "Website",
+    "publisher": "Finding The Way Home",
+    "url": "/",
+    "image": "/assets/images/cover1.jpg",
+    "description": ""
+}
+    </script>
+
+    <meta name="generator" content="Jekyll 3.0.0" />
+    <link rel="alternate" type="application/rss+xml" title="Thoughts, Notes and Collections" href="/feed.xml" />
+
+
+</head>
+<body class="home-template nav-closed">
+
+    <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+        <li class="nav-home " role="presentation"><a href="/">Home</a></li>
+        <li class="nav-author " role="presentation"><a href="/author/lxd">Author</a></li>
+        <li class="nav-en  nav-current" role="presentation"><a href="/tag/en">English posts</a></li>
+        <li class="nav-chs " role="presentation"><a href="/tag/chs">中文 posts</a></li>
+        <li class="nav-tech " role="presentation"><a href="/tag/tech">Tech related posts</a></li>
+        <li class="nav-novella " role="presentation"><a href="/tag/novella">Novella</a></li>
+
+    </ul>
+    <a class="subscribe-button icon-feed" href="/feed.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+
+    <div class="site-wrapper">
+
+        <!-- [[! Everything else gets inserted here ]] -->
+        <!-- < default -->
+
+<!-- The comment above "< default" means - insert everything in this file into -->
+    <!-- the [body] of the default.hbs template, which contains our header/footer. -->
+
+<!-- Everything inside the #post tags pulls data from the post -->
+<!-- #post -->
+
+<header class="main-header post-head " style="background-image: url(/assets/images/cover-ansible-pitfalls.png) ">
+    <nav class="main-nav  overlay  clearfix">
+        <a class="blog-logo" href="/"><img src="/assets/images/host.png" alt="Blog Logo" /></a>
+        
+            <a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+        
+    </nav>
+</header>
+
+<main class="content" role="main">
+
+    <article class="post">
+
+        <header class="post-header within-layout-post">
+            <h1 class="post-title">Ansible Pitfalls</h1>
+            <section class="post-meta">
+            <!-- <a href='/'> </a> -->
+            <time class="post-date" datetime="2016-04-04">04 Apr 2016</time>
+                <!-- [[tags prefix=" on "]] -->
+                 
+                on 
+                
+                    
+                       <a href='/tag/tech'>Tech</a>,
+                       
+                
+                    
+                       <a href='/tag/devops'>Devops</a>,
+                       
+                
+                    
+                       <a href='/tag/ansible'>Ansible</a>,
+                       
+                
+                    
+                       <a href='/tag/caveat'>Caveat</a>,
+                       
+                
+                    
+                       <a href='/tag/en'>En</a>
+                       
+                
+                
+            </section>
+        </header>
+
+        <section class="post-content">
+            
+            <p>Ansible, being concise and decent with everything in YAML and agentless, has been a better choice among DevOps tools like Puppet, Chef, and Salt. I’ve been using Ansible for the past 3 projects I engaged in. The last one relies heavily on Ansible to achieve whole Infrastructure as Code, which makes us wrote thousands of lines of YAML scripts and allows us to spot some pitfalls about Ansible.</p>
+
+<h3 id="test-is-difficult">Test is Difficult</h3>
+
+<p>Usually when we write code, we write and run tests along, this guarantees a certain level of code correctness and gives us enough confidence to move on. So generally these kinds of tests should take no more than a few seconds, make our coding-testing-refactor cycle as smooth as possible.</p>
+
+<p>Ansible, however, doesn’t have an efficient test framework. There is no other way but run Ansible scripts against real machines shall prove correctness, so I personally use Vagrant + VirtualBox to accomplish that. The problem is it takes approximately 10 seconds for the VM to boot up (on my MacBook Pro15), plus several minutes for Ansible to execute if Ansible role is big enough. If you are not quite familiar with Ansible or if you are making a major code change, you may have to go over this again and again, the coding-testing-refactor cycle being dramatically slowed down.</p>
+
+<h3 id="write-once-revise-everywhere">Write once, Revise everywhere</h3>
+
+<p>We’ve all heard about the joke about Sun’s “Write once, Run everywhere” turns out to be “Write once, Debug everywhere”. To Ansible it truly is <strong>Write once, Revise everywhere</strong>.</p>
+
+<p>The main philosophy behind Ansible and other similar Configuration Management tools is <code class="highlighter-rouge">DSC</code> - <strong>D</strong>esired <strong>S</strong>tate <strong>C</strong>onfiguration, which means if we use Ansible to provision a machine from state <code class="highlighter-rouge">A</code> to state <code class="highlighter-rouge">B</code>, we do not need to tell Ansible how to do it, but just tell Ansible we want our desired state <code class="highlighter-rouge">B</code>, Ansible will handle the rest, and guarantee idempotency.</p>
+
+<p>In reality, Ansible doesn’t know every state transformation you desire, so you still need to write procedural style Ansible script here and there, even embed shell scripts. In this way, it would be the author’s responsibility to guarantee idempotency and handle as many kinds of initial state as possible - as you can see, it’s not easy.</p>
+
+<p>So in my last project, we’ve spent a whole lot more time more time on Ansible than we expected. Every time we apply our Ansible repository in a brand new environment (e.g. CentOS on DigitalOcean, RHEL on AWS), we need to modify Ansible scripts to adapt new initial state possibilities, sometimes in our own roles, sometimes in 3rd party roles, sometimes for Ansible original modules. Eventually, we got a stable, full-fledged, time-consumed Ansible repository, which doesn’t deliver any customer value after all.</p>
+
+<h3 id="thats-why-we-should-use-docker">That’s Why We should Use Docker</h3>
+
+<p>Docker solves these problems beautifully. It kind of encapsulates an entire OS and application to a docker image - no more messed-up state, no more dirty machines, everything is in this small image which you can download, boot up, throw away easily. When a docker image is built and tested on your laptop, its running environment is identical wherever you run it. Everything Ansible’s been trying to do is encapsulated into docker image in a stable and controlled way. And because docker is kernel level resource isolation - not an actual VM - it’s extremely fast to boot up and thus make it convenient to debug and test locally.</p>
+
+
+
+        </section>
+
+        <footer class="post-footer">
+
+            <!-- Everything inside the #author tags pulls data from the author -->
+            <!-- #author-->
+
+            
+            <figure class="author-image">
+                <a class="img" href="/author/lxd" style="background-image: url(/assets/images/lxd.png)"><span class="hidden">'s Picture</span></a>
+            </figure>
+            
+
+            <section class="author">
+                <h4><a href="/author/lxd"> </a></h4>
+                
+                
+                    <p> A pragmatic, lazy, flexible, sporty, rentless, introverted, charismatic, sophisticated, superficial, impulsive, abnormal badass.</p>
+                
+                <div class="author-meta">
+                    <span class="author-location icon-location"> shenzhen, CN</span> 
+                    <span class="author-link icon-link"><a href="https://post.lxd.me/"> post.lxd.me</a></span> 
+                </div>
+            </section>
+
+            <!-- /author  -->
+
+            <section class="share">
+                <h4>Share this post</h4>
+                <a class="icon-twitter" href="http://twitter.com/share?text=Ansible Pitfalls&amp;url=https://post.lxd.me/ansible-pitfalls-en"
+                    onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                    <span class="hidden">Twitter</span>
+                </a>
+                <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://post.lxd.me/ansible-pitfalls-en"
+                    onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                    <span class="hidden">Facebook</span>
+                </a>
+                <a class="icon-google-plus" href="https://plus.google.com/share?url=https://post.lxd.me/ansible-pitfalls-en"
+                   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                    <span class="hidden">Google+</span>
+                </a>
+            </section>
+            
+            <!-- Add Disqus Comments -->
+            
+            
+        </footer>
+
+    </article>
+
+</main>
+
+<aside class="read-next">
+
+    <!-- [[! next_post ]] -->
+    
+        <a class="read-next-story " style="background-image: url(/assets/images/cover-restricted.jpg)" href="/ssh-tunnel-in-restricted-env">
+            <section class="post">
+                <h2>受限环境中的奇淫技巧之 — ssh通道</h2>
+                <p>### ssh 端口转发
+先复习一下基础知识，ssh 端口转发（ssh Port Forwarding），也叫ssh通道（ssh tunnel），是openSSH提供的~~中国~~特色功能。它的功能，是在一条已经建立的ssh连接的基础上，将对本地端口的请求，经由ssh，通过ssh server转发到另外一台服务器；或者对ssh server端口的请求经由ssh，通过本地机器转发到另外一台服务器。它有3种：
+
+- ssh本地端口转发（Local port forwarding）
+- ssh远...</p>
+            </section>
+        </a>
+    
+    <!-- [[! /next_post ]] -->
+    <!-- [[! prev_post ]] -->
+    
+        <a class="read-next-story prev " style="background-image: url(/assets/images/cover-ansible-pitfalls.png)" href="/ansible-pitfall">
+            <section class="post">
+                <h2>写Ansible脚本为什么这么痛</h2>
+                <p>在最近的这个项目上，我们选择了用Ansible做基础环境的搭建和软件包的部署。Ansible，相对于Puppet和Chef，要更简洁和干净一些，首先是agentless，被控机器上不需要安装任何依赖；其次YAML格式的状态声明语句和playbook，比Ruby的DSL要更简洁一些。但是跟很多新技术一样，小规模玩一玩觉得还蛮有意思，上了规模之后，各种坑和痛点就显现出来了。我在这里罗列一下我们遭受的创痛，供后来人参考。注意首先我在这里只破不立，只描述痛点，不一定提供解决方案；其次我列出的坑不一...</p>
+            </section>
+        </a>
+    
+    <!-- [[! /prev_post ]] -->
+</aside>
+
+<!-- /post -->
+
+
+        <footer class="site-footer clearfix">
+          <section class="copyright"><a href="/">Thoughts, Notes and Collections</a> &copy; 2017</section>
+          <section class="poweredby">Proudly published with <a href="https://jekyllrb.com/">Jekyll</a> using <a href="https://github.com/biomadeira/jasper">Jasper</a></section>
+        </footer>
+    </div>
+    <!-- [[! Ghost outputs important scripts and data with this tag ]] -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <!-- [[! The main JavaScript file for Casper ]] -->
+    <script type="text/javascript" src="/assets/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="/assets/js/index.js"></script>
+
+    <!-- Add Google Analytics  -->
+        <!-- Google Analytics Tracking code -->
+     <script>
+	    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	    ga('create', 'UA-69281367-1', 'auto');
+	    ga('send', 'pageview');
+
+     </script>   
+</body>
+</html>

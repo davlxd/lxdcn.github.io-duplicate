@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+   
+      <title>post.lxd.me</title>
+   
+   <link>https://post.lxd.me/</link>
+   <description></description>
+   <language>en-uk</language>
+   <managingEditor>  </managingEditor>
+   <atom:link href="rss" rel="self" type="application/rss+xml" />
+   
+	<item>
+	  <title>User, Schema, Database in MySQL, PostgreSQL, and Oracle</title>
+	  <link>//user-schema-database-in-mysql-postgresql-and-oracle</link>
+	  <author> </author>
+	  <pubDate>2017-04-01T20:34:56+08:00</pubDate>
+	  <guid>//user-schema-database-in-mysql-postgresql-and-oracle</guid>
+	  <description><![CDATA[
+	     <p><code class="highlighter-rouge">User</code>, <code class="highlighter-rouge">Schema</code>, and <code class="highlighter-rouge">Database</code> are fundamental concepts for every RDBMS, but they are easy to forget unless you are dedicated DBA, since most of the time you only need this knowledge when you bootstrap a new project. This kind of situation has happened to me countless times, so in this post, I’m solving this problem once for all, and I hope it could be helpful for you as well.</p>
+
+<h3 id="mysqlmariadb">MySQL/MariaDB</h3>
+
+<p>MySQL is relatively simple, it has no <code class="highlighter-rouge">schema</code>, or to be precisely <code class="highlighter-rouge">schema</code> is synonymous to <code class="highlighter-rouge">database</code>. <code class="highlighter-rouge">database</code> is a kind of namespace containing common database objects like tables, indexes, foreign keys etc. A MySQL instance can hold many databases which are isolated to each other.</p>
+
+<p><code class="highlighter-rouge">User</code> in MySQL is called <code class="highlighter-rouge">user account</code>, which consists of 2 parts: user name and host name, because of this we can have finer control over privileges when same user name connect from different hosts, and typically we need to distinguish between localhost, hosts within the same private network, and public Internet addresses.</p>
+
+<p>MySQL has a default administrative user <code class="highlighter-rouge">root</code>, for self-hosted MySQL instance, you need to provide root password during the installation process, either by config file or command line prompt. With <code class="highlighter-rouge">root</code> user, you can create databases and more administrative users, and typically you need to create several normal users with limited privileges for daily use and application use.</p>
+
+<figure class="highlight"><pre><code class="language-sql" data-lang="sql"><span class="c1">-- connect to mysql instance with root user
+</span><span class="n">mysql</span> <span class="o">-</span><span class="n">h</span> <span class="mi">127</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">1</span> <span class="o">-</span><span class="n">u</span> <span class="n">root</span> <span class="o">-</span><span class="n">p</span>
+
+<span class="c1">-- create a database with charset set to utf8
+</span><span class="k">CREATE</span> <span class="k">DATABASE</span> <span class="n">db_name</span> <span class="n">CHARACTER</span> <span class="k">SET</span> <span class="n">utf8</span> <span class="k">COLLATE</span> <span class="n">utf8_general_ci</span><span class="p">;</span>
+
+<span class="c1">-- create an account: finley@localhost
+</span><span class="k">CREATE</span> <span class="k">USER</span> <span class="s1">'finley'</span><span class="o">@</span><span class="s1">'localhost'</span> <span class="n">IDENTIFIED</span> <span class="k">BY</span> <span class="s1">'some_pass'</span><span class="p">;</span>
+
+<span class="c1">-- grant all privileges on database db_name to finley@localhost
+</span><span class="k">GRANT</span> <span class="k">ALL</span> <span class="k">PRIVILEGES</span> <span class="k">ON</span> <span class="n">db_name</span><span class="p">.</span><span class="o">*</span> <span class="k">TO</span> <span class="s1">'finley'</span><span class="o">@</span><span class="s1">'localhost'</span><span class="p">;</span>
+
+<span class="n">FLUSH</span> <span class="k">PRIVILEGES</span><span class="p">;</span></code></pre></figure>
+
+<p>As for Saas MySQL instance, generally venders won’t give you the root password, and you need to create databases and normal users through Web UI.</p>
+
+<h3 id="postgresql">PostgreSQL</h3>
+
+<p>PostgreSQL always have better compliance with SQL standard comparing to MySQL, for instance, it has <code class="highlighter-rouge">schema</code> with a different meaning from <code class="highlighter-rouge">database</code>. A PostgreSQL database cluster contains multiple named <code class="highlighter-rouge">database</code>s, which are also isolated to each other. And a <code class="highlighter-rouge">database</code> contains more or more schemas, which in turn contains tables and other common database objects. <code class="highlighter-rouge">schema</code> of PostgreSQL means to organize database objects into logical groups, make them more manageable, and allows different users connect to the <strong>same database</strong> without interfering with each other.</p>
+
+<p>You can CRUD and use schemas like databases or tables:</p>
+
+<figure class="highlight"><pre><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">SCHEMA</span> <span class="n">myschema</span><span class="p">;</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">myschema</span><span class="p">.</span><span class="n">mytable</span> <span class="p">(</span>
+ <span class="p">...</span>
+<span class="p">);</span>
+<span class="k">DROP</span> <span class="k">SCHEMA</span> <span class="n">myschema</span><span class="p">;</span></code></pre></figure>
+
+<p><code class="highlighter-rouge">Schema</code>s in PostgreSQL could be invisible if you do not pay enough attention, because PostgreSQL has 2 very important concepts: <code class="highlighter-rouge">public schema</code> and <code class="highlighter-rouge">schema search path</code>. If you create tables without specifying schema names, they go to the schema named <code class="highlighter-rouge">public</code> by default, and every database contains such a schema unless otherwise explicitly dropped. If you omit schema names when you refer a table, PostgreSQL determines which actual table is by following the <code class="highlighter-rouge">schema search path</code>, which is a list of a schema to look at, the first found is returned.</p>
+
+<p>The default <code class="highlighter-rouge">schema search path</code> is <code class="highlighter-rouge">"$user",public</code>, so the schema with the same name as the current user is searched first, then public schema. So if you want to kill <code class="highlighter-rouge">schema</code> in PostgreSQL and let all users connected to the database share everything, don’t create any schemas and you have it by default. If you want to isolate each user from each other, create a schema for each user with the exact user name, and better off dropping the public schema.</p>
+
+<p>Since PostgreSQL 8.1, <code class="highlighter-rouge">user</code> and <code class="highlighter-rouge">group</code> have been replaced by the merged concept <code class="highlighter-rouge">role</code>, the administrative role is <code class="highlighter-rouge">superuser</code>. For a SaaS PostgreSQL instance, superuser is generally not provided just like MySQL, but you can accomplish most of the operation work through Web UI, like create new user, configure whitelist for remote connection, With these two you should be able to obtain a database connection, then you can carry on creating databases and manipulating schemas via the command line PostgreSQL client <code class="highlighter-rouge">psql</code></p>
+
+<p>Things get a little more complicated for self-hosted PostgreSQL instances, and you get the chance to touch the details of Postgres’ authenticate protocols. After PostgreSQL has been installed on a Linux machine, you need to run <code class="highlighter-rouge"># postgresql-setup initdb</code> to initiate Postgres, this includes a lot of stuff which all mean to make Postgres ready to use.</p>
+
+<p>PostgreSQL supports a variety of authentication methods and options, and the configuration file for that is <code class="highlighter-rouge">pg_hba.conf</code>, for CentOS it resides in <code class="highlighter-rouge">/var/lib/pgsql/data</code>. You can configure authentication method for incoming connection attempts either from local UNIX sockets or remote SSL/non-SSL TCP sockets, and also for different databases and different roles. The authenticate method could be <code class="highlighter-rouge">trust</code> - absolute trust, no auth needed, <code class="highlighter-rouge">md5</code> and <code class="highlighter-rouge">password</code> - client send password across the connection either MD5-hashed or in plain text, and <code class="highlighter-rouge">peer</code> and <code class="highlighter-rouge">ident</code> which grab the underlying OS user name for authentication. Kerberos, LDAP, RADIUS and many other industry-level authentication solutions can also be integrated, you can read the official documentation <a href="https://www.postgresql.org/docs/current/static/auth-methods.html">here</a>.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c"># TYPE  DATABASE        USER            ADDRESS                 METHOD</span>
+
+<span class="c"># "local" is for Unix domain socket connections only</span>
+<span class="n">local</span>   <span class="nb">all</span>             <span class="nb">all</span>                                     <span class="n">peer</span>
+<span class="c"># IPv4 local connections:</span>
+<span class="n">host</span>    <span class="nb">all</span>             <span class="nb">all</span>             <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="o">/</span><span class="mi">32</span>            <span class="n">ident</span>
+<span class="c"># IPv6 local connections:</span>
+<span class="n">host</span>    <span class="nb">all</span>             <span class="nb">all</span>             <span class="p">::</span><span class="mi">1</span><span class="o">/</span><span class="mi">128</span>                 <span class="n">ident</span>
+<span class="c"># Allow replication connections from localhost, by a user with the</span>
+<span class="c"># replication privilege.</span>
+<span class="c">#local   replication     postgres                                peer</span>
+<span class="c">#host    replication     postgres        127.0.0.1/32            ident</span>
+<span class="c">#host    replication     postgres        ::1/128                 ident                                           </span></code></pre></figure>
+
+<p>Freshly installed and configured PostgreSQL adds a user named <code class="highlighter-rouge">postgres</code> to the underlying OS, and this corresponds to the very first role in Postgres, which is also a <code class="highlighter-rouge">superuser</code>. From here you create more roles and assign privileges to them, and configure appropriate authentication methods in <code class="highlighter-rouge">pg_hba.conf</code>.</p>
+
+<p>Many client apps including <code class="highlighter-rouge">psql</code> implicitly take current OS user name as the <code class="highlighter-rouge">role</code> for establishing Postgres connections, so <code class="highlighter-rouge">role</code>s could be invisible just like <code class="highlighter-rouge">schema</code>s in Postgres, be careful of that.</p>
+
+<h3 id="oracle">Oracle</h3>
+
+<p>Oracle also has <code class="highlighter-rouge">schema</code>s under <code class="highlighter-rouge">database</code>s as logical containers for database objects, but they are strictly bond to <code class="highlighter-rouge">user</code>s, which means every time you create a user for Oracle, a <code class="highlighter-rouge">schema</code> is created automatically. Generally you go to your own schema after a database connection is established to Oracle, but you can alter session to another schema, or select data from other schemas if you have privileges granted.</p>
+
+<p>My experience with Oracle is all with big enterprises, when we need an Oracle instance, we file a request, then DBA department assigns us a TNS connect string with everything behind it ready. Nonetheless I’ve ever tried to install Oracle Express Edition manually on a Linux machine, and it was quite miserable. It would be way much easier now as we have Docker and DSC tools at our hands, and I have an Ansible script <a href="https://gist.github.com/lxdcn/5bd7114070ae3120f126">here</a>.</p>
+
+<h3 id="refers">Refers</h3>
+
+<ul>
+  <li>https://dev.mysql.com/doc/refman/5.7/en/glossary.html</li>
+  <li>https://www.postgresql.org/docs/9.6/static/ddl-schemas.html</li>
+  <li>https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-centos-7</li>
+  <li>https://www.postgresql.org/docs/current/static/user-manag.html</li>
+  <li>https://www.postgresql.org/docs/current/static/database-roles.html</li>
+  <li>https://docs.oracle.com/database/121/CNCPT/intro.htm#CNCPT940</li>
+</ul>
+
+
+	  ]]></description>
+	</item>
+
+
+</channel>
+</rss>

@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Thoughts, Notes and Collections - Articles</title>
+    <description></description>
+    <link>
+    https://post.lxd.me/</link>
+    
+      
+      <item>
+        <title>Life from  ISS to Earth</title>
+        
+          <description>&lt;p&gt;&lt;em&gt;Life&lt;/em&gt; finally got released in China in last week, my wife and I went to see it last Saturday. Even though I warned her it was a horror movie before the it began like a well-informed wise critic, I have to say some scenes still scared the hell of both of us. It’s an intense horror movie, with some innovative designs on the alien itself and the way it attacks humans.&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Wed, 24 May 2017 00:15:56 +0800</pubDate>
+        <link>
+        https://post.lxd.me//film-life-review</link>
+        <guid isPermaLink="true">https://post.lxd.me//film-life-review</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>User, Schema, Database in MySQL, PostgreSQL, and Oracle</title>
+        
+          <description>&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;User&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;Schema&lt;/code&gt;, and &lt;code class=&quot;highlighter-rouge&quot;&gt;Database&lt;/code&gt; are fundamental concepts for every RDBMS, but they are easy to forget unless you are dedicated DBA, since most of the time you only need this knowledge when you bootstrap a new project. This kind of situation has happened to me countless times, so in this post, I’m solving this problem once for all, and I hope it could be helpful for you as well.&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Sat, 01 Apr 2017 20:34:56 +0800</pubDate>
+        <link>
+        https://post.lxd.me//user-schema-database-in-mysql-postgresql-and-oracle</link>
+        <guid isPermaLink="true">https://post.lxd.me//user-schema-database-in-mysql-postgresql-and-oracle</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Spring Data JPA Internals</title>
+        
+          <description>&lt;p&gt;In the previous post&lt;sup&gt;[&lt;a href=&quot;/spring-introduction-en&quot;&gt;1&lt;/a&gt;]&lt;/sup&gt;, I showed how brief it can be for Spring Data JPA to expose routine CRUD interfaces of simple database entities. This post goes a little bit further, by revealing the work Spring has done behind the scenes, and why we can interact with the database with the methods we declared in interfaces without implementing them.&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Wed, 22 Mar 2017 20:34:56 +0800</pubDate>
+        <link>
+        https://post.lxd.me//spring-data-jpa-internals-en</link>
+        <guid isPermaLink="true">https://post.lxd.me//spring-data-jpa-internals-en</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Spring Introduction</title>
+        
+          <description>&lt;p&gt;This article is a recap of a presentation I gave to my teammates, a brief introduction to Spring framework and related concepts, and 3 common Spring projects (Spring MVC, Spring Data JAP, and Spring Boot).&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Fri, 17 Mar 2017 20:34:56 +0800</pubDate>
+        <link>
+        https://post.lxd.me//spring-introduction-en</link>
+        <guid isPermaLink="true">https://post.lxd.me//spring-introduction-en</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>A simple VPN (tunnel with tun device) demo and some basic concepts</title>
+        
+          <description>&lt;p&gt;As you may already know, VPN stands for Virtual Private Network, namely it is a private network, with many components being virtualized. From a user’s perspective, all we need is a virtual network interface (e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;/dev/tun0&lt;/code&gt;) on my device and configure my routing table to route all or part of traffic going through that interface, but what happens then? This post provides a demo revealing some implementation details after the virtual network interface - &lt;strong&gt;tunneling&lt;/strong&gt;, the code is &lt;a href=&quot;https://github.com/lxdcn/simple-vpn-demo&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Thu, 16 Feb 2017 20:34:56 +0800</pubDate>
+        <link>
+        https://post.lxd.me//a-simple-vpn-tunnel-with-tun-device-demo-and-some-basic-concepts</link>
+        <guid isPermaLink="true">https://post.lxd.me//a-simple-vpn-tunnel-with-tun-device-demo-and-some-basic-concepts</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>分裂</title>
+        
+          <description>&lt;p&gt;老李躺在沙发上，有点紧张，对面的张医生看起来挺年轻的，也不知道行不行。老婆小琳陪着一起过来的，正坐在外面等。理论上的老婆，老李默默的想，可别折腾太久了啊。&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Thu, 09 Feb 2017 05:05:00 +0800</pubDate>
+        <link>
+        https://post.lxd.me//disorder</link>
+        <guid isPermaLink="true">https://post.lxd.me//disorder</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Key Takeaway Points for a Full-spectrum CI/CD Solution</title>
+        
+          <description>&lt;p&gt;During my time at ThoughtWorks, sometimes I acted as a CI expert and provided CI/CD solution to several clients. My guess is I won’t do it anymore, so I dump these things from my memory here, and may even be helpful for you.&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Mon, 06 Feb 2017 23:01:24 +0800</pubDate>
+        <link>
+        https://post.lxd.me//key-takeaway-points-for-a-full-spectrum-cd-solution</link>
+        <guid isPermaLink="true">https://post.lxd.me//key-takeaway-points-for-a-full-spectrum-cd-solution</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>“呵呵，其实我也是一个内向的人”</title>
+        
+          <description>&lt;p&gt;小李今年刚毕业，虽说之前在公司实习的时候积累了一些工作经验，但是小李生性谨慎，谨小慎微，虽然前两天已经提前转正，成为正式员工了，但做事情还是战战兢兢，诚惶诚恐，谨遵老父亲叮嘱的“少说话，多做事，尊重领导，团结同事”的家训。&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Sun, 18 Dec 2016 23:28:24 +0800</pubDate>
+        <link>
+        https://post.lxd.me//introvert-life</link>
+        <guid isPermaLink="true">https://post.lxd.me//introvert-life</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Let SSH Tunnel Rescue You in Restricted Network Environment</title>
+        
+          <description>&lt;p&gt;Networking policies in traditional companies are very strict due to its traditional nature. This may mean a lot from administrative or audit point of view, but as a developer, it makes me very difficult to apply DevOps practices like build CD pipeline, or at least deploy software to multiple environments automatically. And I seriously doubt how much it contributes to information security comparing how much trouble it makes.&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Sat, 27 Aug 2016 20:34:56 +0800</pubDate>
+        <link>
+        https://post.lxd.me//let-ssh-tunnel-rescue-you-in-restricted-network-environment</link>
+        <guid isPermaLink="true">https://post.lxd.me//let-ssh-tunnel-rescue-you-in-restricted-network-environment</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>受限环境中的奇淫技巧之 — ssh通道</title>
+        
+          <description>&lt;h3 id=&quot;ssh-&quot;&gt;ssh 端口转发&lt;/h3&gt;
+&lt;p&gt;先复习一下基础知识，ssh 端口转发（ssh Port Forwarding），也叫ssh通道（ssh tunnel），是openSSH提供的~~中国~~特色功能。它的功能，是在一条已经建立的ssh连接的基础上，将对本地端口的请求，经由ssh，通过ssh server转发到另外一台服务器；或者对ssh server端口的请求经由ssh，通过本地机器转发到另外一台服务器。它有3种：&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Mon, 15 Aug 2016 20:34:56 +0800</pubDate>
+        <link>
+        https://post.lxd.me//ssh-tunnel-in-restricted-env</link>
+        <guid isPermaLink="true">https://post.lxd.me//ssh-tunnel-in-restricted-env</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Ansible Pitfalls</title>
+        
+          <description>&lt;p&gt;Ansible, being concise and decent with everything in YAML and agentless, has been a better choice among DevOps tools like Puppet, Chef, and Salt. I’ve been using Ansible for the past 3 projects I engaged in. The last one relies heavily on Ansible to achieve whole Infrastructure as Code, which makes us wrote thousands of lines of YAML scripts and allows us to spot some pitfalls about Ansible.&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Mon, 04 Apr 2016 20:34:56 +0800</pubDate>
+        <link>
+        https://post.lxd.me//ansible-pitfalls-en</link>
+        <guid isPermaLink="true">https://post.lxd.me//ansible-pitfalls-en</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>写Ansible脚本为什么这么痛</title>
+        
+          <description>&lt;p&gt;在最近的这个项目上，我们选择了用Ansible做基础环境的搭建和软件包的部署。Ansible，相对于Puppet和Chef，要更简洁和干净一些，首先是agentless，被控机器上不需要安装任何依赖；其次YAML格式的状态声明语句和playbook，比Ruby的DSL要更简洁一些。但是跟很多新技术一样，小规模玩一玩觉得还蛮有意思，上了规模之后，各种坑和痛点就显现出来了。我在这里罗列一下我们遭受的创痛，供后来人参考。注意首先我在这里只破不立，只描述痛点，不一定提供解决方案；其次我列出的坑不一定只限于Ansible，用其他的DevOps工具也可能会遇到，有些问题甚至是做运维相关工作无法避免的。&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Fri, 01 Apr 2016 20:34:56 +0800</pubDate>
+        <link>
+        https://post.lxd.me//ansible-pitfall</link>
+        <guid isPermaLink="true">https://post.lxd.me//ansible-pitfall</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>年轻不再，气也不盛了</title>
+        
+          <description>&lt;p&gt;在一个闲适的周日下午，看了这部平静、丰富、有趣的电影&lt;em&gt;Youth&lt;/em&gt;，败了一笔的中文翻译作《年轻气盛》，一点毛关系都对不上。&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Mon, 14 Mar 2016 01:34:56 +0800</pubDate>
+        <link>
+        https://post.lxd.me//youth-review</link>
+        <guid isPermaLink="true">https://post.lxd.me//youth-review</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Git wrap script to ignore files that have already been committed</title>
+        
+          <description>&lt;h3 id=&quot;motivation&quot;&gt;Motivation&lt;/h3&gt;
+
+</description>
+        
+        <pubDate>Thu, 14 Jan 2016 06:56:56 +0800</pubDate>
+        <link>
+        https://post.lxd.me//gitw-explanation</link>
+        <guid isPermaLink="true">https://post.lxd.me//gitw-explanation</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>边境杀手 Sicario 影评</title>
+        
+          <description>&lt;p&gt;Sicario 《边境杀手》是今年看过最亮眼的一部电影，风格犀利，年度最佳。&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Thu, 17 Dec 2015 20:34:56 +0800</pubDate>
+        <link>
+        https://post.lxd.me//sicario-review</link>
+        <guid isPermaLink="true">https://post.lxd.me//sicario-review</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Spring Data JPA 技术分析</title>
+        
+          <description>&lt;p&gt;在另一篇介绍Spring的文章&lt;sup&gt;[&lt;a href=&quot;/spring-introduction&quot;&gt;1&lt;/a&gt;]&lt;/sup&gt;里我介绍了Spring Data JPA，借助Spring Data JPA，对数据库做CRUD需要简单的四步操作：先创建数据库表和Java entity类；声明一个接口&lt;code class=&quot;highlighter-rouge&quot;&gt;ItemRepository&lt;/code&gt;继承&lt;code class=&quot;highlighter-rouge&quot;&gt;CrudRepository&lt;/code&gt;；再在接口&lt;code class=&quot;highlighter-rouge&quot;&gt;ItemRepository&lt;/code&gt;里声明Query Method&lt;code class=&quot;highlighter-rouge&quot;&gt;findByName&lt;/code&gt;；最后把&lt;code class=&quot;highlighter-rouge&quot;&gt;ItemRepository&lt;/code&gt;注入到我们需要用到的地方，调用就可以了。&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Mon, 07 Dec 2015 20:34:56 +0800</pubDate>
+        <link>
+        https://post.lxd.me//spring-data-jpa-internals</link>
+        <guid isPermaLink="true">https://post.lxd.me//spring-data-jpa-internals</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Spring 介绍</title>
+        
+          <description>&lt;p&gt;这篇文章对Spring Framework做一个基础的介绍，先介绍Spring和Spring相关的几个概念，再介绍3个常用的Spring项目/模块：Spring MVC、Spring Data JPA、和Spring Boot。&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Tue, 01 Dec 2015 20:34:56 +0800</pubDate>
+        <link>
+        https://post.lxd.me//spring-introduction</link>
+        <guid isPermaLink="true">https://post.lxd.me//spring-introduction</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>王晶的香港电影史</title>
+        
+          <description>&lt;p&gt;&lt;img src=&quot;https://img1.doubanio.com/img/celebrity/large/3237.jpg&quot; alt=&quot;王晶&quot; /&gt;&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Tue, 17 Feb 2015 20:34:56 +0800</pubDate>
+        <link>
+        https://post.lxd.me//Jing-Wong-autobiography-review</link>
+        <guid isPermaLink="true">https://post.lxd.me//Jing-Wong-autobiography-review</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>星际穿越 Interstellar 影评</title>
+        
+          <description>&lt;p&gt;昨天终于抽出空来赶在星际穿越下线前又去看了一遍，因为电影里永恒号飞过土星，飞过卡冈图雅的画面非大银幕看不过瘾，要是电影下线之后再在大银幕上看这部电影的机会就小很多。为了不亏待自己，再落下一篇影评。&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Fri, 19 Dec 2014 20:34:56 +0800</pubDate>
+        <link>
+        https://post.lxd.me//interstellar-review</link>
+        <guid isPermaLink="true">https://post.lxd.me//interstellar-review</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>用OSX的say命令让Nagios报警叫出来</title>
+        
+          <description>&lt;p&gt;Mac OSX系统有个有趣的命令&lt;code class=&quot;highlighter-rouge&quot;&gt;say&lt;/code&gt;，传入一段文本就可以让系统读出来。比如你可以打开OSX的Terminal.app，然后输入&lt;code class=&quot;highlighter-rouge&quot;&gt;say hello OSX&lt;/code&gt;，听听会不会响。&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Thu, 04 Sep 2014 20:34:56 +0800</pubDate>
+        <link>
+        https://post.lxd.me//using-osx-say-command-to-make-nagios-alert-speak</link>
+        <guid isPermaLink="true">https://post.lxd.me//using-osx-say-command-to-make-nagios-alert-speak</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>向多台机器分发文件 - bounce</title>
+        
+          <description>&lt;p&gt;最近在公司遇到了把一个几十G的虚拟机镜像文件分发到10来台机器上的问题，前期基础设施没有搭建好到后来就是会比较痛，如果这些机器用puppet或者chef管理起来了的话这事儿或许会好办一些。&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Fri, 25 Jul 2014 19:55:00 +0800</pubDate>
+        <link>
+        https://post.lxd.me//bounce</link>
+        <guid isPermaLink="true">https://post.lxd.me//bounce</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>在PowerShell里并行执行脚本</title>
+        
+          <description>&lt;p&gt;在Bash里并行执行脚本有几种方法，可以在Bash里可以用把一个任务后面加&lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;&lt;/code&gt;开一个subshell直接甩倒后台去执行，也可以用&lt;a href=&quot;http://www.gnu.org/software/parallel/&quot; title=&quot;GNU Parallel&quot;&gt;GNU Parallel&lt;/a&gt;对并行执行的任务做更精细的控制。&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Fri, 25 Jul 2014 00:18:29 +0800</pubDate>
+        <link>
+        https://post.lxd.me//running-powershell-in-parallel</link>
+        <guid isPermaLink="true">https://post.lxd.me//running-powershell-in-parallel</guid>
+      </item>
+      
+    
+  </channel>
+</rss>

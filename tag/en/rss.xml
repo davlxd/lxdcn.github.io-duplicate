@@ -1,0 +1,946 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+   
+      <title>post.lxd.me</title>
+   
+   <link>https://post.lxd.me/</link>
+   <description></description>
+   <language>en-uk</language>
+   <managingEditor>  </managingEditor>
+   <atom:link href="rss" rel="self" type="application/rss+xml" />
+   
+	<item>
+	  <title>Life from  ISS to Earth</title>
+	  <link>//film-life-review</link>
+	  <author> </author>
+	  <pubDate>2017-05-24T00:15:56+08:00</pubDate>
+	  <guid>//film-life-review</guid>
+	  <description><![CDATA[
+	     <p><em>Life</em> finally got released in China in last week, my wife and I went to see it last Saturday. Even though I warned her it was a horror movie before the it began like a well-informed wise critic, I have to say some scenes still scared the hell of both of us. It’s an intense horror movie, with some innovative designs on the alien itself and the way it attacks humans.</p>
+
+<p>Actually I’ve been looking forward to see this film after I saw the trailers several months ago, and one of them actually is the complete scene of how Calvin grabbing and breaking the hand of Dr. Hugh Derry when he stimulates Calvin with some kind of electric pen, which haunted me for days. And when I was seeing the film in cinema, even I had already known what would happen, my heart still reach in my mouth every time Hugh pets or touches baby Calvin. And I’m sure a firm handshake from other people will remind me of baby Calvin for the rest of my life.</p>
+
+<p>The way how Calvin kills Deadpool is also horrifying and refreshing. After Calvin enter his mouth, Calvin doesn’t choke him to dead as we might expected, nor explodes him like Ridley’s Xenomorph would do, just blood keeps coming out of his month as Deadpool dies, silently and thrilling, until Calvin breaks out.</p>
+
+<p>At the beginning of the film there’s a long take depicting how it looks like inside ISS and how the crew live and work, I smirked when I saw this because I’ve watched Sunita Williams’s ISS inside tour on youtube, and it’s far messier with all kinds of wires, gadget, and white parcels everywhere. I know it’s aesthetically necessary to sugarcoat everything when shooting a movie, but It’s kinda like never show your real bedroom to other people.</p>
+
+<p>After Calvin reenters ISS through the thrusters, the remaining 4 crew members decide to seal themselves into an isolated module and vent other modules to suffocate Calvin back to dormant, turns out Calvin’s been with them all along by attaching on Huge’s leg. Some audiences around me whispered and blamed that Hugh knew and he deliberately took Calvin with him into the module with them. Well, in my opinion it’s a yes and no, it’s yes because Hugh has the most empathy for Calvin among the crew and actually he was murmuring about its survival nature before he goes into unconscious; it’s no because he knows it would be disastrous for the entire crew if he bring it along into the module and as a scientist he just can’t deliberately do it. And it’s yes because he seems to know something and tries to reach his leg before enters cardiac arrest; it’s no because he is indeed paralyzed and he just can’t feel when Calvin latches on his leg even eats his leg.
+And the smart part is director actually used some film language to imply Calvin is with Huge before and after the crew seal themselves in the ISS module, we just don’t know for sure because we don’t know how, until they rips his pants.</p>
+
+<p>As Calvin grows bigger and bigger, at some stage - I don’t remember when, he grows a concrete head. I’ve always wondered if this is necessary as Calvin is a brand new generation of alien whose whole body is all brain, all muscle, and all eye. Maybe they thought it’s more intimidating when Calvin is face to face with Sho Murakami and David Jordan, but that face, it’s disgusting enough of course, just lack of imagination.</p>
+
+<p>The story of this film is weak, the whole crew just keep making mistakes to make things worse, nonetheless it’s a fine thriller movie, and it definitely leaves me some good memories.</p>
+
+	  ]]></description>
+	</item>
+
+	<item>
+	  <title>User, Schema, Database in MySQL, PostgreSQL, and Oracle</title>
+	  <link>//user-schema-database-in-mysql-postgresql-and-oracle</link>
+	  <author> </author>
+	  <pubDate>2017-04-01T20:34:56+08:00</pubDate>
+	  <guid>//user-schema-database-in-mysql-postgresql-and-oracle</guid>
+	  <description><![CDATA[
+	     <p><code class="highlighter-rouge">User</code>, <code class="highlighter-rouge">Schema</code>, and <code class="highlighter-rouge">Database</code> are fundamental concepts for every RDBMS, but they are easy to forget unless you are dedicated DBA, since most of the time you only need this knowledge when you bootstrap a new project. This kind of situation has happened to me countless times, so in this post, I’m solving this problem once for all, and I hope it could be helpful for you as well.</p>
+
+<h3 id="mysqlmariadb">MySQL/MariaDB</h3>
+
+<p>MySQL is relatively simple, it has no <code class="highlighter-rouge">schema</code>, or to be precisely <code class="highlighter-rouge">schema</code> is synonymous to <code class="highlighter-rouge">database</code>. <code class="highlighter-rouge">database</code> is a kind of namespace containing common database objects like tables, indexes, foreign keys etc. A MySQL instance can hold many databases which are isolated to each other.</p>
+
+<p><code class="highlighter-rouge">User</code> in MySQL is called <code class="highlighter-rouge">user account</code>, which consists of 2 parts: user name and host name, because of this we can have finer control over privileges when same user name connect from different hosts, and typically we need to distinguish between localhost, hosts within the same private network, and public Internet addresses.</p>
+
+<p>MySQL has a default administrative user <code class="highlighter-rouge">root</code>, for self-hosted MySQL instance, you need to provide root password during the installation process, either by config file or command line prompt. With <code class="highlighter-rouge">root</code> user, you can create databases and more administrative users, and typically you need to create several normal users with limited privileges for daily use and application use.</p>
+
+<figure class="highlight"><pre><code class="language-sql" data-lang="sql"><span class="c1">-- connect to mysql instance with root user
+</span><span class="n">mysql</span> <span class="o">-</span><span class="n">h</span> <span class="mi">127</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">1</span> <span class="o">-</span><span class="n">u</span> <span class="n">root</span> <span class="o">-</span><span class="n">p</span>
+
+<span class="c1">-- create a database with charset set to utf8
+</span><span class="k">CREATE</span> <span class="k">DATABASE</span> <span class="n">db_name</span> <span class="n">CHARACTER</span> <span class="k">SET</span> <span class="n">utf8</span> <span class="k">COLLATE</span> <span class="n">utf8_general_ci</span><span class="p">;</span>
+
+<span class="c1">-- create an account: finley@localhost
+</span><span class="k">CREATE</span> <span class="k">USER</span> <span class="s1">'finley'</span><span class="o">@</span><span class="s1">'localhost'</span> <span class="n">IDENTIFIED</span> <span class="k">BY</span> <span class="s1">'some_pass'</span><span class="p">;</span>
+
+<span class="c1">-- grant all privileges on database db_name to finley@localhost
+</span><span class="k">GRANT</span> <span class="k">ALL</span> <span class="k">PRIVILEGES</span> <span class="k">ON</span> <span class="n">db_name</span><span class="p">.</span><span class="o">*</span> <span class="k">TO</span> <span class="s1">'finley'</span><span class="o">@</span><span class="s1">'localhost'</span><span class="p">;</span>
+
+<span class="n">FLUSH</span> <span class="k">PRIVILEGES</span><span class="p">;</span></code></pre></figure>
+
+<p>As for Saas MySQL instance, generally venders won’t give you the root password, and you need to create databases and normal users through Web UI.</p>
+
+<h3 id="postgresql">PostgreSQL</h3>
+
+<p>PostgreSQL always have better compliance with SQL standard comparing to MySQL, for instance, it has <code class="highlighter-rouge">schema</code> with a different meaning from <code class="highlighter-rouge">database</code>. A PostgreSQL database cluster contains multiple named <code class="highlighter-rouge">database</code>s, which are also isolated to each other. And a <code class="highlighter-rouge">database</code> contains more or more schemas, which in turn contains tables and other common database objects. <code class="highlighter-rouge">schema</code> of PostgreSQL means to organize database objects into logical groups, make them more manageable, and allows different users connect to the <strong>same database</strong> without interfering with each other.</p>
+
+<p>You can CRUD and use schemas like databases or tables:</p>
+
+<figure class="highlight"><pre><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">SCHEMA</span> <span class="n">myschema</span><span class="p">;</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">myschema</span><span class="p">.</span><span class="n">mytable</span> <span class="p">(</span>
+ <span class="p">...</span>
+<span class="p">);</span>
+<span class="k">DROP</span> <span class="k">SCHEMA</span> <span class="n">myschema</span><span class="p">;</span></code></pre></figure>
+
+<p><code class="highlighter-rouge">Schema</code>s in PostgreSQL could be invisible if you do not pay enough attention, because PostgreSQL has 2 very important concepts: <code class="highlighter-rouge">public schema</code> and <code class="highlighter-rouge">schema search path</code>. If you create tables without specifying schema names, they go to the schema named <code class="highlighter-rouge">public</code> by default, and every database contains such a schema unless otherwise explicitly dropped. If you omit schema names when you refer a table, PostgreSQL determines which actual table is by following the <code class="highlighter-rouge">schema search path</code>, which is a list of a schema to look at, the first found is returned.</p>
+
+<p>The default <code class="highlighter-rouge">schema search path</code> is <code class="highlighter-rouge">"$user",public</code>, so the schema with the same name as the current user is searched first, then public schema. So if you want to kill <code class="highlighter-rouge">schema</code> in PostgreSQL and let all users connected to the database share everything, don’t create any schemas and you have it by default. If you want to isolate each user from each other, create a schema for each user with the exact user name, and better off dropping the public schema.</p>
+
+<p>Since PostgreSQL 8.1, <code class="highlighter-rouge">user</code> and <code class="highlighter-rouge">group</code> have been replaced by the merged concept <code class="highlighter-rouge">role</code>, the administrative role is <code class="highlighter-rouge">superuser</code>. For a SaaS PostgreSQL instance, superuser is generally not provided just like MySQL, but you can accomplish most of the operation work through Web UI, like create new user, configure whitelist for remote connection, With these two you should be able to obtain a database connection, then you can carry on creating databases and manipulating schemas via the command line PostgreSQL client <code class="highlighter-rouge">psql</code></p>
+
+<p>Things get a little more complicated for self-hosted PostgreSQL instances, and you get the chance to touch the details of Postgres’ authenticate protocols. After PostgreSQL has been installed on a Linux machine, you need to run <code class="highlighter-rouge"># postgresql-setup initdb</code> to initiate Postgres, this includes a lot of stuff which all mean to make Postgres ready to use.</p>
+
+<p>PostgreSQL supports a variety of authentication methods and options, and the configuration file for that is <code class="highlighter-rouge">pg_hba.conf</code>, for CentOS it resides in <code class="highlighter-rouge">/var/lib/pgsql/data</code>. You can configure authentication method for incoming connection attempts either from local UNIX sockets or remote SSL/non-SSL TCP sockets, and also for different databases and different roles. The authenticate method could be <code class="highlighter-rouge">trust</code> - absolute trust, no auth needed, <code class="highlighter-rouge">md5</code> and <code class="highlighter-rouge">password</code> - client send password across the connection either MD5-hashed or in plain text, and <code class="highlighter-rouge">peer</code> and <code class="highlighter-rouge">ident</code> which grab the underlying OS user name for authentication. Kerberos, LDAP, RADIUS and many other industry-level authentication solutions can also be integrated, you can read the official documentation <a href="https://www.postgresql.org/docs/current/static/auth-methods.html">here</a>.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c"># TYPE  DATABASE        USER            ADDRESS                 METHOD</span>
+
+<span class="c"># "local" is for Unix domain socket connections only</span>
+<span class="n">local</span>   <span class="nb">all</span>             <span class="nb">all</span>                                     <span class="n">peer</span>
+<span class="c"># IPv4 local connections:</span>
+<span class="n">host</span>    <span class="nb">all</span>             <span class="nb">all</span>             <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="o">/</span><span class="mi">32</span>            <span class="n">ident</span>
+<span class="c"># IPv6 local connections:</span>
+<span class="n">host</span>    <span class="nb">all</span>             <span class="nb">all</span>             <span class="p">::</span><span class="mi">1</span><span class="o">/</span><span class="mi">128</span>                 <span class="n">ident</span>
+<span class="c"># Allow replication connections from localhost, by a user with the</span>
+<span class="c"># replication privilege.</span>
+<span class="c">#local   replication     postgres                                peer</span>
+<span class="c">#host    replication     postgres        127.0.0.1/32            ident</span>
+<span class="c">#host    replication     postgres        ::1/128                 ident                                           </span></code></pre></figure>
+
+<p>Freshly installed and configured PostgreSQL adds a user named <code class="highlighter-rouge">postgres</code> to the underlying OS, and this corresponds to the very first role in Postgres, which is also a <code class="highlighter-rouge">superuser</code>. From here you create more roles and assign privileges to them, and configure appropriate authentication methods in <code class="highlighter-rouge">pg_hba.conf</code>.</p>
+
+<p>Many client apps including <code class="highlighter-rouge">psql</code> implicitly take current OS user name as the <code class="highlighter-rouge">role</code> for establishing Postgres connections, so <code class="highlighter-rouge">role</code>s could be invisible just like <code class="highlighter-rouge">schema</code>s in Postgres, be careful of that.</p>
+
+<h3 id="oracle">Oracle</h3>
+
+<p>Oracle also has <code class="highlighter-rouge">schema</code>s under <code class="highlighter-rouge">database</code>s as logical containers for database objects, but they are strictly bond to <code class="highlighter-rouge">user</code>s, which means every time you create a user for Oracle, a <code class="highlighter-rouge">schema</code> is created automatically. Generally you go to your own schema after a database connection is established to Oracle, but you can alter session to another schema, or select data from other schemas if you have privileges granted.</p>
+
+<p>My experience with Oracle is all with big enterprises, when we need an Oracle instance, we file a request, then DBA department assigns us a TNS connect string with everything behind it ready. Nonetheless I’ve ever tried to install Oracle Express Edition manually on a Linux machine, and it was quite miserable. It would be way much easier now as we have Docker and DSC tools at our hands, and I have an Ansible script <a href="https://gist.github.com/lxdcn/5bd7114070ae3120f126">here</a>.</p>
+
+<h3 id="refers">Refers</h3>
+
+<ul>
+  <li>https://dev.mysql.com/doc/refman/5.7/en/glossary.html</li>
+  <li>https://www.postgresql.org/docs/9.6/static/ddl-schemas.html</li>
+  <li>https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-centos-7</li>
+  <li>https://www.postgresql.org/docs/current/static/user-manag.html</li>
+  <li>https://www.postgresql.org/docs/current/static/database-roles.html</li>
+  <li>https://docs.oracle.com/database/121/CNCPT/intro.htm#CNCPT940</li>
+</ul>
+
+
+	  ]]></description>
+	</item>
+
+	<item>
+	  <title>Spring Data JPA Internals</title>
+	  <link>//spring-data-jpa-internals-en</link>
+	  <author> </author>
+	  <pubDate>2017-03-22T20:34:56+08:00</pubDate>
+	  <guid>//spring-data-jpa-internals-en</guid>
+	  <description><![CDATA[
+	     <p>In the previous post<sup>[<a href="/spring-introduction-en">1</a>]</sup>, I showed how brief it can be for Spring Data JPA to expose routine CRUD interfaces of simple database entities. This post goes a little bit further, by revealing the work Spring has done behind the scenes, and why we can interact with the database with the methods we declared in interfaces without implementing them.</p>
+
+<p>I’m will start with Spring AOP.</p>
+
+<h3 id="spring-aop-proxy">Spring AOP Proxy</h3>
+
+<p>AOP (Aspect Oriented Programming) is a very common programming paradigm, it encapsulates logics and action from an another angle comparing to OOP(Object Oriented Programming). OOP encapsulates data and actions into classes, mostly correspond to domain models; but in runtime, it’s data flows from one module to another, so it’s more like a lot of chains consisting of business logics we wrote, and this is where AOP takes over. Let’s say normal method calling chains are vertical, then AOP cuts in from the horizontal angle, which encapsulates common logics like logging, auth, and cache etc into <code class="highlighter-rouge">aspect</code>s. And AOP also uses IoC<sup>[<a href="https://en.wikipedia.org/wiki/Inversion_of_control">2</a>]</sup> to make sure original code and logics remain intact while the extracted <code class="highlighter-rouge">aspect</code>s take all responsibilities.</p>
+
+<p>AOP is capable of doing something like this: “Print a warning log to console for every java methods processing POST requests in all controllers”. Like I said the extracted entity doing the job is called <code class="highlighter-rouge">aspect</code>, the predicate describing “every java methods processing POST requests of all controllers” is called pointcut, and the action “print a warning log to console” is called <code class="highlighter-rouge">advice</code>.</p>
+
+<p><code class="highlighter-rouge">AspectJ</code> is the founding predecessor of AOP in Java world, Spring AOP reuses some annotations, but implements on its own, and the core tech it uses is <code class="highlighter-rouge">AOP Proxy</code>. For example, we have an interface and one implementation called <code class="highlighter-rouge">SimplePojo</code>, calling <code class="highlighter-rouge">SimplePojo</code>’s <code class="highlighter-rouge">foo()</code> method looks like this:</p>
+
+<p><img src="/assets/images/aop-proxy-plain-pojo-call.png" alt="Plain POJO call without Proxy" /></p>
+
+<p>And if we create a proxy for <code class="highlighter-rouge">SimplePojo</code>, it looks like this:</p>
+
+<p><img src="/assets/images/aop-proxy-call.png" alt="AOPproxy" />
+(Both images come from Spring official documentation)</p>
+
+<p>That being said, the proxy proxies the original method calling, and we can execute our <code class="highlighter-rouge">advice</code> inside the proxy. The following code demonstrates how to create a <code class="highlighter-rouge">proxy</code> with Spring AOP’s lower-level APIs.</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">I</span> <span class="o">{</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">C</span> <span class="kd">implements</span> <span class="n">I</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="n">m</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="s">"m in C"</span><span class="o">;</span> <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">I2</span> <span class="kd">extends</span> <span class="n">I</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="n">m</span><span class="o">();</span>
+    <span class="n">String</span> <span class="n">m2</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="kt">void</span> <span class="nf">proxyDemo</span><span class="p">(</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">ProxyFactory</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ProxyFactory</span><span class="o">();</span>
+
+        <span class="n">result</span><span class="o">.</span><span class="na">setTarget</span><span class="o">(</span><span class="k">new</span> <span class="n">C</span><span class="o">());</span>
+        <span class="n">result</span><span class="o">.</span><span class="na">setInterfaces</span><span class="o">(</span><span class="n">I2</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="n">result</span><span class="o">.</span><span class="na">addAdvice</span><span class="o">(</span><span class="k">new</span> <span class="n">MethodInterceptor</span><span class="o">()</span> <span class="o">{</span>
+            <span class="nd">@Override</span>
+            <span class="kd">public</span> <span class="n">Object</span> <span class="n">invoke</span><span class="o">(</span><span class="n">MethodInvocation</span> <span class="n">invocation</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">invocation</span><span class="o">.</span><span class="na">getMethod</span><span class="o">().</span><span class="na">getName</span><span class="o">().</span><span class="na">equals</span><span class="o">(</span><span class="s">"m2"</span><span class="o">))</span> <span class="o">{</span>
+                    <span class="k">return</span> <span class="s">"m2 in proxy"</span><span class="o">;</span>
+                <span class="o">}</span>
+                <span class="k">return</span> <span class="n">invocation</span><span class="o">.</span><span class="na">getThis</span><span class="o">().</span><span class="na">getClass</span><span class="o">().</span><span class="na">getMethod</span><span class="o">(</span><span class="n">invocation</span><span class="o">.</span><span class="na">getMethod</span><span class="o">().</span><span class="na">getName</span><span class="o">()).</span><span class="na">invoke</span><span class="o">(</span><span class="n">invocation</span><span class="o">.</span><span class="na">getThis</span><span class="o">());</span>
+            <span class="o">}</span>
+        <span class="o">});</span>
+        <span class="n">I2</span> <span class="n">proxy</span> <span class="o">=</span> <span class="o">(</span><span class="n">I2</span><span class="o">)</span> <span class="n">result</span><span class="o">.</span><span class="na">getProxy</span><span class="o">();</span>
+
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">proxy</span><span class="o">.</span><span class="na">m</span><span class="o">());</span>   <span class="c1">//Output: `m in C'</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">proxy</span><span class="o">.</span><span class="na">m2</span><span class="o">());</span>  <span class="c1">//Output: `m2 in proxy'</span>
+    <span class="o">}</span></code></pre></figure>
+
+<p>Here are explanations:
+- I declared an interface <code class="highlighter-rouge">I</code>
+- I defined a class <code class="highlighter-rouge">C</code> inheriting interface <code class="highlighter-rouge">I</code>, and within which I also defined a method <code class="highlighter-rouge">m</code>
+- Interface <code class="highlighter-rouge">I2</code> inherits interface <code class="highlighter-rouge">I</code>, and I declared 2 methods (<code class="highlighter-rouge">m</code> and <code class="highlighter-rouge">m2</code>) in it
+- <code class="highlighter-rouge">ProxyFactory</code> is Spring AOP’s factory class for proxy. I instantiated it, set its target to an object of <code class="highlighter-rouge">C</code>, set proxied interface to <code class="highlighter-rouge">I2</code>, and added a method interceptor
+- <code class="highlighter-rouge">MethodInterceptor</code> is an interface, the overridden method <code class="highlighter-rouge">invoke</code> does the actual work, which in our case are: a) intercepts method call to <code class="highlighter-rouge">m2</code>, return String <code class="highlighter-rouge">m2 in proxy</code>, and b) redirects all other method call (just <code class="highlighter-rouge">m</code> in our case) to the target (a <code class="highlighter-rouge">C</code> object in our case)</p>
+
+<p><br />
+After a brief introduction to Spring AOP proxy, now I can partly answer the question I asked in the beginning: why we can call methods we declared in interfaces without implementations? Actually the demo above is a simplified version of Spring Data JPA implementation.</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ItemRepository</span> <span class="kd">extends</span> <span class="n">CrudRepository</span><span class="o">&lt;</span><span class="n">Item</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">Item</span><span class="o">&gt;</span> <span class="n">findByName</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">);</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>For Spring Data JPA, when we declare an interface like above, Spring firstly creates a bean named <code class="highlighter-rouge">itemRepository</code>, and it, of course, is a proxy, which is initialized and configured in <code class="highlighter-rouge">RepositoryFactorySupport</code><sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L177">3</a>]</sup>. The <code class="highlighter-rouge">target</code> of this proxy is <code class="highlighter-rouge">SimpleJpaRepository</code><sup>[<a href="https://github.com/spring-projects/spring-data-jpa/blob/fda74889de51e586bfa22033aed0affb6f7f4c76/src/main/java/org/springframework/data/jpa/repository/support/SimpleJpaRepository.java">4</a>]</sup>, it contains basic CRUD methods like <code class="highlighter-rouge">save()</code>, and <code class="highlighter-rouge">delete()</code> etc by using <code class="highlighter-rouge">EntityManager</code>. The proxied interfaces are <code class="highlighter-rouge">ItemRepository</code> and <code class="highlighter-rouge">Repository</code><sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L190">5</a>]</sup>. There are multiple method interceptors in the proxy, the one deal with Query Method is <a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L375">this one</a>, what it does is iterating all query methods in <code class="highlighter-rouge">ItemRepository</code>, creating a <code class="highlighter-rouge">RepositoryQuery</code> object for each of them and add to a map<sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L415">7</a>]</sup>.</p>
+
+<p>Once our code invoke <code class="highlighter-rouge">itemRepository.findByName()</code>, the thread immediately goes into <code class="highlighter-rouge">invoke</code> method of the method interceptor<sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L438">8</a>]</sup>. The interceptor judges if the method we are calling is query method<sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L461">9</a>]</sup> at first, if it is, fetch <code class="highlighter-rouge">RepositoryQuery</code> and execute with parameters, otherwise just call corresponding methods in <code class="highlighter-rouge">SimpleJpaRepository</code><sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L467">10</a>]</sup>.</p>
+
+<h3 id="mini-parser">Mini Parser</h3>
+
+<p>Now let’s move on to the 2nd part of the question: how does Spring find out our intention and complement implementation details only by the declared method name <code class="highlighter-rouge">findByName</code>?</p>
+
+<p>It’s not magic at all if we take a deeper thought into it, since we need to comply to certain rules when composing query methods<sup>[<a href="http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.query-methods.query-creation">11</a>]</sup>, the exact same rules which can be used by Spring to parse and generate JPA query objects. The entry point for parsing is here<sup>[<a href="https://github.com/spring-projects/spring-data-jpa/blob/master/src/main/java/org/springframework/data/jpa/repository/query/JpaQueryLookupStrategy.java#L95">12</a>]</sup>, and the  object generated to interact with database is <code class="highlighter-rouge">RepositoryQuery</code><sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L415">7</a>]</sup>.</p>
+
+<p>This mini parser is a hand-written, top-down parser, nothing fancy, no BNF expressions, no parser generators. The topmost node class is <code class="highlighter-rouge">PartTree</code><sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/query/parser/PartTree.java#L76">13</a>]</sup>, which contains 2 child nodes <code class="highlighter-rouge">subject</code> and <code class="highlighter-rouge">predict</code>. <code class="highlighter-rouge">subject</code> represents query results you want, and <code class="highlighter-rouge">predicate</code> represents conditions just like what it means. For <code class="highlighter-rouge">findByName</code>, <code class="highlighter-rouge">subject</code> is empty and <code class="highlighter-rouge">predicate</code> is <code class="highlighter-rouge">Name</code>; and for more complicated one like <code class="highlighter-rouge">findDistinctUserByNameOrderByAge</code>, subject is <code class="highlighter-rouge">DistinctUser</code> while predicate is <code class="highlighter-rouge">NameOrderByAge</code>.</p>
+
+<p><code class="highlighter-rouge">Subject</code> class has 3 boolean fields: <code class="highlighter-rouge">distinct</code>, <code class="highlighter-rouge">count</code>, <code class="highlighter-rouge">delete</code>, and a integer field <code class="highlighter-rouge">maxResults</code><sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/query/parser/PartTree.java#L275">14</a>]</sup>. <code class="highlighter-rouge">query</code> is true if query method starts with <code class="highlighter-rouge">findDistinct</code>, count methods set <code class="highlighter-rouge">count</code> to true, the same for <code class="highlighter-rouge">delete</code>, and <code class="highlighter-rouge">maxResults</code> holds the value for limiting queries like <code class="highlighter-rouge">findFirst10ByLastname</code>.</p>
+
+<p><code class="highlighter-rouge">Predicate</code> has an ArrayList <code class="highlighter-rouge">nodes</code> which contains all <code class="highlighter-rouge">OrPart</code> nodes for query method name split by <code class="highlighter-rouge">Or</code>, as you can see this is how and-or-precedence implemented. And there is also an <code class="highlighter-rouge">orderBySource</code> node contains sorting nodes<sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/query/parser/PartTree.java#L342">15</a>]</sup>.</p>
+
+<p>I am not going further, since it’s just trivial parser implementations. And this is the AST for a relatively long query method <code class="highlighter-rouge">findDistinctByStateAndCountryLikeOrMapAllIgnoringCaseOrderByNameDesc</code>:</p>
+
+<p><img src="/assets/images/ast-of-a-long-query-method.png" alt="AST of a long Query Method" /></p>
+
+<p>Once Spring has the AST, Spring Data will call JPA interfaces to create objects like <code class="highlighter-rouge">Predicate</code> and <code class="highlighter-rouge">CriteriaQuery</code>, then hand them over to JPA to query the database<sup>[<a href="https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/query/parser/AbstractQueryCreator.java#L98">16</a>]</sup>.</p>
+
+<p>The rules and the parser are extremely simple and crude, ambiguities are very common, nonetheless, it’s totally acceptable since it’s just a helping tool. If ambiguous situations occur, just rename the field name, or, use named query<sup>[<a href="http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#jpa.query-methods.named-queries">17</a>]</sup> instead.</p>
+
+<h3 id="references">References</h3>
+
+<ul>
+  <li>[1]https://post.lxd.me/2017-03-17-spring-introduction-en/</li>
+  <li>[2]https://en.wikipedia.org/wiki/Inversion_of_control</li>
+  <li>[3]https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L177</li>
+  <li>[4]https://github.com/spring-projects/spring-data-jpa/blob/fda74889de51e586bfa22033aed0affb6f7f4c76/src/main/java/org/springframework/data/jpa/repository/support/SimpleJpaRepository.java</li>
+  <li>[5]https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L190</li>
+  <li>[6]https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L375</li>
+  <li>[7]https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L415</li>
+  <li>[8]https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L438</li>
+  <li>[9]https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L461</li>
+  <li>[10](https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/core/support/RepositoryFactorySupport.java#L467</li>
+  <li>[11]http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.query-methods.query-creation</li>
+  <li>[12]https://github.com/spring-projects/spring-data-jpa/blob/master/src/main/java/org/springframework/data/jpa/repository/query/JpaQueryLookupStrategy.java#L95</li>
+  <li>[13]https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/query/parser/PartTree.java#L76</li>
+  <li>[14]https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/query/parser/PartTree.java#L275</li>
+  <li>[15]https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/query/parser/PartTree.java#L342</li>
+  <li>[16](https://github.com/spring-projects/spring-data-commons/blob/01f2c30b1d1c342e168b3b541974332cc429e3e2/src/main/java/org/springframework/data/repository/query/parser/AbstractQueryCreator.java#L98</li>
+  <li>[17]http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#jpa.query-methods.named-queries</li>
+</ul>
+
+
+	  ]]></description>
+	</item>
+
+	<item>
+	  <title>Spring Introduction</title>
+	  <link>//spring-introduction-en</link>
+	  <author> </author>
+	  <pubDate>2017-03-17T20:34:56+08:00</pubDate>
+	  <guid>//spring-introduction-en</guid>
+	  <description><![CDATA[
+	     <p>This article is a recap of a presentation I gave to my teammates, a brief introduction to Spring framework and related concepts, and 3 common Spring projects (Spring MVC, Spring Data JAP, and Spring Boot).</p>
+
+<h3 id="spring-and-java-ee">Spring and Java EE</h3>
+
+<p><img src="/assets/images/spring-java-ee.png" alt="Spring and Java EE" /></p>
+
+<p>Let’s talk a bit about Java first. Java has multiple <strong>edition</strong>s: Java SE, Java EE and Java ME. Java SE and Java EE are closely related to Spring framework. Java SE (Java Platform, Standard Edition) contains JVM and all core libraries and APIs, while Java EE (Java Platform, Enterprise Edition) is a set of specifications and APIs which will be used to develop large-scale enterprise applications, such as <code class="highlighter-rouge">servlet specification</code> used to handle HTTP request and <code class="highlighter-rouge">JPA</code> describes the management of relational database. Java EE constitutes of JSRs (Java Specification Request) maintained by JCP (Java Community Process), just like RFC to IETF.</p>
+
+<p>There are several Java EE implementations in the industry, all belong to IT giants, like IBM’s WebSphere Application Server (WAS), Oracle’s WebLogic, and JBoss which belongs to RedHat. They all comply to Java EE standards, and they all implement most of Java EE specifications like Servlet and JPA, and they mostly are called <code class="highlighter-rouge">Application Server</code>s since Java EE makes sure our applications can run upon. The open source alternatives of these application servers like Tomcat or Jetty are called <code class="highlighter-rouge">Web Container</code>, since they only implement Web related specifications such as Server spec and JSP specs. If we need dependency injection we bring in Spring, if we need to interact with relational databases, we bring in Hibernate.</p>
+
+<p>And strictly speaking, Spring is not an implementation of Java EE, since even she does implement lower level Java EE specs like Servlet and JPA, but she uses its own stuff for higher level APIs like dependency injection and RESTful web service. Java EE specs for dependency injection is CDI while Spring uses Spring DI, and for REST it’s JAX-RS vs Spring MVC.</p>
+
+<h3 id="spring-ioc--di">Spring IoC / DI</h3>
+<p>At its core, the foundation concept of Spring Framework is DI (Dependency Injection) or a.k.a. IoC (Inversion of Control). These 2 abbreviations are really novice-unfriendly, and so require some explanations.</p>
+
+<p>IoC is a theory, a technology, not only exist in Spring. Generally speaking, for some entity, the work/flow which this entity should initiate, turns out to this entity passively receive, this active-passive turnover is IoC. For example you want to write a small trivial program at work, at the beginning it’s a small program calling some 3rd party libraries, this is the active role your code is playing, as your trivial program grew bigger you import a framework to sort things out, your code becomes callbacks or interface implementations, now your code plays the passive role. With the help of IoC we can achieve decoupling, free our hands by relieving responsibilities.</p>
+
+<p>For Spring IoC, it’s the responsibility of object instantiation and dependency tree maintenance that being shifted from our hands to Spring.  For example, when we write Java application without Spring IoC, it could be like this:</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">B</span> <span class="o">{</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">C</span> <span class="o">{</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">A</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">B</span> <span class="n">b</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">C</span> <span class="n">c</span> <span class="o">=</span> <span class="k">new</span> <span class="n">C</span><span class="o">();</span>
+
+    <span class="kd">public</span> <span class="n">A</span><span class="o">(</span><span class="n">B</span> <span class="n">b</span><span class="o">)</span> <span class="o">{</span> <span class="k">this</span><span class="o">.</span><span class="na">b</span> <span class="o">=</span> <span class="n">b</span><span class="o">;</span> <span class="o">}</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="n">setB</span><span class="o">(</span><span class="n">B</span> <span class="n">b</span><span class="o">)</span> <span class="o">{</span> <span class="k">this</span><span class="o">.</span><span class="na">b</span> <span class="o">=</span> <span class="n">b</span><span class="o">;</span> <span class="o">}</span>
+<span class="o">}</span>
+<span class="n">A</span> <span class="n">a</span> <span class="o">=</span> <span class="k">new</span> <span class="n">A</span><span class="o">(</span><span class="k">new</span> <span class="n">B</span><span class="o">());</span></code></pre></figure>
+
+<p>It’s class A depends on Class B and Class C, we pass the objects of A and B through constructor and setter function. With the help of Spring IoC and some other Spring tricks, it could be like this:</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Component</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">B</span> <span class="o">{</span>
+<span class="o">}</span>
+
+<span class="nd">@Component</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">C</span> <span class="o">{</span>
+<span class="o">}</span>
+
+<span class="nd">@Component</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">A</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">B</span> <span class="n">b</span><span class="o">;</span>
+    <span class="nd">@Autowired</span> <span class="kd">private</span> <span class="n">C</span> <span class="n">c</span><span class="o">;</span>
+
+    <span class="nd">@Autowired</span>
+    <span class="kd">public</span> <span class="n">A</span><span class="o">(</span><span class="n">B</span> <span class="n">b</span><span class="o">)</span> <span class="o">{</span> <span class="k">this</span><span class="o">.</span><span class="na">b</span> <span class="o">=</span> <span class="n">b</span><span class="o">;</span> <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<p><code class="highlighter-rouge">@Component</code> annotations tell Spring the annotated classes need to be instantiated as beans, which are Java objects managed by Spring, while <code class="highlighter-rouge">@Autowired</code> annotations tell Spring to inject the type-matched beans to the annotated fields, and this is duly <code class="highlighter-rouge">dependency injection</code>.</p>
+
+<h3 id="web-container">Web container</h3>
+<p>Web container a.k.a. Servlet container is different from Web Server. Nginx and Apache are web servers, which mainly handle HTTP requests. Web containers like Tomcat, Jetty or GlassFish, however, are like fish tanks where Java Servlets live in. Application Server I mention above can be considered as a superset of Web container, since it’s capable of more than containing servlets. Almost all Java Web applications we write in the end are a bunch of servlets or facaded by servlets, these servlets cannot run on their own, neither can they directly handle HTTP requests. They need to be managed by Web containers, and web containers dispatch HTTP requests to servlets based on mapping rules, like below:</p>
+
+<p><img src="/assets/images/servlet-container.png" alt="Servlet" /></p>
+
+<p>The whole process is Java EE spec, which Web containers, application servers, and Java Web applications should all follow, so we can deploy our applications to any Web containers or application servers with minor adaptation.</p>
+
+<h3 id="spring-mvc">Spring MVC</h3>
+<p>Spring framework consists of many modules, spring-core and spring-beans are at at core, spring-jdbc and spring-orm are responsible for database interaction etc. It’s too common to use Spring to build backend RESTful APIs, so it’s necessary to give a quick view of Spring Web MVC module.</p>
+
+<p>As I stated before you cannot get away with servlets for HTTP in Java, Spring MVC is tangled with servlet as well. Spring MVC is facaded by <code class="highlighter-rouge">DispatchServlet</code> which accepts all HTTP requests and then dispatch to other HTTP endpoints in your application. The following is an HTTP endpoint demo with Spring MVC:</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@RestController</span>
+<span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">"/stores/{storeId}/items"</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ItemController</span> <span class="o">{</span>
+    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">path</span> <span class="o">=</span> <span class="s">"/{itemId}"</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">,</span> <span class="n">produces</span> <span class="o">=</span> <span class="n">MediaType</span><span class="o">.</span><span class="na">APPLICATION_JSON_UTF8_VALUE</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="n">Item</span> <span class="n">retrieveItem</span><span class="o">(</span><span class="nd">@PathVariable</span> <span class="n">String</span> <span class="n">storeId</span><span class="o">,</span> <span class="nd">@PathVariable</span> <span class="n">String</span> <span class="n">itemId</span><span class="o">)</span> <span class="o">{</span>
+        <span class="o">...</span>
+        <span class="k">return</span> <span class="n">item</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">POST</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="n">ResponseEntity</span> <span class="n">createItem</span><span class="o">(</span><span class="nd">@RequestBody</span> <span class="n">Item</span> <span class="n">item</span><span class="o">)</span> <span class="o">{</span>
+        <span class="o">...</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="n">ResponseEntity</span><span class="o">&lt;&gt;(</span><span class="n">HttpStatus</span><span class="o">.</span><span class="na">OK</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<ul>
+  <li><code class="highlighter-rouge">@RestController</code> is annotated on Java Class, which means annotated Class is a RESTful API endpoint, hence the Controller in MVC architecture. All Controllers and RestControllers are Spring-managed beans as well.</li>
+  <li><code class="highlighter-rouge">@RequestMapping</code> defines URL routing mapping rules, the one annotated on Class can specify absolute path while the one annotated on method specify the relative path. And methods annotated with <code class="highlighter-rouge">@RequestMapping</code> are responsible for handle HTTP requests and serve responses.</li>
+  <li>Paths specified by <code class="highlighter-rouge">@RequestMapping</code> comply with URL Template<sup>[<a href="https://tools.ietf.org/html/rfc6570">1</a>]</sup> and <code class="highlighter-rouge">@PathVariable</code> can extract variable values in it.</li>
+  <li>By annotating <code class="highlighter-rouge">@RequestBody</code> on method parameters, Spring will convert HTTP request body to Java object and inject to annotated parameters. And Spring also will convert method return value to HTTP response in JSON format, since class is annotated with <code class="highlighter-rouge">@RestController</code></li>
+  <li><code class="highlighter-rouge">ResponseEntity</code> is a generic class containing HTTP response body, and HTTP headers and status code which you can tweak. In this demo the method responds empty body with status code specified to 200.</li>
+</ul>
+
+<p>With an extremely simplified Class Item, the terminal should look like this if we call the RESTful API with cURL</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Item</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="n">getName</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="n">name</span><span class="o">;</span> <span class="o">}</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="n">setName</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span> <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span> <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">$ curl -v http://localhost:8080/stores/16/items/1
+...
+&gt; 
+&lt; HTTP/1.1 200 OK
+&lt; Server: Apache-Coyote/1.1
+&lt; Content-Type: application/json;charset=UTF-8
+...
+
+{"name":"hehe"}%</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">curl -v -H "Content-Type: application/json" -i -X POST -d '{"name":"haha"}' http://localhost:8080/stores/16/items
+...
+&gt; Content-Type: application/json
+&gt; Content-Length: 15
+&gt; 
+&lt; HTTP/1.1 200 OK
+&lt; Server: Apache-Coyote/1.1
+&lt; Content-Length: 0
+...</code></pre></figure>
+
+<h3 id="spring-data-jpa">Spring Data JPA</h3>
+<p>Spring has always been considered a framework, but in recent years it’s more like a portfolio, contains dozens of <a href="https://spring.io/projects">projects</a>, all based on original Spring framework but provide various abundant features, Spring Data is one of them. Spring Data provides consistent, elegant, and easy-to-use interfaces to access persistent facilities, and Spring Data JPA is one of the modules specifically deal with relational databases. As we can see soon, Spring Data JPA provides a set of very tidy interfaces for us to implement routine CRUDs.</p>
+
+<p>Spring Data JPA exposes a bunch of Java interfaces to users, behind the scenes it uses Dynamic Proxy AOP to inject actual work in runtime. The interface at the top is <code class="highlighter-rouge">Repository&lt;T, ID extends Serializable&gt;</code>, then it’s <code class="highlighter-rouge">CrudRepository&lt;T, ID extends Serializable&gt;</code> providing basic CRUD operations, and <code class="highlighter-rouge">JpaRepository&lt;T, ID extends Serializable&gt;</code> with JPA related actions etc. They all generic interfaces whose first type parameter is entity class corresponding to a database table, and the 2nd parameter is the type of ID in the entity class. To use Spring Data JPA all we need is create an interface extends one of these interfaces and then declare methods we will be calling in it.</p>
+
+<p>The following example demonstrates how Spring Data JPA simplifies the process of exposing CRUD interfaces to a simple data entity.</p>
+
+<p>Given the table structure and Entity class:</p>
+
+<figure class="highlight"><pre><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">item</span> <span class="p">(</span>
+  <span class="n">id</span>          <span class="n">VARCHAR</span><span class="p">(</span><span class="mi">36</span><span class="p">)</span>  <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="n">name</span>        <span class="n">VARCHAR</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="n">description</span> <span class="n">VARCHAR</span><span class="p">(</span><span class="mi">128</span><span class="p">),</span>
+  <span class="k">CONSTRAINT</span> <span class="n">itemPk</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Entity</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Item</span> <span class="o">{</span>
+    <span class="nd">@Id</span>
+    <span class="nd">@GeneratedValue</span><span class="o">(</span><span class="n">generator</span> <span class="o">=</span> <span class="s">"uuid"</span><span class="o">)</span>
+    <span class="nd">@GenericGenerator</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"uuid"</span><span class="o">,</span> <span class="n">strategy</span> <span class="o">=</span> <span class="s">"uuid2"</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">id</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="n">Item</span><span class="o">()</span> <span class="o">{</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="n">Item</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">String</span> <span class="n">description</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">description</span> <span class="o">=</span> <span class="n">description</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">description</span><span class="o">;</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>Firstly we declare an interface extends <code class="highlighter-rouge">CrudRepository</code>, and designate type parameter explicitly</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ItemRepository</span> <span class="kd">extends</span> <span class="n">CrudRepository</span><span class="o">&lt;</span><span class="n">Item</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="o">{</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>Since <code class="highlighter-rouge">CrudRepository</code> already has common CRUD methods like <code class="highlighter-rouge">save(S entity)</code>, <code class="highlighter-rouge">findOne(ID id)</code>, <code class="highlighter-rouge">exists(ID id)</code> and <code class="highlighter-rouge">delete(ID id)</code>, so now we only need to fill in some query methods specific to our need, as long as follow naming conventions[1]. For example, if we’d like to find all items with the same name, we can declare <code class="highlighter-rouge">findByName</code> <a href="http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.query-methods.query-creation">here</a></p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ItemRepository</span> <span class="kd">extends</span> <span class="n">CrudRepository</span><span class="o">&lt;</span><span class="n">Item</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">Item</span><span class="o">&gt;</span> <span class="n">findByName</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">);</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>Inject <code class="highlighter-rouge">ItemRepository</code> to wherever we need, then we are able to call these CURD methods directly.</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SomeClient</span> <span class="o">{</span>
+  <span class="nd">@Autowired</span> <span class="kd">private</span> <span class="n">ItemRepository</span> <span class="n">itemRepository</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="kt">void</span> <span class="n">doSomething</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">Item</span><span class="o">&gt;</span> <span class="n">items</span> <span class="o">=</span> <span class="n">itemRepository</span><span class="o">.</span><span class="na">findByName</span><span class="o">(</span><span class="s">"teapot"</span><span class="o">);</span>
+  <span class="o">}</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="n">doSomethingElse</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">Item</span> <span class="n">newItem</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Item</span><span class="o">(</span><span class="s">"smug"</span><span class="o">,</span> <span class="s">"smug without mug"</span><span class="o">);</span>
+    <span class="n">itemRepository</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">newItem</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>User-defined query method mimics Rails <a href="http://guides.rubyonrails.org/active_record_querying.html#dynamic-finders">Dynamic Finders</a> and it supports more sophisticated combinations like and, or, pagination, limit, asc/desc etc, you can refer to official documentation here[2].</p>
+
+<p>How does Spring Data JPA do all the magic tricks? Well, it’s not that magic for Spring core. During Spring application bootup, Spring creates a proxy bean for <code class="highlighter-rouge">ItemRepository</code> interface at first with the help of Spring AOP, then in that proxy Spring parses all user-defined query method names and store ASTs on the bean. When these query methods get called in runtime, Spring AOP intercepts the method call, fetch the AST, assemble into a Query object combined with query parameters, then hand over to JPA. I give a more thorough analysis in <a href="/spring-data-jpa-internals-en">another post</a>.</p>
+
+<h3 id="spring-boot">Spring Boot</h3>
+
+<p>Spring Boot is another Spring project, a Convention over Configuration follower and a relatively successful one. It has done a lot of work based on Spring which makes it much easier to build a Spring application.</p>
+
+<p>In old days we need to list all depending artifacts in pom.xml or gradle.build, which is really annoying and cumbersome, Spring Boot thoughtfully gives us <code class="highlighter-rouge">Spring Boot Starters</code>, a one-stop-shop for all the Spring and related technology. It organizes related dependencies into groups from a Spring user’s perspective, we only need to include the group dependency descriptor artifactId in our pom.xml or build.gradle. For example when we develop a Spring Web application, generally we need to import Spring MVC, spring-web module, and Jackson etc, with Spring Boot we just import <code class="highlighter-rouge">spring-boot-starter-web</code> once for all. The same goes to <code class="highlighter-rouge">spring-boot-starter-test</code> which includes JUnit, Hamcrest and Mockito; and <code class="highlighter-rouge">spring-boot-starter-data-jpa</code> which includes everything related to relational database interaction.</p>
+
+<p>Like I said before Spring Web applications need to put into Servlet containers in order to run, however, <code class="highlighter-rouge">spring-boot-starter-web</code> starter includes an embedded Tomcat, which can be started through <code class="highlighter-rouge">SpringApplication.run()</code> within our code in main function. In this way, our Spring Web applications are directly runnable via commandline, or IDE, or <code class="highlighter-rouge">java -jar</code> after packaged into a independent jar file.</p>
+
+<p>Spring Boot also has fine-tuned a lot of details to keep to Convention over Configuration. Hibernate has <code class="highlighter-rouge">ImprovedNamingStrategy</code> class automatically map camelCase field names in Entity class to snake_case field names in DB tables, however it doesn’t support foreign keys. Spring Boot provides <code class="highlighter-rouge">SpringNamingStrategy</code> which inherits <code class="highlighter-rouge">ImprovedNamingStrategy</code> and adds foreign keys support.</p>
+
+
+	  ]]></description>
+	</item>
+
+	<item>
+	  <title>A simple VPN (tunnel with tun device) demo and some basic concepts</title>
+	  <link>//a-simple-vpn-tunnel-with-tun-device-demo-and-some-basic-concepts</link>
+	  <author> </author>
+	  <pubDate>2017-02-16T20:34:56+08:00</pubDate>
+	  <guid>//a-simple-vpn-tunnel-with-tun-device-demo-and-some-basic-concepts</guid>
+	  <description><![CDATA[
+	     <p>As you may already know, VPN stands for Virtual Private Network, namely it is a private network, with many components being virtualized. From a user’s perspective, all we need is a virtual network interface (e.g. <code class="highlighter-rouge">/dev/tun0</code>) on my device and configure my routing table to route all or part of traffic going through that interface, but what happens then? This post provides a demo revealing some implementation details after the virtual network interface - <strong>tunneling</strong>, the code is <a href="https://github.com/lxdcn/simple-vpn-demo">here</a>.</p>
+
+<p>In a nutshell, the process for client side tunneling is:</p>
+
+<ol>
+  <li>Open an UDP socket whose other side is the server.</li>
+  <li>Create the <code class="highlighter-rouge">tun</code> device, configure it and bring it up.</li>
+  <li>Configure routing table.</li>
+  <li>Read packets from <code class="highlighter-rouge">tun</code> device, encrypt, send to server via socket created in 1st step; And read from the socket, decrypt, write back to <code class="highlighter-rouge">tun</code> device. This step goes on and on.</li>
+</ol>
+
+<p><img src="/assets/images/tunnel-demo-0.png" alt="image" /></p>
+
+<p><br /></p>
+
+<p>The following code snippet creates the UDP socket, which is basic UNIX network programming.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">udp_bind</span><span class="p">(</span><span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="n">addr</span><span class="p">,</span> <span class="n">socklen_t</span><span class="o">*</span> <span class="n">addrlen</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">struct</span> <span class="n">addrinfo</span> <span class="n">hints</span><span class="p">;</span>
+  <span class="k">struct</span> <span class="n">addrinfo</span> <span class="o">*</span><span class="n">result</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">sock</span><span class="p">,</span> <span class="n">flags</span><span class="p">;</span>
+
+  <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">hints</span><span class="p">));</span>
+  <span class="n">hints</span><span class="p">.</span><span class="n">ai_socktype</span> <span class="o">=</span> <span class="n">SOCK_DGRAM</span><span class="p">;</span>
+  <span class="n">hints</span><span class="p">.</span><span class="n">ai_protocol</span> <span class="o">=</span> <span class="n">IPPROTO_UDP</span><span class="p">;</span>
+
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">host</span> <span class="o">=</span> <span class="n">SERVER_HOST</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="mi">0</span> <span class="o">!=</span> <span class="n">getaddrinfo</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">result</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">perror</span><span class="p">(</span><span class="s">"getaddrinfo error"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_family</span> <span class="o">==</span> <span class="n">AF_INET</span><span class="p">)</span>
+    <span class="p">((</span><span class="k">struct</span> <span class="n">sockaddr_in</span> <span class="o">*</span><span class="p">)</span><span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_addr</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">sin_port</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">PORT</span><span class="p">);</span>
+  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_family</span> <span class="o">==</span> <span class="n">AF_INET6</span><span class="p">)</span>
+    <span class="p">((</span><span class="k">struct</span> <span class="n">sockaddr_in6</span> <span class="o">*</span><span class="p">)</span><span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_addr</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">sin6_port</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">PORT</span><span class="p">);</span>
+
+  <span class="n">memcpy</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_addr</span><span class="p">,</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_addrlen</span><span class="p">);</span>
+  <span class="o">*</span><span class="n">addrlen</span> <span class="o">=</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_addrlen</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">==</span> <span class="p">(</span><span class="n">sock</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_family</span><span class="p">,</span> <span class="n">SOCK_DGRAM</span><span class="p">,</span> <span class="n">IPPROTO_UDP</span><span class="p">)))</span> <span class="p">{</span>
+    <span class="n">perror</span><span class="p">(</span><span class="s">"Cannot create socket"</span><span class="p">);</span>
+    <span class="n">freeaddrinfo</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="mi">0</span> <span class="o">!=</span> <span class="n">bind</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_addr</span><span class="p">,</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">ai_addrlen</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">perror</span><span class="p">(</span><span class="s">"Cannot bind"</span><span class="p">);</span>
+    <span class="n">close</span><span class="p">(</span><span class="n">sock</span><span class="p">);</span>
+    <span class="n">freeaddrinfo</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">freeaddrinfo</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+
+  <span class="n">flags</span> <span class="o">=</span> <span class="n">fcntl</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">F_GETFL</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">flags</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">!=</span> <span class="n">fcntl</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">F_SETFL</span><span class="p">,</span> <span class="n">flags</span> <span class="o">|</span> <span class="n">O_NONBLOCK</span><span class="p">))</span>
+      <span class="k">return</span> <span class="n">sock</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="n">perror</span><span class="p">(</span><span class="s">"fcntl error"</span><span class="p">);</span>
+
+  <span class="n">close</span><span class="p">(</span><span class="n">sock</span><span class="p">);</span>
+  <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p><br />
+The following code “clone” a new virtual interface named “tun0” from “/dev/net/tun”. <code class="highlighter-rouge">IFF_TUN</code> illustrates this virtual interface works on network layer while <code class="highlighter-rouge">IFF_TAP</code> will make the interface work on data link layer.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">tun_alloc</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">struct</span> <span class="n">ifreq</span> <span class="n">ifr</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="n">e</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">((</span><span class="n">fd</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="s">"/dev/net/tun"</span><span class="p">,</span> <span class="n">O_RDWR</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">perror</span><span class="p">(</span><span class="s">"Cannot open /dev/net/tun"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">fd</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ifr</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ifr</span><span class="p">));</span>
+
+  <span class="n">ifr</span><span class="p">.</span><span class="n">ifr_flags</span> <span class="o">=</span> <span class="n">IFF_TUN</span> <span class="o">|</span> <span class="n">IFF_NO_PI</span><span class="p">;</span>
+  <span class="n">strncpy</span><span class="p">(</span><span class="n">ifr</span><span class="p">.</span><span class="n">ifr_name</span><span class="p">,</span> <span class="s">"tun0"</span><span class="p">,</span> <span class="n">IFNAMSIZ</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">((</span><span class="n">e</span> <span class="o">=</span> <span class="n">ioctl</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">TUNSETIFF</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">ifr</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">perror</span><span class="p">(</span><span class="s">"ioctl[TUNSETIFF]"</span><span class="p">);</span>
+    <span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">e</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="n">fd</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p><br />
+The following Linux commands route all traffic to the virtual interface, but with exception of packets with destination to VPN server, since tunneling data needs to go straight to VPN server through normal network interfaces. So the above illustration is inaccurate, it should be like this:
+<img src="/assets/images/tunnel-demo-1.png" alt="image" /></p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">setup_route_table</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">run</span><span class="p">(</span><span class="s">"sysctl -w net.ipv4.ip_forward=1"</span><span class="p">);</span>
+  <span class="n">run</span><span class="p">(</span><span class="s">"iptables -t nat -A POSTROUTING -o tun0 -j MASQUERADE"</span><span class="p">);</span>
+  <span class="n">run</span><span class="p">(</span><span class="s">"iptables -I FORWARD 1 -i tun0 -m state --state RELATED,ESTABLISHED -j ACCEPT"</span><span class="p">);</span>
+  <span class="n">run</span><span class="p">(</span><span class="s">"iptables -I FORWARD 1 -o tun0 -j ACCEPT"</span><span class="p">);</span>
+  <span class="kt">char</span> <span class="n">cmd</span><span class="p">[</span><span class="mi">1024</span><span class="p">];</span>
+  <span class="n">snprintf</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">cmd</span><span class="p">),</span> <span class="s">"ip route add %s via $(ip route show 0/0 | sed -e 's/.* via \([^ ]*\).*/</span><span class="se">\1</span><span class="s">/')"</span><span class="p">,</span> <span class="n">SERVER_HOST</span><span class="p">);</span>
+  <span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">);</span>
+  <span class="n">run</span><span class="p">(</span><span class="s">"ip route add 0/1 dev tun0"</span><span class="p">);</span>
+  <span class="n">run</span><span class="p">(</span><span class="s">"ip route add 128/1 dev tun0"</span><span class="p">);</span>
+<span class="p">}</span></code></pre></figure>
+
+<p><br />
+The following code snippet is the core packet switch algorithm. It reads packets from <code class="highlighter-rouge">tun</code> device, encrypt, send UDP socket; And read from UDP socket, decrypt, write to <code class="highlighter-rouge">tun</code> device. I used <code class="highlighter-rouge">select</code> multiplexing to monitor on these 2 fds.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">char</span> <span class="n">tun_buf</span><span class="p">[</span><span class="n">MTU</span><span class="p">],</span> <span class="n">udp_buf</span><span class="p">[</span><span class="n">MTU</span><span class="p">];</span>
+  <span class="n">bzero</span><span class="p">(</span><span class="n">tun_buf</span><span class="p">,</span> <span class="n">MTU</span><span class="p">);</span>
+  <span class="n">bzero</span><span class="p">(</span><span class="n">udp_buf</span><span class="p">,</span> <span class="n">MTU</span><span class="p">);</span>
+
+  <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">fd_set</span> <span class="n">readset</span><span class="p">;</span>
+    <span class="n">FD_ZERO</span><span class="p">(</span><span class="o">&amp;</span><span class="n">readset</span><span class="p">);</span>
+    <span class="n">FD_SET</span><span class="p">(</span><span class="n">tun_fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readset</span><span class="p">);</span>
+    <span class="n">FD_SET</span><span class="p">(</span><span class="n">udp_fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readset</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">max_fd</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">tun_fd</span><span class="p">,</span> <span class="n">udp_fd</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">==</span> <span class="n">select</span><span class="p">(</span><span class="n">max_fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readset</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">))</span> <span class="p">{</span>
+      <span class="n">perror</span><span class="p">(</span><span class="s">"select error"</span><span class="p">);</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kt">int</span> <span class="n">r</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">FD_ISSET</span><span class="p">(</span><span class="n">tun_fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readset</span><span class="p">))</span> <span class="p">{</span>
+      <span class="n">r</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">tun_fd</span><span class="p">,</span> <span class="n">tun_buf</span><span class="p">,</span> <span class="n">MTU</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"read from tun_fd error"</span><span class="p">);</span>
+        <span class="k">break</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="n">encrypt</span><span class="p">(</span><span class="n">tun_buf</span><span class="p">,</span> <span class="n">udp_buf</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>
+
+      <span class="n">r</span> <span class="o">=</span> <span class="n">sendto</span><span class="p">(</span><span class="n">udp_fd</span><span class="p">,</span> <span class="n">udp_buf</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="k">const</span> <span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">client_addr</span><span class="p">,</span> <span class="n">client_addrlen</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"sendto udp_fd error"</span><span class="p">);</span>
+        <span class="k">break</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">FD_ISSET</span><span class="p">(</span><span class="n">udp_fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readset</span><span class="p">))</span> <span class="p">{</span>
+      <span class="n">r</span> <span class="o">=</span> <span class="n">recvfrom</span><span class="p">(</span><span class="n">udp_fd</span><span class="p">,</span> <span class="n">udp_buf</span><span class="p">,</span> <span class="n">MTU</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">client_addr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">client_addrlen</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"recvfrom udp_fd error"</span><span class="p">);</span>
+        <span class="k">break</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="n">decrypt</span><span class="p">(</span><span class="n">udp_buf</span><span class="p">,</span> <span class="n">tun_buf</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>
+
+      <span class="n">r</span> <span class="o">=</span> <span class="n">write</span><span class="p">(</span><span class="n">tun_fd</span><span class="p">,</span> <span class="n">tun_buf</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"write tun_fd error"</span><span class="p">);</span>
+        <span class="k">break</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span></code></pre></figure>
+
+<p><br />
+As a simple Point-to-Point VPN tunnel, server side code is almost identical to the client side since the core packet switch logic is the same. The complete code for both server side and client side is <a href="https://github.com/lxdcn/simple-vpn-demo">here</a>. And iOS demo written in Swift 3 is <a href="https://github.com/lxdcn/NEPacketTunnelVPNDemo">here</a>.</p>
+
+
+	  ]]></description>
+	</item>
+
+	<item>
+	  <title>Key Takeaway Points for a Full-spectrum CI/CD Solution</title>
+	  <link>//key-takeaway-points-for-a-full-spectrum-cd-solution</link>
+	  <author> </author>
+	  <pubDate>2017-02-06T23:01:24+08:00</pubDate>
+	  <guid>//key-takeaway-points-for-a-full-spectrum-cd-solution</guid>
+	  <description><![CDATA[
+	     <p>During my time at ThoughtWorks, sometimes I acted as a CI expert and provided CI/CD solution to several clients. My guess is I won’t do it anymore, so I dump these things from my memory here, and may even be helpful for you.</p>
+
+<h2 id="cd-pipeline">CD Pipeline</h2>
+
+<p>The core concept behind CI/CD is <strong>pipeline</strong>, which I believe is also the core concept behind all software project management.</p>
+
+<p><img src="/assets/images/pipeline-generic.png" alt="Pipeline" /></p>
+
+<p>Pipeline for CD is pretty much like a water hose, instead of water, it has features, bug fixes, and user stories inside. By building a robust pipeline it ensures the code flow from code repositories to production environment safely and efficiently.</p>
+
+<p>So I’ll begin with code repositories.</p>
+
+<h2 id="branch-model">Branch Model</h2>
+<p>You may don’t need to choose your SCM tool since Git is ubiquitous these days, but you still need to choose your branch model. If you enjoy complexity and like everything in its own place, consider <a href="http://nvie.com/posts/a-successful-git-branching-model/">Gitflow</a>. If you cannot tolerant that level of complexity, there are dozens of simplified version out there. The one I favor the most is Truck Based Development, that is, (almost) no branches anymore, at least no more feature branches - use <a href="https://en.wikipedia.org/wiki/Feature_toggle">feature toggles</a> instead.</p>
+
+<p>Branches are evil because the moment you fork a branch signifies sometime in the future you need to merge it back, And the longer the branch lives, the more pain you will get when you do the merge. Even if you manage to resolve all the conflicts and compile successfully, it’s still hard to confidently say there no conflicts or missing pieces in business logic level.</p>
+
+<p>Besides, branches prevent team members from sharing each other’s code in time. Imagine you do some refactoring on your branch for a while and you want to merge another branch later on - it’s just a disaster.</p>
+
+<p>Feature branches seem to be a good feature management tool at first glance - each feature corresponds to a specific branch which you can fork/merge/delete at will, however they are not independent from each other in code level. It’s very easy to mess up your source code while you have a bunch of branches merge from/to each other, and it’s exhausting to keep in mind which branch currently working on. In a word, branches are insufficient to model features and we should move that complexity to somewhere complex enough and mature enough, and that is source code, using feature toggles.</p>
+
+<p>Remember why we do CI in the first place? Integrate sooner so you can detect errors quickly and locate them more easily. Branches especially long-lived branches go against this beautifully. So the rule of thumb is this: Avoid long-lived branches, if you have to, merge them back as often as possible.</p>
+
+<h3 id="everything-as-code">Everything as Code</h3>
+<p>If you have never heard of <code class="highlighter-rouge">Infrastructure as Code</code>, think about <code class="highlighter-rouge">Puppet</code>, <code class="highlighter-rouge">Ansible</code>, or AWS <code class="highlighter-rouge">CloudFormation</code>. Not just infrastructure, <code class="highlighter-rouge">Dockerfile</code>, <code class="highlighter-rouge">package.json</code>, <code class="highlighter-rouge">Jenkinsfile</code>, <code class="highlighter-rouge">Flyway</code>, nowadays almost every mature software and platform for software development provides APIs to interact with and text format file to describe domain model and configurations</p>
+
+<p>By reshaping everything into code, you can put them into code repositories and every change becomes traceable. By checkout the specific version, you should be able to regenerate build artifacts, regain dependencies, reprovision infrastructure, etc.</p>
+
+<h3 id="ci-disciplines">CI Disciplines</h3>
+<p>Continous Integration is a development practice, thus requiring all team members obey certain rules:
+  - Every code commit should be atomic and with meaningful message
+  - Run all tests locally before push your code to centric repositories
+  - Pull frequently, push frequently, don’t pile up too many commits locally, take small steps forward
+  - Fix CI build failures should be number 1 priority, and don’t leave it broken overnight (especially for distributed teams).If you cannot fix CI in time, revert it!</p>
+
+<h2 id="test-strategy">Test strategy</h2>
+<p>Some Agile evangelists have developed a theory called TestPyramid which vividly depicts different levels of tests and their relationship and characteristics.</p>
+
+<p><img src="/assets/images/test-pyramid.png" alt="Test Pyramid" />
+(comes from Martin Fowler’s blog)</p>
+
+<p>As we can see Unit tests are fastest and lowest cost while UI tests are slow, expensive, fragile and hard to maintain. So we should have more UT to cover more cases and scenarios, let UT provide most timely feedback on CI and act as the primary security guard.</p>
+
+<p>Nowadays, as more and more services have well-defined APIs and maintain relatively small sizes, I think a comprehensive set of API tests are quite efficient and doable, let UT just cover core algorithms.</p>
+
+<p>NFR tests like performance tests should be put on CI too if these kinds of metrics are crucial to your system. The underlying environment NFR tests run on must be independent with normal tests environment, which may incur some extra effort of environment management.</p>
+
+<h2 id="configuration-management">Configuration Management</h2>
+<p>First of all, like I said before, you should put configurations into SCM, make it traceable. For a mature CD pipeline, software packages on multiple environments for the same version should be identical, only configuration differs. In this way, you don’t need to build the same SCM revision twice, and more importantly, your confidence in that package get cumulated as it passes more pipeline stages.</p>
+
+<h2 id="more-about-ci-pipelines">More about CI pipelines</h2>
+<p>A common pitfall about pipelines is lack of maintenance. As the project goes on, we tend to put more and more stuff into pipelines due to its automatic nature, make it slow and inefficient. If we cannot get timely feedback from CI, it soon becomes a bottleneck for every team member.</p>
+
+<p>Purchase better hardware, review and clear out obsolete tests, make independent steps run in parallel are common tactics to shorten pipeline duration. The most important is keep the shape of CI in mind, think twice before you shout “Hey! You take it over!” and throw something to CI.</p>
+
+<h3 id="pipeline-orchestration">Pipeline Orchestration</h3>
+<p>If you have many repositories and their build artifacts depend on each other, or one pipeline carries too many jobs, you might consider arrange, reorganize, split, coordinate steps/job of pipelines, make it correspond to service dependencies and less time-consuming. That’s pipeline orchestration.</p>
+
+<p><img src="/assets/images/pipeline-orchestration.png" alt="Pipeline Orchestration" /></p>
+
+<p>As shown in the picture, artifacts of <code class="highlighter-rouge">Repo B</code> depends on <code class="highlighter-rouge">Repo A</code>, changes from both <code class="highlighter-rouge">Repo A</code> and <code class="highlighter-rouge">Repo B</code> will trigger the whole pipeline, but if someone commits to <code class="highlighter-rouge">Repo B</code>, <code class="highlighter-rouge">Repo A</code> will not get built. And also, changes of integration test cases in <code class="highlighter-rouge">Repo C</code> induce Integration test and following stages rerun, but leaving <code class="highlighter-rouge">Build A</code> and <code class="highlighter-rouge">Build B</code> intact.</p>
+
+<p>Both User Scenario Test and Perf Test are time-consuming and they are independent from each other, so we let them run in parallel. Unit Tests and Integration Tests are faster, cover more details hence more easily to fail, so we put them in early stages.</p>
+
+<h2 id="artifacts--dependency-management">Artifacts &amp; Dependency Management</h2>
+<p>Needless to say, you should install proprietary npm server, docker registry server, gem server etc, or SaaS services on the cloud to store, cache and versionize these things. And never commit build artifacts or depending artifacts to code repository: they are huge, cannot be version controlled if binary, and once you put in you can never get it out for a distributed SCM like Git[1].</p>
+
+<h2 id="environment-management">Environment Management</h2>
+<p>First of all, consider Infrastructure as Code, like I said in my <a href="/ansible-pitfalls-en/">previous post</a> it’s hard and definitely not silver bullet, but it might be the best bad option to avoid your infrastructure being messed up. Every change to infrastructure should be trackable and manageable, and infrastructure of test environment should be as close to production environment as possible.</p>
+
+<p>One of my former colleagues at ThoughtWorks once put forth an idea: Publish to production environment on day one. It’s a very bold idea and seems unnecessary at first glance, but as you put more thought into, you realize it’s not just an aggressive expansion of CD, it’s a perfect way to assess infrastructure. During my time at ThoughtWorks I’ve worked on several domestic projects whose clients are traditional companies, and it costs you endless hours to request all kinds of resources to keep the whole project going like VMs, VMs with specified OSes, firewalls, authentications of depending services etc. By practicing this idea, you would be able to identify these hindrances at early stages and give you enough time to clear the shit out of the way.</p>
+
+<h2 id="deployment--release-strategy">Deployment &amp; Release Strategy</h2>
+<p>It used to be scary and stressful to release a new version to production environment. I remember when I was working my first job after graduation, sometimes we all went out for a big meal and drank some when a big release was scheduled that night. These kinds of release styles should be avoided since you don’t have full control over what’s happening and what’s gonna happen during operation, hence easier something goes wrong.</p>
+
+<p>Deployment and Release process should be fully automated, happens relatively frequently, each time with a small batch of changes, take small steps forward. Nonetheless Rome was not built in a day, such sweet things require mature CD pipelines, good auto test coverage, and comprehensive combination of manual test and auto test. You might also want to achieve hot deployment for your CD pipeline, Blue Green Deployments is an option and k8s has it built-in as Rolling Updates.</p>
+
+<h2 id="high-traceability">High Traceability</h2>
+<p>Whether you are building an all-in-one CD platform from scratch or assemble one from various open source projects, what contributes to usability largely is traceability, that is, whether the platform can help and accelerate developers locate bugs if build fails. It includes:
+  - Parse XML JUnit report and display neatly on Web page
+  - Associate each build with corresponding code commit on UI. When subsequent stages of a pipeline fail, one click on UI will show its related commits, authors, and commit messages.
+  - For complex pipeline orchestrations, the developer should be able to trace all downstream pipeline builds for a specific code change, and trace all upstream and downstream pipeline builds for a specific pipeline build on UI.
+  - When build fails, sometimes developers might need to log into that build machine to debug on the scene. So the Environment Management part of the platform should be able to preserve criminal scenes of every failed build for a while.</p>
+
+<h2 id="monitoring--visualization">Monitoring &amp; Visualization</h2>
+<p>Like all software systems, feedback mechanism is an essential part for a CD platform too. Infrastructure resource monitoring like CPU usages, memory usages, and disk usages is the same as normal systems, Prometheus with Grafana is the most popular solution while I am working on this post.</p>
+
+<p>Specifically for CI/CD, at first we must have a CI wall displaying basic red &amp; green for every pipeline stage besides developers’ desk, then a detailed dashboard from administrative perspective might be needed, which includes code commit frequency per day, builds frequency and success ratio, code static check metrics, deployment &amp; release frequency and durations etc.</p>
+
+<p>The pitfall here is using CD dashboard as an administrative tool to measure developer commitment and productivity. There are a thousand ways to get around it and fool these metrics, and it hurts productivity and the trust between leaders and developers, just don’t do it.</p>
+
+<h2 id="the-most-important">The Most Important</h2>
+<p>It’s not difficult to bring all state of the art DevOps technologies and practices together then generate a fancy solution report, the thing is the solution must be pragmatic according to client’s current situation. No silver bullet here but a lot of interviews, a lot of digging, a lot of tradeoffs between administration requirements and efficiency. Finally bring about a roadmap constitutes doable steps and measurable milestones, which hopefully will guide them to the heaven.</p>
+
+<h2 id="verification">Verification</h2>
+<p>After spending a lot of time and money practicing all the stuff above, how do we know if it’s worth it?</p>
+
+<ul>
+  <li>Does the quality improved?</li>
+  <li>Does the cost of every release get reduced? The cost may include time, human resource, and psychological stress of every team member.</li>
+</ul>
+
+<p><br /></p>
+
+<hr />
+<p>[1] You can actually, in hacky way, but it’s discouraged since you have to <code class="highlighter-rouge">git push -f</code> in the end.</p>
+
+
+	  ]]></description>
+	</item>
+
+	<item>
+	  <title>Let SSH Tunnel Rescue You in Restricted Network Environment</title>
+	  <link>//let-ssh-tunnel-rescue-you-in-restricted-network-environment</link>
+	  <author> </author>
+	  <pubDate>2016-08-27T20:34:56+08:00</pubDate>
+	  <guid>//let-ssh-tunnel-rescue-you-in-restricted-network-environment</guid>
+	  <description><![CDATA[
+	     <p>Networking policies in traditional companies are very strict due to its traditional nature. This may mean a lot from administrative or audit point of view, but as a developer, it makes me very difficult to apply DevOps practices like build CD pipeline, or at least deploy software to multiple environments automatically. And I seriously doubt how much it contributes to information security comparing how much trouble it makes.</p>
+
+<p>One of many tough scenarios we’ve faced is this: we have 3 servers, <code class="highlighter-rouge">workstation</code> is a Windows server, which can ssh to Linux server <code class="highlighter-rouge">A</code> and <code class="highlighter-rouge">B</code>, but <code class="highlighter-rouge">A</code> and <code class="highlighter-rouge">B</code> are network isolated from each other, we need <code class="highlighter-rouge">A</code> to access the HTTP server on <code class="highlighter-rouge">B</code>.</p>
+
+<p>The optimal way to solve these kinds of problems is trying to solve at higher levels, like convince policy makers to lower their strictness as it hurts productivity, sadly it’s always almost impossible, then we have to ask technology for help. Since the whole stack above OS is built on software so basically technology can do almost anything. But after all it’s local optimization, a twisted use case of technology.</p>
+
+<p>Before I illustrate the solution by using SSH tunnel, let’s recap some basic concepts.</p>
+
+<h2 id="concepts-about-ssh-tunnel">Concepts about SSH Tunnel</h2>
+
+<p>SSH tunnel a.k.a. SSH port forwarding - as the name suggests - provides a way to forward connections to a local port, through SSH connection, to another server on behalf of SSH server, or the other way around, based on an established SSH connection. There are 3 kinds of SSH port forwarding: Local port forwarding, Remote port forwarding, and Dynamic port forwarding.</p>
+
+<p>Let’s say Alice usually uses <code class="highlighter-rouge">laptop</code> to ssh to her  <code class="highlighter-rouge">ec2</code> on AWS like this: <code class="highlighter-rouge">[alice@laptop ~] $ ssh -p 22 alice@ec2</code> (with security group already configured to allow this connection).</p>
+
+<p><strong>Local port forwarding</strong> makes TCP connections to a specific port on <code class="highlighter-rouge">laptop</code> get forwarded to another server by <code class="highlighter-rouge">ec2</code>, the magic option is <code class="highlighter-rouge">-L</code>. Alice can run <code class="highlighter-rouge">[alice@laptop ~] $ ssh -L 3000:server:4000 -p 22 alice@ec2</code> on her laptop, during the SSH session, accessing port 3000 on <code class="highlighter-rouge">laptop</code> is kind of the same as <code class="highlighter-rouge">ec2</code> accessing port 4000 on <code class="highlighter-rouge">server</code>.</p>
+
+<p>For instance, there is a another Linux server <code class="highlighter-rouge">ec2_secret</code> to which <code class="highlighter-rouge">laptop</code> cannot ssh, but <code class="highlighter-rouge">ec2</code> can. After running <code class="highlighter-rouge">[alice@laptop ~] $ ssh -L 2200:ec2_secret:22 alice@ec2</code>, during the session, Alice can directly ssh to <code class="highlighter-rouge">ec2_secret</code> by running <code class="highlighter-rouge">[alice@laptop ~] $ ssh alice@localhost -p 2200</code>, instead of ssh to <code class="highlighter-rouge">ec2</code> then ssh to <code class="highlighter-rouge">ec2_secret</code> manually. This is <code class="highlighter-rouge">SSH Relay</code>.</p>
+
+<p><strong>Remote port forwarding</strong> is kind of in the opposite direction, with magic option <code class="highlighter-rouge">-R</code>. After running <code class="highlighter-rouge">[alice@laptop ~] $ ssh -R 3000:server:4000 -p 22 alice@ec2</code>, during the ssh session, accessing port 3000 on <code class="highlighter-rouge">ec2</code> is the same as <code class="highlighter-rouge">laptop</code> accessing port 4000 on <code class="highlighter-rouge">server</code>.</p>
+
+<p>For both <code class="highlighter-rouge">Local port forwarding</code> and <code class="highlighter-rouge">Remote port forwarding</code>, <code class="highlighter-rouge">server</code> can be same as a forwarding machine (<code class="highlighter-rouge">ec2</code> for <code class="highlighter-rouge">Local port forwarding</code>, <code class="highlighter-rouge">laptop</code> for <code class="highlighter-rouge">Remote port forwarding</code>), which is especially useful for <code class="highlighter-rouge">Remote port forwarding</code>. Consider this scenario: Alice usually leaves her laptop at home with a Wi-Fi network connection to a wireless router, when she goes to work, every now and then she wants to access her laptop by the PC in the company, what she gonna do? The pure command-line/SSH solution is very straightforward with the help of <code class="highlighter-rouge">Remote port forwarding</code>: Before she leaves home in the morning, she opens a <code class="highlighter-rouge">Remote port forwarding</code> ssh connection from her <code class="highlighter-rouge">laptop</code> to <code class="highlighter-rouge">ec2</code> like this <code class="highlighter-rouge">[alice@laptop ~] $ ssh -R 2200:localhost:22 -p 22 alice@ec2</code>, thus ssh connection to port 2200 on <code class="highlighter-rouge">ec2</code> itself will be forwarded to port 22 on <code class="highlighter-rouge">laptop</code> itself. When she arrives at company, she can ssh to <code class="highlighter-rouge">ec2</code> from her <code class="highlighter-rouge">PC</code> at first, then ssh to her <code class="highlighter-rouge">laptop</code> by <code class="highlighter-rouge">[alice@ec2 ~] $ ssh -p 2200 alice@localhost</code>.</p>
+
+<p><strong>Dynamic port forwarding</strong> opens a SOCKS proxy port on top of an established SSH connection, we people in China use this to bypass GFW very often. Let’s assume Alice gets very lucky and takes a business trip to China, after she lands she finds herself won’t be able to access Google, Facebook, Twitter etc. If she can still access <code class="highlighter-rouge">ec2</code>, by running <code class="highlighter-rouge">[alice@laptop ~] $ ssh -D 1080 -C -p 22 alice@ec2</code> in terminal where <code class="highlighter-rouge">-D</code> stands for <strong>Dynamic port forwarding</strong> and <code class="highlighter-rouge">-C</code> stands for compress payload data, opens a SOCKS proxy on port 1080 on her laptop. The world will come back to live again after she sets SOCKS proxy to <code class="highlighter-rouge">127.0.0.1:1080</code> for the browser.</p>
+
+<h2 id="connecting-the-dots">Connecting the Dots</h2>
+
+<p>After a full understanding of <code class="highlighter-rouge">Local port forwarding</code> and <code class="highlighter-rouge">Remote port forwarding</code>, the tough scenario at the beginning of this post can be easily handled by using <code class="highlighter-rouge">Local port forwarding</code> and <code class="highlighter-rouge">Remote port forwarding</code> together:
+[alice@workstation ~] $ ssh -R 2000:localhost:3000 alice@A
+[alice@workstation ~] $ ssh -L 3000:localhost:4000 alice@B</p>
+
+<p>thus, server <code class="highlighter-rouge">A</code> can access HTTP service of port 4000 on server <code class="highlighter-rouge">B</code> by access http://localhost:2000.</p>
+
+<p>Furthermore, if HTTP port 2000 on server <code class="highlighter-rouge">A</code> needs to accept HTTP connection from other servers in the same network, just change <code class="highlighter-rouge">GatewayPorts</code> to <code class="highlighter-rouge">yes</code> in <code class="highlighter-rouge">/etc/ssh/sshd_config</code> on server <code class="highlighter-rouge">A</code>.</p>
+
+<p>In a word, if one machine can ssh to another machine, these 2 machines then closely associated with each other: they can exchange files by <code class="highlighter-rouge">scp</code>, one can provision another by <code class="highlighter-rouge">Ansible</code>, and by <code class="highlighter-rouge">SSH Tunnel</code> one can access another’s resource on its behalf.</p>
+
+<hr />
+
+<h3 id="refers">Refers</h3>
+<ul>
+  <li>https://help.ubuntu.com/community/SSH/OpenSSH/PortForwarding</li>
+</ul>
+
+
+	  ]]></description>
+	</item>
+
+	<item>
+	  <title>Ansible Pitfalls</title>
+	  <link>//ansible-pitfalls-en</link>
+	  <author> </author>
+	  <pubDate>2016-04-04T20:34:56+08:00</pubDate>
+	  <guid>//ansible-pitfalls-en</guid>
+	  <description><![CDATA[
+	     <p>Ansible, being concise and decent with everything in YAML and agentless, has been a better choice among DevOps tools like Puppet, Chef, and Salt. I’ve been using Ansible for the past 3 projects I engaged in. The last one relies heavily on Ansible to achieve whole Infrastructure as Code, which makes us wrote thousands of lines of YAML scripts and allows us to spot some pitfalls about Ansible.</p>
+
+<h3 id="test-is-difficult">Test is Difficult</h3>
+
+<p>Usually when we write code, we write and run tests along, this guarantees a certain level of code correctness and gives us enough confidence to move on. So generally these kinds of tests should take no more than a few seconds, make our coding-testing-refactor cycle as smooth as possible.</p>
+
+<p>Ansible, however, doesn’t have an efficient test framework. There is no other way but run Ansible scripts against real machines shall prove correctness, so I personally use Vagrant + VirtualBox to accomplish that. The problem is it takes approximately 10 seconds for the VM to boot up (on my MacBook Pro15), plus several minutes for Ansible to execute if Ansible role is big enough. If you are not quite familiar with Ansible or if you are making a major code change, you may have to go over this again and again, the coding-testing-refactor cycle being dramatically slowed down.</p>
+
+<h3 id="write-once-revise-everywhere">Write once, Revise everywhere</h3>
+
+<p>We’ve all heard about the joke about Sun’s “Write once, Run everywhere” turns out to be “Write once, Debug everywhere”. To Ansible it truly is <strong>Write once, Revise everywhere</strong>.</p>
+
+<p>The main philosophy behind Ansible and other similar Configuration Management tools is <code class="highlighter-rouge">DSC</code> - <strong>D</strong>esired <strong>S</strong>tate <strong>C</strong>onfiguration, which means if we use Ansible to provision a machine from state <code class="highlighter-rouge">A</code> to state <code class="highlighter-rouge">B</code>, we do not need to tell Ansible how to do it, but just tell Ansible we want our desired state <code class="highlighter-rouge">B</code>, Ansible will handle the rest, and guarantee idempotency.</p>
+
+<p>In reality, Ansible doesn’t know every state transformation you desire, so you still need to write procedural style Ansible script here and there, even embed shell scripts. In this way, it would be the author’s responsibility to guarantee idempotency and handle as many kinds of initial state as possible - as you can see, it’s not easy.</p>
+
+<p>So in my last project, we’ve spent a whole lot more time more time on Ansible than we expected. Every time we apply our Ansible repository in a brand new environment (e.g. CentOS on DigitalOcean, RHEL on AWS), we need to modify Ansible scripts to adapt new initial state possibilities, sometimes in our own roles, sometimes in 3rd party roles, sometimes for Ansible original modules. Eventually, we got a stable, full-fledged, time-consumed Ansible repository, which doesn’t deliver any customer value after all.</p>
+
+<h3 id="thats-why-we-should-use-docker">That’s Why We should Use Docker</h3>
+
+<p>Docker solves these problems beautifully. It kind of encapsulates an entire OS and application to a docker image - no more messed-up state, no more dirty machines, everything is in this small image which you can download, boot up, throw away easily. When a docker image is built and tested on your laptop, its running environment is identical wherever you run it. Everything Ansible’s been trying to do is encapsulated into docker image in a stable and controlled way. And because docker is kernel level resource isolation - not an actual VM - it’s extremely fast to boot up and thus make it convenient to debug and test locally.</p>
+
+
+	  ]]></description>
+	</item>
+
+	<item>
+	  <title>Git wrap script to ignore files that have already been committed</title>
+	  <link>//gitw-explanation</link>
+	  <author> </author>
+	  <pubDate>2016-01-14T06:56:56+08:00</pubDate>
+	  <guid>//gitw-explanation</guid>
+	  <description><![CDATA[
+	     <h3 id="motivation">Motivation</h3>
+
+<p>As a git user, given this sceniro:</p>
+
+<blockquote>
+  <p>You made certain changes to some files but you don’t want to commit it, nor do you want see them under <code class="highlighter-rouge">git status -s</code> or <code class="highlighter-rouge">git diff</code> etc.</p>
+</blockquote>
+
+<p>In other words:</p>
+
+<blockquote>
+  <p>You want git to ignore certain files but unfortunately they have already been tracked.</p>
+</blockquote>
+
+<p>what you gonna do?</p>
+
+<p>I googled around a lot, all I can get is remove these files entirely from repo by run <code class="highlighter-rouge">git rm --cached &lt;file&gt;</code> (so <code class="highlighter-rouge">.gitignore</code> will take effect), but it’s not always doable, because your teammates may still need these files exist in repo.</p>
+
+<p>Then I checked git hooks, hoping I could write some scripts to preserve these local changes before execute <code class="highlighter-rouge">git status</code> and <code class="highlighter-rouge">git diff</code>. Unfortunately I failed again, what git hooks can do is pretty limited, furthermore I realized not only do I need to ‘deceive’ <code class="highlighter-rouge">git status</code> and <code class="highlighter-rouge">git diff</code>, <code class="highlighter-rouge">git add</code> <code class="highlighter-rouge">git checkout</code> <code class="highlighter-rouge">git pull</code> and a lot other commands also require the same trick.</p>
+
+<p>Up to this point I had very little choices, either I figure out a way to make <code class="highlighter-rouge">.gitignore</code> also ignore tracked files (git porcelain command <code class="highlighter-rouge">git check-ignore</code> has a switch to do this), or write a script wrap git entirely. I chose the latter.</p>
+
+<h3 id="usage">Usage</h3>
+
+<p>The code is <a href="https://gist.github.com/lxdcn/c6ab6365bdde315e4722">here</a>, you are very welcome to enhance or report issues, I’ll illustrate this script line by line in next section, but at first let’s see the usage.</p>
+
+<ul>
+  <li>Download the script and put under $PATH directory and make it executable, make sure can run <code class="highlighter-rouge">gitw</code> directly from command line</li>
+  <li>You may have aliased common git command to a shorter command (e.g. <code class="highlighter-rouge">alias gpr='git pull --rebase'</code>) or shell plugins have done the same thing for you, in that case you need to put <code class="highlighter-rouge">alias git='gitw'</code> in your shell initialization file. Also you probably need to give <code class="highlighter-rouge">gitw</code> the same command line completion as original git, so put <code class="highlighter-rouge">compdef gitw=git</code> in shell init file too.</li>
+  <li>Add still-want-ignore-even-tracked files to <code class="highlighter-rouge">.gitignore</code> per git working directory, most likely you need to add .gitignore to <code class="highlighter-rouge">.gitignore</code> as well</li>
+</ul>
+
+<h3 id="explanation">Explanation</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="k">if</span> <span class="o">[[</span> ! -d <span class="s1">'.git'</span> <span class="o">]]</span>; <span class="k">then</span>
+	<span class="se">\g</span>it <span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span>
+	<span class="nb">exit</span> <span class="nv">$?</span>
+<span class="k">fi
+
+</span>mkdir -p .git/w</code></pre></figure>
+
+<p>This script should not work on <code class="highlighter-rouge">git clone</code> or <code class="highlighter-rouge">git init</code>, so it will pass command arguments directly to original git then exit if we are not under a git working directory.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">mkdir -p .git/w</code></pre></figure>
+
+<p>This script preserves local change to a directory named <code class="highlighter-rouge">w</code> under <code class="highlighter-rouge">.git</code>, which will be created here if not exists.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">original_command</span><span class="o">=</span><span class="sb">`</span><span class="se">\g</span>it <span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span> -h 2&gt;&amp;1 | head -n 1 | awk <span class="s1">'{print $3}'</span><span class="sb">`</span></code></pre></figure>
+
+<p>In following steps we need to pattern match git command to decide whether we wrap specific git command or not, but you probably already alias git command to a shorter name (eg. <code class="highlighter-rouge">co = checkout</code>, <code class="highlighter-rouge">di = diff</code>). We extract original git command by parsing <code class="highlighter-rouge">git &lt;command_or_alias&gt; -h</code>.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="k">function </span>ignored_dirty_index_func<span class="o">()</span> <span class="o">{</span>
+	<span class="k">for </span>dirty_file <span class="k">in</span> <span class="sb">`</span><span class="se">\g</span>it status --porcelain | awk <span class="s1">'{print $2}'</span><span class="sb">`</span>; <span class="k">do</span>
+		<span class="se">\g</span>it check-ignore -q --no-index <span class="nv">$dirty_file</span>
+		<span class="k">if</span> <span class="o">[[</span> <span class="nv">$?</span> -eq 0 <span class="o">]]</span>; <span class="k">then
+		  </span><span class="nb">echo</span> <span class="nv">$dirty_file</span>
+		<span class="k">fi
+	done</span>
+<span class="o">}</span>
+<span class="nv">ignored_dirty_index</span><span class="o">=</span><span class="sb">`</span>ignored_dirty_index_func<span class="sb">`</span></code></pre></figure>
+
+<p>This function here identifies local changed files need to be ignored. We use porcelain version<sup>[<a href="http://git-scm.com/book/en/Git-Internals-Plumbing-and-Porcelain">0</a>]</sup> of <code class="highlighter-rouge">git status</code> (to list all local changed files) cross check with <code class="highlighter-rouge">git check-ignore</code> (to check if each file is ignored) to get a list of files with local changes but we’d like to ignore.</p>
+
+<p>Pay attention to <code class="highlighter-rouge">git check-ignore</code> has a switch <code class="highlighter-rouge">--no-index</code>, meaning not look in the index when undertaking ignore checks. This is exactly what we need for <code class="highlighter-rouge">.gitignore</code> but only exists in <code class="highlighter-rouge">git check-ignore</code><sup>[<a href="http://git-scm.com/docs/git-check-ignore.html">1</a>]</sup>.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$original_command</span><span class="s2">"</span> | grep <span class="s1">'^\(add\|status\|checkout\|pull\|rebase\|merge\|diff\|stash\|reset\|commit\)$'</span> &gt; /dev/null</code></pre></figure>
+
+<p>This script only works on these git commands.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="k">if</span> <span class="o">[[</span> <span class="nv">$?</span> -eq 0 <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="o">[[</span> -n <span class="s2">"</span><span class="nv">$ignored_dirty_index</span><span class="s2">"</span> <span class="o">]]</span>; <span class="k">then
+  </span><span class="nb">echo</span> <span class="s1">'gitw is helping...'</span>
+	<span class="nb">echo</span> <span class="s2">"</span><span class="nv">$ignored_dirty_index</span><span class="s2">"</span> | rsync -R --files-from - . .git/w
+	<span class="nb">echo</span> <span class="s2">"</span><span class="nv">$ignored_dirty_index</span><span class="s2">"</span> | <span class="se">\g</span>it checkout-index -f --stdin
+	<span class="se">\g</span>it <span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span>
+	<span class="nb">echo</span> <span class="s2">"</span><span class="nv">$ignored_dirty_index</span><span class="s2">"</span> | rsync -R --files-from - .git/w .
+<span class="k">else</span>
+	<span class="se">\g</span>it <span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span>
+<span class="k">fi</span></code></pre></figure>
+
+<p>If the current git command lies in commands we should wrap and there are local changes need to be ignored, this script should do the job. At first we copy all the target files to <code class="highlighter-rouge">.git/w</code> with directory structure perserved, then drop local changes for these files before execute original git, finally we recover local changes by copy target files from <code class="highlighter-rouge">.git/w</code> to workspace.</p>
+
+<p>References:</p>
+
+<ul>
+  <li>[0] http://git-scm.com/book/en/Git-Internals-Plumbing-and-Porcelain</li>
+  <li>[1] http://git-scm.com/docs/git-check-ignore.html</li>
+</ul>
+
+<p><br />
+### Update 2016-01-31 22:22:22:
+Thanks to teammate <a href="https://github.com/SuXiaoKai">@SuXiaoKai</a>, <code class="highlighter-rouge">git update-index --assume-unchanged &lt;path&gt;</code> can do this job pretty well.</p>
+
+
+	  ]]></description>
+	</item>
+
+
+</channel>
+</rss>
